@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "lib": ["ES2020"],
+    "module": "es2022",
+    "target": "es2022",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "pretty": true,
+    "skipLibCheck": true,
+    "jsx": "preserve",
+    "resolveJsonModule": true,
+    "removeComments": true,
+    "sourceMap": true,
+    "strict": true
+  },
+  "exclude": ["node_modules", "dist", "keat.config.ts", "keat.config2.ts"]
+}
