@@ -2,16 +2,23 @@ import { command } from "../utils/command.js";
 import { C, print, S } from "../utils/screens.js";
 import { LabelsValidator, MonokleValidator } from "validation";
 import { failure, success } from "./validate.io.js";
+import { readFile } from "fs/promises";
+import { extractK8sResources, File } from "../utils/extract.js";
 
 type Options = {
-  name: string;
+  path: string;
 };
 
 export const validate = command<Options>({
-  command: "validate",
+  command: "validate [path]",
   describe: "Validate your Kubernetes resources",
-  async handler() {
-    const resources = [BAD_RESOURCE];
+  builder(args) {
+    return args.positional("path", { type: "string", demandOption: true });
+  },
+  async handler({ path }) {
+    const content = await readFile(path, "utf8");
+    const file: File = { content, id: path, path };
+    const resources = extractK8sResources([file]);
 
     const validator = new MonokleValidator([LabelsValidator]);
 
