@@ -1,4 +1,4 @@
-import { S } from "../utils/screens.mjs";
+import { S } from "../utils/screens.js";
 
 export const success = () => `
 ${S.success} All resources are valid.
