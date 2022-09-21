@@ -7,10 +7,12 @@ import {
   LabelsValidator,
   MonokleValidator,
   OpenPolicyAgentValidator,
+  processRefs,
   ResourceParser,
   SchemaLoader,
   YamlValidator,
 } from "validation";
+import { ResourceLinksValidator } from "validation/lib/validators/resource-links/validator.js";
 import { command } from "../utils/command.js";
 import { extractK8sResources, File } from "../utils/extract.js";
 import { print } from "../utils/screens.js";
@@ -34,37 +36,13 @@ export const validate = command<Options>({
     const content = await readContent(path);
     const file: File = { content, id: path, path };
     const resources = extractK8sResources([file]);
-    const validator = createValidator();
 
-    await validator.configure([
-      {
-        tool: "labels",
-        enabled: true,
-      },
-      {
-        tool: "yaml-syntax",
-        enabled: true,
-      },
-      {
-        tool: "kubernetes-schema",
-        enabled: true,
-        schemaVersion: "1.24.2",
-      },
-      {
-        tool: "open-policy-agent",
-        enabled: true,
-        plugin: {
-          id: "trivy",
-          enabled: true,
-          wasmSrc: nodePath.join(
-            __dirname,
-            "../../../validation/src/assets/policies/trivy.wasm"
-          ),
-        },
-      },
-    ]);
+    const parser = new ResourceParser();
+    const validator = await createValidator(parser);
 
+    processRefs(resources, parser);
     const response = await validator.validate(resources);
+
     const errorCount = response.runs.reduce(
       (sum, r) => sum + r.results.length,
       0
@@ -78,26 +56,64 @@ export const validate = command<Options>({
   },
 });
 
-function createValidator() {
-  const customParser = new ResourceParser();
-  const yamlValidator = new YamlValidator(customParser);
-  const labelsValidator = new LabelsValidator(customParser);
+async function createValidator(parser: ResourceParser) {
+  const yamlValidator = new YamlValidator(parser);
+  const labelsValidator = new LabelsValidator(parser);
 
   const wasmLoader = new FileWasmLoader();
-  const opaValidator = new OpenPolicyAgentValidator(customParser, wasmLoader);
+  const opaValidator = new OpenPolicyAgentValidator(parser, wasmLoader);
 
   const schemaLoader = new SchemaLoader();
-  const schemaValidator = new KubernetesSchemaValidator(
-    customParser,
-    schemaLoader
-  );
+  const schemaValidator = new KubernetesSchemaValidator(parser, schemaLoader);
 
-  return new MonokleValidator(
-    [labelsValidator, yamlValidator, schemaValidator, opaValidator],
+  const resourceLinksValidator = new ResourceLinksValidator();
+
+  const validator = new MonokleValidator(
+    [
+      labelsValidator,
+      yamlValidator,
+      schemaValidator,
+      opaValidator,
+      resourceLinksValidator,
+    ],
     {
       debug: true,
     }
   );
+
+  await validator.configure([
+    {
+      tool: "labels",
+      enabled: true,
+    },
+    {
+      tool: "resource-links",
+      enabled: true,
+    },
+    {
+      tool: "yaml-syntax",
+      enabled: true,
+    },
+    {
+      tool: "kubernetes-schema",
+      enabled: true,
+      schemaVersion: "1.24.2",
+    },
+    {
+      tool: "open-policy-agent",
+      enabled: true,
+      plugin: {
+        id: "trivy",
+        enabled: true,
+        wasmSrc: nodePath.join(
+          __dirname,
+          "../../../validation/src/assets/policies/trivy.wasm"
+        ),
+      },
+    },
+  ]);
+
+  return validator;
 }
 
 async function readContent(path: string): Promise<string> {
