@@ -10,6 +10,7 @@ export const failure = (
   response: ValidationResponse
 ) => {
   const screen = new Screen()
+    .line()
     .line(`${S.warning} ${validationCount} resources are invalid.`)
     .line();
 
@@ -21,6 +22,8 @@ export const failure = (
     for (const result of run.results) {
       screen.line(`${S.error} [${result.ruleId}] ${result.message.text}`);
     }
+
+    screen.line();
   }
 
   return screen.toString();

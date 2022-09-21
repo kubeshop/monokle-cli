@@ -1,10 +1,24 @@
+import { readFile } from "fs/promises";
+import nodePath from "path";
+import { fileURLToPath } from "url";
+import {
+  FileWasmLoader,
+  KubernetesSchemaValidator,
+  LabelsValidator,
+  MonokleValidator,
+  OpenPolicyAgentValidator,
+  ResourceParser,
+  SchemaLoader,
+  YamlValidator,
+} from "validation";
 import { command } from "../utils/command.js";
+import { extractK8sResources, File } from "../utils/extract.js";
 import { print } from "../utils/screens.js";
 import { streamToPromise } from "../utils/stdin.js";
-import { LabelsValidator, MonokleValidator } from "validation";
 import { failure, success } from "./validate.io.js";
-import { readFile } from "fs/promises";
-import { extractK8sResources, File } from "../utils/extract.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = nodePath.dirname(__filename);
 
 type Options = {
   path: string;
@@ -20,13 +34,35 @@ export const validate = command<Options>({
     const content = await readContent(path);
     const file: File = { content, id: path, path };
     const resources = extractK8sResources([file]);
+    const validator = createValidator();
 
-    const validator = new MonokleValidator([LabelsValidator]);
-
-    await validator.configure({
-      tool: "labels",
-      enabled: true,
-    });
+    await validator.configure([
+      {
+        tool: "labels",
+        enabled: true,
+      },
+      {
+        tool: "yaml-syntax",
+        enabled: true,
+      },
+      {
+        tool: "kubernetes-schema",
+        enabled: true,
+        schemaVersion: "1.24.2",
+      },
+      {
+        tool: "open-policy-agent",
+        enabled: true,
+        plugin: {
+          id: "trivy",
+          enabled: true,
+          wasmSrc: nodePath.join(
+            __dirname,
+            "../../../validation/src/assets/policies/trivy.wasm"
+          ),
+        },
+      },
+    ]);
 
     const response = await validator.validate(resources);
     const errorCount = response.runs.reduce(
@@ -41,6 +77,28 @@ export const validate = command<Options>({
     }
   },
 });
+
+function createValidator() {
+  const customParser = new ResourceParser();
+  const yamlValidator = new YamlValidator(customParser);
+  const labelsValidator = new LabelsValidator(customParser);
+
+  const wasmLoader = new FileWasmLoader();
+  const opaValidator = new OpenPolicyAgentValidator(customParser, wasmLoader);
+
+  const schemaLoader = new SchemaLoader();
+  const schemaValidator = new KubernetesSchemaValidator(
+    customParser,
+    schemaLoader
+  );
+
+  return new MonokleValidator(
+    [labelsValidator, yamlValidator, schemaValidator, opaValidator],
+    {
+      debug: true,
+    }
+  );
+}
 
 async function readContent(path: string): Promise<string> {
   if (path === "") {
