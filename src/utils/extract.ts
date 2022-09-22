@@ -1,4 +1,4 @@
-import { Resource } from "validation";
+import { Resource } from "@monokle/validation";
 import { LineCounter, parseAllDocuments, parseDocument } from "yaml";
 import { createResourceName, createResourceId } from "./resource.js";
 

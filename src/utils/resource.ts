@@ -1,8 +1,8 @@
-import { v5 } from 'uuid';
-import { parse } from 'path';
-import { Resource } from 'validation';
+import { v5 } from "uuid";
+import { parse } from "path";
+import { Resource } from "@monokle/validation";
 
-const RESOURCE_UUID_NAMESPACE = '6fa71997-8aa8-4b89-b987-cec4fd3de770';
+const RESOURCE_UUID_NAMESPACE = "6fa71997-8aa8-4b89-b987-cec4fd3de770";
 
 export const createResourceId = (
   fileId: string,
@@ -11,7 +11,7 @@ export const createResourceId = (
   namespace?: string | null
 ): string => {
   return v5(
-    `${fileId}${kind}${name}${namespace || ''}`,
+    `${fileId}${kind}${name}${namespace || ""}`,
     RESOURCE_UUID_NAMESPACE
   );
 };
@@ -34,7 +34,7 @@ export function createResourceName(
 
   try {
     //  metadata name
-    return typeof content.metadata.name === 'string'
+    return typeof content.metadata.name === "string"
       ? content.metadata.name.trim()
       : JSON.stringify(content.metadata.name).trim();
   } catch (error) {
@@ -48,6 +48,6 @@ export function getResourcesForPath(
   resourceMap: Record<string, Resource>
 ) {
   return Object.values(resourceMap).filter(
-    resource => resource?.filePath === filePath
+    (resource) => resource?.filePath === filePath
   );
 }

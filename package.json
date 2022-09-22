@@ -1,5 +1,5 @@
 {
-  "name": "monokle-cli",
+  "name": "@monokle/cli",
   "version": "0.1.0",
   "description": "Monokle validation and more through the CLI",
   "main": "./dist/main.js",
@@ -47,7 +47,7 @@
     "log-symbols": "5.1.0",
     "strands": "1.0.1",
     "uuid": "9.0.0",
-    "validation": "*",
+    "@monokle/validation": "*",
     "yaml": "2.1.1",
     "yargs": "17.5.1"
   }

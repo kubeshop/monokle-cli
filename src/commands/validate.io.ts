@@ -1,4 +1,4 @@
-import { ValidationResponse } from "validation";
+import { ValidationResponse } from "@monokle/validation";
 import { B, C, S, Screen } from "../utils/screens.js";
 
 export const success = () => `

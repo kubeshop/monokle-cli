@@ -1,6 +1,3 @@
-import { readFile } from "fs/promises";
-import nodePath from "path";
-import { fileURLToPath } from "url";
 import {
   FileWasmLoader,
   KubernetesSchemaValidator,
@@ -8,11 +5,14 @@ import {
   MonokleValidator,
   OpenPolicyAgentValidator,
   processRefs,
+  ResourceLinksValidator,
   ResourceParser,
   SchemaLoader,
   YamlValidator,
-} from "validation";
-import { ResourceLinksValidator } from "validation/lib/validators/resource-links/validator.js";
+} from "@monokle/validation";
+import { readFile } from "fs/promises";
+import nodePath from "path";
+import { fileURLToPath } from "url";
 import { command } from "../utils/command.js";
 import { extractK8sResources, File } from "../utils/extract.js";
 import { print } from "../utils/screens.js";
