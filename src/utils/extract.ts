@@ -25,44 +25,49 @@ export function extractK8sResources(files: File[]): Resource[] {
         continue;
       }
 
-      const resource: Partial<Resource> = {
+      const fileOffset = lineCounter.linePos(document.range[0]).line - 1;
+
+      const resourceBase = {
+        apiVersion: content.apiVersion,
+        kind: content.kind,
+        content,
         fileId: file.id,
         filePath: file.path,
+        fileOffset,
         text: document.toString({ directives: false }),
       };
 
       if (isKubernetesLike(content)) {
         const name = createResourceName(file.path, content, content.kind);
-        Object.assign(resource, {
+        const id = createResourceId(
+          file.id,
+          content.kind,
           name,
-          id: createResourceId(
-            file.id,
-            content.kind,
-            name,
-            content.metadata?.namespace
-          ),
-          namespace: extractNamespace(content),
-          apiVersion: content.apiVersion,
-          kind: content.kind,
-          content,
-        });
+          content.metadata?.namespace
+        );
+        const namespace = extractNamespace(content);
+        const resource = {
+          ...resourceBase,
+          id,
+          name,
+          namespace,
+        };
 
-        resources.push(resource as Resource);
+        resources.push(resource);
       } else if (
         content &&
         isUntypedKustomizationFile(file.path) &&
         documents.length === 1
       ) {
         const name = createResourceName(file.path, content, KUSTOMIZATION_KIND);
-        Object.assign(resource, {
+        const id = createResourceId(file.id, name, KUSTOMIZATION_KIND);
+        const resource = {
+          ...resourceBase,
+          id,
           name,
-          id: createResourceId(file.id, name, KUSTOMIZATION_KIND),
-          apiVersion: content.apiVersion,
-          kind: content.kind,
-          content,
-        });
+        };
 
-        resources.push(resource as Resource);
+        resources.push(resource);
       }
     }
   }
