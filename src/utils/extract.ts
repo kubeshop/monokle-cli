@@ -25,7 +25,8 @@ export function extractK8sResources(files: File[]): Resource[] {
         continue;
       }
 
-      const fileOffset = lineCounter.linePos(document.range[0]).line - 1;
+      const rawFileOffset = lineCounter.linePos(document.range[0]).line ;
+      const fileOffset = rawFileOffset === 1 ? 0 : rawFileOffset;
 
       const resourceBase = {
         apiVersion: content.apiVersion,

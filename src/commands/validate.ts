@@ -34,15 +34,18 @@ export const validate = command<Options>({
     return args
       .option("output", {
         choices: ["pretty", "sarif"] as const,
-        demandOption: true,
-        // default: "pretty" as const,
+        default: "pretty" as const,
         alias: "o",
       })
       .positional("path", { type: "string", demandOption: true });
   },
   async handler({ path, output }) {
     const content = await readContent(path);
-    const file: File = { content, id: path, path };
+    const file: File = {
+      id: path === "" ? "stdin" : path,
+      content,
+      path: path === "" ? "stdin" : path,
+    };
     const resources = extractK8sResources([file]);
 
     const parser = new ResourceParser();

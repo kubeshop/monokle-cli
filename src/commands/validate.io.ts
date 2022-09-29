@@ -12,7 +12,7 @@ export const failure = (
   const screen = new Screen()
     .line()
     .line(
-      B(` ${S.warning} ${validationCount} resources are invalid.`, {
+      B(` ${S.warning} ${validationCount} misconfigurations found.`, {
         padding: 1,
         dimBorder: true,
       })
