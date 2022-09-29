@@ -8,7 +8,7 @@
     "typecheck": "tsc --noEmit",
     "build": "rimraf dist && tsc && chmod +x ./dist/main.js",
     "cli": "./dist/main.js",
-    "dev": "npm run build && npm run cli"
+    "dev": "npm run cli"
   },
   "repository": {
     "type": "git",

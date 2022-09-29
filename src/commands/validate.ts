@@ -24,15 +24,23 @@ const __dirname = nodePath.dirname(__filename);
 
 type Options = {
   path: string;
+  output: "pretty" | "sarif";
 };
 
 export const validate = command<Options>({
   command: "validate [path]",
   describe: "Validate your Kubernetes resources",
   builder(args) {
-    return args.positional("path", { type: "string", demandOption: true });
+    return args
+      .option("output", {
+        choices: ["pretty", "sarif"] as const,
+        demandOption: true,
+        // default: "pretty" as const,
+        alias: "o",
+      })
+      .positional("path", { type: "string", demandOption: true });
   },
-  async handler({ path }) {
+  async handler({ path, output }) {
     const content = await readContent(path);
     const file: File = { content, id: path, path };
     const resources = extractK8sResources([file]);
@@ -48,10 +56,14 @@ export const validate = command<Options>({
       0
     );
 
-    if (errorCount) {
-      print(failure(errorCount, response));
+    if (output === "pretty") {
+      if (errorCount) {
+        print(failure(errorCount, response));
+      } else {
+        print(success());
+      }
     } else {
-      print(success());
+      console.log(JSON.stringify(response, null, 2));
     }
   },
 });
