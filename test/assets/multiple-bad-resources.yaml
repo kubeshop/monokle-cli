@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: panda-blog
+  labels:
+    monokle.io/demo: vanilla-panda-blog
+spec:
+  replicas: "this-should-be-a-number"
+  selector:
+    matchLabels:
+      app: panda-blog
+  template:
+    metadata:
+      labels:
+        app: panda-blog
+    spec:
+      containers:
+        - name: panda-blog
+          image: panda-blog:latest
+          ports:
+            - name: http-web
+              containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: panda-blog
+  labels:
+    monokle.io/demo: vanilla-panda-blog
+spec:
+  selector:
+    app: panda-INCORRECT_REFERENCE
+  ports:
+    - name: http-web
+      protocol: TCP
+      port: "this-should-be-a-number"
+      targetPort: 8080
