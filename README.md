@@ -12,7 +12,7 @@ npm run build
 
 After packages/cli and you can run develop mode.
 
-````
+```
 cd packages/cli
 ```
 

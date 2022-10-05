@@ -45,9 +45,9 @@ export function createResourceName(
 
 export function getResourcesForPath(
   filePath: string,
-  resourceMap: Record<string, Resource>
+  resources: Resource[] | undefined
 ) {
-  return Object.values(resourceMap).filter(
-    (resource) => resource?.filePath === filePath
-  );
+  return resources
+    ? resources.filter(resource => resource.filePath === filePath)
+    : [];
 }
