@@ -1,0 +1,10 @@
+plugins:
+  yaml-syntax: true
+  open-policy-agent: true
+  resource-links: true
+  kubernetes-schema: true
+  labels: true
+rules:
+  open-policy-agent/no-latest-image: "err"
+  open-policy-agent/memory-limit: false
+  open-policy-agent/cpu-limit: false

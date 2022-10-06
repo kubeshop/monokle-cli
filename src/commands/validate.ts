@@ -1,10 +1,12 @@
 import {
-  FileWasmLoader,
   KubernetesSchemaValidator,
   LabelsValidator,
   MonokleValidator,
   OpenPolicyAgentValidator,
+  parseConfig,
   processRefs,
+  readConfig,
+  RemoteWasmLoader,
   ResourceLinksValidator,
   ResourceParser,
   SchemaLoader,
@@ -24,6 +26,7 @@ const __dirname = nodePath.dirname(__filename);
 
 type Options = {
   path: string;
+  config: string;
   output: "pretty" | "sarif";
 };
 
@@ -37,9 +40,14 @@ export const validate = command<Options>({
         default: "pretty" as const,
         alias: "o",
       })
+      .option("config", {
+        type: "string",
+        default: "monokle.validation.yaml",
+        alias: "c",
+      })
       .positional("path", { type: "string", demandOption: true });
   },
-  async handler({ path, output }) {
+  async handler({ path, output, config }) {
     const content = await readContent(path);
     const file: File = {
       id: path === "" ? "stdin" : path,
@@ -49,7 +57,7 @@ export const validate = command<Options>({
     const resources = extractK8sResources([file]);
 
     const parser = new ResourceParser();
-    const validator = await createValidator(parser);
+    const validator = await createValidator(config, parser);
 
     processRefs(resources, parser);
     const response = await validator.validate(resources);
@@ -71,11 +79,11 @@ export const validate = command<Options>({
   },
 });
 
-async function createValidator(parser: ResourceParser) {
+async function createValidator(configPath: string, parser: ResourceParser) {
   const yamlValidator = new YamlValidator(parser);
   const labelsValidator = new LabelsValidator(parser);
 
-  const wasmLoader = new FileWasmLoader();
+  const wasmLoader = new RemoteWasmLoader();
   const opaValidator = new OpenPolicyAgentValidator(parser, wasmLoader);
 
   const schemaLoader = new SchemaLoader();
@@ -96,37 +104,9 @@ async function createValidator(parser: ResourceParser) {
     }
   );
 
-  await validator.configure([
-    {
-      tool: "labels",
-      enabled: true,
-    },
-    {
-      tool: "resource-links",
-      enabled: true,
-    },
-    {
-      tool: "yaml-syntax",
-      enabled: true,
-    },
-    {
-      tool: "kubernetes-schema",
-      enabled: true,
-      schemaVersion: "1.24.2",
-    },
-    {
-      tool: "open-policy-agent",
-      enabled: true,
-      plugin: {
-        id: "trivy",
-        enabled: true,
-        wasmSrc: nodePath.join(
-          __dirname,
-          "../../../validation/src/assets/policies/trivy.wasm"
-        ),
-      },
-    },
-  ]);
+  const data = await readConfig(configPath);
+  const config = parseConfig(validator, data);
+  await validator.configure(config);
 
   return validator;
 }
