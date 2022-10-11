@@ -1,10 +1,10 @@
 plugins:
   yaml-syntax: true
-  open-policy-agent: true
-  resource-links: true
   kubernetes-schema: true
-  labels: true
 rules:
-  open-policy-agent/no-latest-image: "err"
-  open-policy-agent/memory-limit: false
-  open-policy-agent/cpu-limit: false
+  yaml-syntax/no-bad-alias: "err"
+  yaml-syntax/no-bad-directive: false
+  open-policy-agent/no-last-image: ["err", { myConfig: true }]
+settings:
+  kubernetes-schema:
+    schemaVersion: v1.24.2
