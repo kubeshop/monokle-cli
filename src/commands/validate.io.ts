@@ -12,7 +12,7 @@ export const failure = (
   const screen = new Screen()
     .line()
     .line(
-      B(` ${S.warning} ${validationCount} misconfigurations found.`, {
+      B(` ${S.warning} ${validationCount} problems found.`, {
         padding: 1,
         dimBorder: true,
       })
@@ -25,7 +25,10 @@ export const failure = (
     screen.line(C.blue(`Tool: ${run.tool.driver.name}`));
 
     for (const result of run.results) {
-      screen.line(`${S.error} [${result.ruleId}] ${result.message.text}`);
+      const icon = result.level === "error" ? S.error : S.warning;
+      const id = result.ruleId;
+      const message = result.message.text;
+      screen.line(`${icon} [${id}] ${message}`);
     }
 
     screen.line();
