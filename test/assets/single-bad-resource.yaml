@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: panda-blog
+  name: bear-blog
   labels:
-    monokle.io/demo: vanilla-panda-blog
+    monokle.io/demo: vanilla-bear-blog
 spec:
   replicas: "this-should-be-a-number"
   selector:
     matchLabels:
-      app: panda-blog
+      app: bear-blog
   template:
     metadata:
       labels:
-        app: panda-blog
+        app: bear-blog
     spec:
       containers:
-        - name: panda-blog
-          image: panda-blog:latest
+        - name: bear-blog
+          image: bear-blog:latest
           ports:
             - name: http-web
               containerPort: 8080
