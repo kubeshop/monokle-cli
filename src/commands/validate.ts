@@ -59,7 +59,7 @@ export const validate = command<Options>({
 
     if (output === "pretty") {
       if (errorCount) {
-        print(failure(errorCount, response));
+        print(failure(response));
       } else {
         print(success());
       }
