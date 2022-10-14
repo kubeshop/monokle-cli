@@ -37,10 +37,13 @@ export const failure = (response: ValidationResponse) => {
   const icon = errorCount > 0 ? S.error : S.warning;
 
   screen.line(
-    B(` ${icon} ${validationCount} problems found. (${errorCount} errors)`, {
-      padding: 1,
-      dimBorder: true,
-    })
+    B(
+      ` ${icon} ${validationCount} misconfigurations found. (${errorCount} errors)`,
+      {
+        padding: 1,
+        dimBorder: true,
+      }
+    )
   );
 
   return screen.toString();
