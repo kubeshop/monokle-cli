@@ -2,16 +2,15 @@
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { validate } from "./commands/validate.js";
+import fetch from "isomorphic-fetch";
 
-import "isomorphic-fetch";
-import "abort-controller/polyfill.js";
+(global as any).fetch = fetch;
+import "abortcontroller-polyfill/dist/polyfill-patch-fetch.js";
 
-await yargs(hideBin(process.argv))
+yargs(hideBin(process.argv))
   .parserConfiguration({
     "greedy-arrays": false,
   })
   .command(validate)
   .showHelpOnFail(false)
   .parseAsync();
-
-process.exit(0);

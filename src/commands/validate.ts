@@ -43,7 +43,7 @@ export const validate = command<Options>({
 
     const parser = new ResourceParser();
 
-    const validator = createDefaultMonokleValidator();
+    const validator = createDefaultMonokleValidator(parser);
     const config = await readConfig(configPath);
     await validator.preload({ file: config });
 

@@ -2,14 +2,25 @@
   "name": "@monokle/cli",
   "version": "0.1.0",
   "description": "Monokle validation and more through the CLI",
-  "main": "./dist/main.js",
+  "main": "./build/main.js",
   "type": "module",
+  "bin": {
+    "monokle": "./build/main.js"
+  },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "build": "rimraf dist && tsc && chmod +x ./dist/main.js",
-    "cli": "./dist/main.js",
-    "dev": "npm run cli"
+    "dev": "npm run cli",
+    "build": "npm-run-all build:*",
+    "build:1": "rimraf build && mkdir build",
+    "build:2": "tsc",
+    "build:3": "chmod +x ./build/main.js",
+    "dist": "npm-run-all build:* dist:*",
+    "dist:1": "rimraf dist && mkdir dist",
+    "dist:2": "caxa --input . --output './dist/monokle' -- '{{caxa}}/node_modules/.bin/node' '{{caxa}}/build/main.js'"
   },
+  "files": [
+    "build"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kubeshop/monokle-core.git"
@@ -35,18 +46,20 @@
     "@types/uuid": "8.3.4",
     "@types/yaml": "1.9.7",
     "@types/yargs": "17.0.12",
+    "caxa": "3.0.1",
+    "npm-run-all": "4.1.5",
     "rimraf": "3.0.2",
     "turbo": "1.4.7",
     "typescript": "4.8.3"
   },
   "dependencies": {
     "@monokle/validation": "*",
-    "abort-controller": "3.0.0",
+    "abortcontroller-polyfill": "1.7.5",
     "boxen": "7.0.0",
     "chalk": "5.0.1",
     "clear": "0.1.0",
-    "isomorphic-fetch": "3.0.0",
     "log-symbols": "5.1.0",
+    "node-fetch": "3.2.10",
     "strands": "1.0.1",
     "tiny-glob": "0.2.9",
     "uuid": "9.0.0",
