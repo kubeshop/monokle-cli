@@ -1,4 +1,5 @@
-import { ValidationResponse } from "@monokle/validation";
+import { getRuleForResult, ValidationResponse } from "@monokle/validation";
+import groupBy from "lodash/groupBy.js";
 import { B, C, S, Screen } from "../utils/screens.js";
 
 export const success = () => `
@@ -8,16 +9,21 @@ ${S.success} All resources are valid.
 export const failure = (response: ValidationResponse) => {
   const screen = new Screen();
 
-  for (const run of response.runs) {
-    if (run.results.length === 0) continue;
+  const allResults = response.runs.flatMap((r) => r.results);
+  const groupedResults = groupBy(allResults, (r) => {
+    const location = r.locations[1]?.logicalLocations?.[0]?.fullyQualifiedName;
+    return location ?? "unknown";
+  });
 
-    screen.line(C.blue(`Tool: ${run.tool.driver.name}`));
+  for (const [location, results] of Object.entries(groupedResults)) {
+    screen.line(C.bold(location));
 
-    for (const result of run.results) {
+    for (const result of results) {
+      const color = result.level === "error" ? C.red : C.yellow;
       const icon = result.level === "error" ? S.error : S.warning;
-      const id = result.ruleId;
+      const rule = getRuleForResult(response, result);
       const message = result.message.text;
-      screen.line(`${icon} [${id}] ${message}`);
+      screen.line(`${color(`[${icon} ${rule.name}]`)} ${message}`);
     }
 
     screen.line();

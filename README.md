@@ -96,7 +96,7 @@ kustomize build kustomize-dir/overlays/local | monokle validate -
 monokle validate --output sarif k8s-dir > results.sarif
 ```
 
-Afterwards you could use [VSC's SARIF Viewer](vsc-sarif) or other tools to inspect the results.
+Afterwards you could use [VSC's SARIF Viewer][vsc-sarif] or other tools to inspect the results.
 
 ## Configuration
 
