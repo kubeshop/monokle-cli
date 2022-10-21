@@ -44,10 +44,10 @@ First create a build (i.e. JavaScript) **at the root of the repository:**
 npm run build
 ```
 
-
 **Publish on NPM**
 
 ```bash
+cd packages/cli
 npm publish --access public
 ```
 
