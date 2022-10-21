@@ -14,7 +14,7 @@
     "build:1": "rimraf build && mkdir build",
     "build:2": "tsc",
     "build:3": "chmod +x ./build/main.js",
-    "dist": "npm-run-all build:* dist:*",
+    "dist": "npm-run-all dist:*",
     "dist:1": "rimraf dist && mkdir dist",
     "dist:2": "caxa --input . --output './dist/monokle' -- '{{caxa}}/node_modules/.bin/node' '{{caxa}}/build/main.js'"
   },

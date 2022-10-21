@@ -38,25 +38,45 @@ note: Programmatic tests should be added in the future.
 
 ## Publication
 
-Create both a build and a distribution by executing:
+First create a build (i.e. JavaScript) **at the root of the repository:**
 
 ```
-npm run dist
+npm run build
 ```
 
-note: `/build` contains JavaScript output, `/dist` contains an executable binary.
-note: Our dist tool `caxa` does not make cross-platform builds. We should look into GitHub Actions or wait until vercel/pkg v6 is released.
 
-Publish on NPM
+**Publish on NPM**
 
 ```bash
 npm publish --access public
 ```
 
-Publish on Brew
+**Publish on Brew**
+
+1. You will need to create a distribution from the build (i.e. a executable binary):
 
 ```
+cd packages/cli
+npm run dist
+```
+
+note: Our dist tool `caxa` does not make cross-platform builds. We should look into GitHub Actions or wait until vercel/pkg v6 is released.
+
+1. Aftewards prepare a TAR archive:
 
 ```
+cd dist
+tar -czf monokle.tar.gz monokle
+```
+
+2. Then generate the binary's SHA, you will need it in a bit:
+
+```
+shasum -a 256 monokle.tar.gz
+```
+
+1. Now create a GitHub Release with the TAR archive as attached binary.
+
+2. Finally you go to kubeshop/homebrew-monokle repository and update Formula/monokle-cli.rb with the new `url`, `sha256` and `version`.
 
 note: distribution of Linux and Windows executables is still missing. For now they should use the NPM package with their local NodeJs.

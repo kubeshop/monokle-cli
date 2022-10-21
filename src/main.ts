@@ -8,6 +8,7 @@ import fetch from "isomorphic-fetch";
 import "abortcontroller-polyfill/dist/polyfill-patch-fetch.js";
 
 yargs(hideBin(process.argv))
+  .scriptName("monokle")
   .parserConfiguration({
     "greedy-arrays": false,
   })
