@@ -57,7 +57,8 @@ We recommend using the LTS NodeJs version.
 On MacOS you can simply install it with brew:
 
 ```bash
-brew install @monokle/cli
+brew tap kubeshop/monokle
+brew install monokle-cli
 ```
 
 You can expect a convenient binary for Windows and Linux soon.
