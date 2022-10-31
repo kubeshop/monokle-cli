@@ -45,7 +45,7 @@ export const validate = command<Options>({
 
     const validator = createDefaultMonokleValidator(parser);
     const config = await readConfig(configPath);
-    await validator.preload({ file: config });
+    await validator.preload(config);
 
     processRefs(resources, parser);
     const response = await validator.validate({ resources });
