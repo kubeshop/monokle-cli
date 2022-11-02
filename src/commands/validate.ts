@@ -1,14 +1,14 @@
 import {
-  createDefaultMonokleValidator,
+  createExtensibleNodeMonokleValidator,
   processRefs,
   readConfig,
   ResourceParser,
 } from "@monokle/validation";
 import { lstatSync } from "fs";
 import { readFile as readFileFromFs } from "fs/promises";
+import chunkArray from "lodash/chunk.js";
 import glob from "tiny-glob";
 import { command } from "../utils/command.js";
-import chunkArray from "lodash/chunk.js";
 import { extractK8sResources, File } from "../utils/extract.js";
 import { print } from "../utils/screens.js";
 import { streamToPromise } from "../utils/stdin.js";
@@ -43,7 +43,7 @@ export const validate = command<Options>({
 
     const parser = new ResourceParser();
 
-    const validator = createDefaultMonokleValidator(parser);
+    const validator = createExtensibleNodeMonokleValidator(parser);
     const config = await readConfig(configPath);
     await validator.preload(config);
 

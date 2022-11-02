@@ -1,6 +1,9 @@
 plugins:
   yaml-syntax: true
+  open-policy-agent: true
+  resource-links: true
   kubernetes-schema: true
+  annotations: true
 rules:
   yaml-syntax/no-bad-alias: "warn"
   yaml-syntax/no-bad-directive: false
