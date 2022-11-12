@@ -64,6 +64,8 @@ export function extractK8sResources(files: File[]): Resource[] {
         const id = createResourceId(file.id, name, KUSTOMIZATION_KIND);
         const resource = {
           ...resourceBase,
+          kind: KUSTOMIZATION_KIND,
+          apiVersion: KUSTOMIZATION_API_GROUP,
           id,
           name,
         };
