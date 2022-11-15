@@ -47,7 +47,7 @@ export const validate = command<Options>({
     const config = await readConfig(configPath);
     await validator.preload(config);
 
-    processRefs(resources, parser);
+    processRefs(resources, parser, undefined, files.map( f => f.path));
     const response = await validator.validate({ resources });
 
     const errorCount = response.runs.reduce(
