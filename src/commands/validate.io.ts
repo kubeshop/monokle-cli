@@ -1,10 +1,43 @@
-import { getRuleForResult, ValidationResponse } from "@monokle/validation";
+import {
+  getRuleForResult,
+  Resource,
+  ValidationResponse,
+} from "@monokle/validation";
 import groupBy from "lodash/groupBy.js";
 import { B, C, S, Screen } from "../utils/screens.js";
 
 export const success = () => `
 ${S.success} All resources are valid.
 `;
+
+export const displayInventory = (allResources: Resource[]) => {
+  const box = new Screen();
+
+  const groupedResources = groupBy(
+    allResources,
+    (r) => `${r.kind}.${r.apiVersion}`
+  );
+
+  for (const [kind, resources] of Object.entries(groupedResources)) {
+    box.line("                                 "); // Box width spacer
+    box.line(`${C.bold(kind)} (${resources.length})`);
+
+    for (const resource of resources) {
+      box.line(` - ${resource.name}`);
+    }
+  }
+
+  const screen = new Screen();
+  screen.line();
+  screen.line(
+    B(box.toString(), {
+      title: "Inventory",
+      padding: { left: 1, right: 1, bottom: 0, top: 0 },
+    })
+  );
+  screen.line();
+  return screen.toString();
+};
 
 export const failure = (response: ValidationResponse) => {
   const screen = new Screen();

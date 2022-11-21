@@ -12,11 +12,12 @@ import { command } from "../utils/command.js";
 import { extractK8sResources, File } from "../utils/extract.js";
 import { print } from "../utils/screens.js";
 import { streamToPromise } from "../utils/stdin.js";
-import { failure, success } from "./validate.io.js";
+import { displayInventory, failure, success } from "./validate.io.js";
 
 type Options = {
   path: string;
   config: string;
+  inventory: boolean;
   output: "pretty" | "sarif";
 };
 
@@ -35,19 +36,32 @@ export const validate = command<Options>({
         default: "monokle.validation.yaml",
         alias: "c",
       })
+      .option("inventory", {
+        type: "boolean",
+        description: "Prints all inventory.",
+        default: false,
+      })
       .positional("path", { type: "string", demandOption: true });
   },
-  async handler({ path, output, config: configPath }) {
+  async handler({ path, output, inventory, config: configPath }) {
     const files = await readFiles(path);
     const resources = extractK8sResources(files);
 
-    const parser = new ResourceParser();
+    if (inventory) {
+      print(displayInventory(resources));
+    }
 
+    const parser = new ResourceParser();
     const validator = createExtensibleNodeMonokleValidator(parser);
     const config = await readConfig(configPath);
     await validator.preload(config);
 
-    processRefs(resources, parser, undefined, files.map( f => f.path));
+    processRefs(
+      resources,
+      parser,
+      undefined,
+      files.map((f) => f.path)
+    );
     const response = await validator.validate({ resources });
 
     const errorCount = response.runs.reduce(
