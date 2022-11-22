@@ -1,6 +1,6 @@
 {
   "name": "@monokle/cli",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Monokle validation and more through the CLI",
   "main": "./build/main.js",
   "type": "module",
