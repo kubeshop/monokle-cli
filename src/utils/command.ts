@@ -1,14 +1,14 @@
-import { ArgumentsCamelCase, CommandBuilder, CommandModule } from "yargs";
+import type { CommandBuilder, CommandModule } from "yargs";
 
-type CommandInit<TOptions> = {
+type CommandInit<TOptions, THandler> = {
   command: string;
   describe: string;
   builder?: CommandBuilder<{}, TOptions>;
-  handler: (args: ArgumentsCamelCase<TOptions>) => void | Promise<void>;
+  handler: THandler;
 };
 
 export function command<TOptions>(
-  init: CommandInit<TOptions>
+  init: CommandInit<TOptions, CommandModule<{}, TOptions>["handler"]>
 ): CommandModule<{}, TOptions> {
   return init as CommandModule<{}, TOptions>;
 }

@@ -1,6 +1,6 @@
 {
   "name": "@monokle/cli",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Monokle validation and more through the CLI",
   "main": "./build/main.js",
   "type": "module",
@@ -45,7 +45,7 @@
     "@types/node": "18.7.18",
     "@types/uuid": "8.3.4",
     "@types/yaml": "1.9.7",
-    "@types/yargs": "17.0.12",
+    "@types/yargs": "17.0.15",
     "caxa": "3.0.1",
     "npm-run-all": "4.1.5",
     "rimraf": "3.0.2",
