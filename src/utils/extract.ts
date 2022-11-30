@@ -21,7 +21,7 @@ export function extractK8sResources(files: File[]): Resource[] {
     for (const document of documents) {
       const content = document.toJS();
 
-      if (document.errors.length) {
+      if (document.errors.length || !content) {
         continue;
       }
 
