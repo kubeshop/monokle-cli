@@ -36,12 +36,20 @@ kustomize build kustomize-happy-cms/overlays/local | monokle validate -
 note: Development on Windows might need some adjustments.
 note: Programmatic tests should be added in the future.
 
-## Publication
+## Manual publication
 
-First create a build (i.e. JavaScript) **at the root of the repository:**
+_note: ideally you use changeset to release this. These steps are as a backup._
+
+First bump the version manually in package.json.
 
 ```
-npm run build
+vim packages/cli/package.json
+```
+
+Then create a build (i.e. JavaScript) **at the root of the repository:**
+
+```
+npm install && npm run build
 ```
 
 **Publish on NPM**
