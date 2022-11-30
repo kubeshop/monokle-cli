@@ -27,7 +27,6 @@ Under the hood it uses [@monokle/validation][monokle-validation] which allows yo
 - [Table of content](#table-of-content)
 - [Installation](#installation)
   - [Install as NPM package](#install-as-npm-package)
-  - [\[alpha\] Install as executable binary](#alpha-install-as-executable-binary)
 - [Usage](#usage)
   - [Validate a YAML file](#validate-a-yaml-file)
   - [Validate a directory](#validate-a-directory)
@@ -51,17 +50,6 @@ npm install --global @monokle/cli
 ```
 
 We recommend using the LTS NodeJs version.
-
-### [alpha] Install as executable binary
-
-On MacOS you can simply install it with brew:
-
-```bash
-brew tap kubeshop/monokle
-brew install monokle-cli
-```
-
-You can expect a convenient binary for Windows and Linux soon.
 
 ## Usage
 
