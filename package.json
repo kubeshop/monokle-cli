@@ -35,7 +35,7 @@
   "bugs": {
     "url": "https://github.com/kubeshop/monokle-core/issues"
   },
-  "homepage": "https://github.com/kubeshop/monokle-core/packages/cli#readme",
+  "homepage": "https://github.com/kubeshop/monokle-core/tree/main/packages/cli",
   "devDependencies": {
     "@types/clear": "0.1.2",
     "@types/isomorphic-fetch": "0.0.36",
