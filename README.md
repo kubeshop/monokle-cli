@@ -3,17 +3,12 @@
 </p>
 
 <p align="center">
-<a href="https://github.com/features/actions">Monokle CLI</a>
-for <a href="">static Kubernetes analysis</a>
-</p>
-
-<p align="center">
   <a href="https://github.com/kubeshop/monokle-core/tree/main/packages/validation">
     <img title="mit licence" src="https://img.shields.io/badge/License-MIT-yellow.svg"/>
   </a>
 </p>
 
-## Welcome to Monokle CLI
+# Welcome to Monokle CLI
 
 Monokle CLI is a command-line interface for static analysis of Kubernetes resources.
 
@@ -27,17 +22,17 @@ Monokle CLI includes built-in validators for
 
 Under the hood it uses [@monokle/validation][monokle-validation] which allows you to configure validation rules extensively.
 
-## Table of content
+Check out the [announcement blog-post](https://monokle.io/blog/monokle-cli-flexible-kubernetes-yaml-validation) for an overview of all features.
 
-- [Welcome to Monokle CLI](#welcome-to-monokle-cli)
-- [Table of content](#table-of-content)
+## Table of contents
+
 - [Installation](#installation)
 - [Usage](#usage)
   - [Validate a YAML file](#validate-a-yaml-file)
   - [Validate a directory](#validate-a-directory)
   - [Validate a templated Helm chart](#validate-a-templated-helm-chart)
   - [Validate a Kustomize build](#validate-a-kustomize-build)
-  - [Validate as SARIF analysis](#validate-as-sarif-analysis)
+  - [Generate SARIF analysis](#generate-sarif-analysis)
 - [Configuration](#configuration)
   - [Command-line arguments](#command-line-arguments)
   - [@monokle/validation rules](#monoklevalidation-rules)
