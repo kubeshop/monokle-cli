@@ -123,7 +123,7 @@ settings:
 
 ### Custom validators
 
-It is easy to extend the Monokle CLI with custom validators that can be shared with others using
+It is easy to extend the Monokle CLI with [custom validators](../validation/docs/custom-plugins.md) that can be shared with others using
 our [Monokle Community Plugins][monokle-community-plugins] repository. 
 
 ## GitHub Action
