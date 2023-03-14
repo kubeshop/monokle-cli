@@ -1,1 +1,62 @@
+name: Build Monokle Api
+env:
+  repo_name: kubeshop/monokle-saas-backend
+  GKE_CLUSTER_NAME: prod-saas
+  GKE_ZONE: us-east1-c
+
+on:
+  workflow_dispatch: 
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+
+
+    strategy:
+      matrix:
+        node-version: [16.15.1]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm install
+      - name: Build app
+        run: npm run build
+      - name: Create macOS arm binary
+        run: pkg package.json --targets node14-macos-arm64 --output app-arm
+      - name: Create macOS amd64 binary
+        run: pkg package.json --targets node14-macos-x64 --output app-amd64
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v1.0.0 # specify your release tag name here
+          release_name: Release v1.0.0 # specify your release name here
+          draft: false
+          prerelease: false
+      - name: Upload macOS arm binary to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./app-arm
+          asset_name: app-arm
+          asset_content_type: application/octet-stream
+      - name: Upload macOS amd64 binary to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./app-amd64
+          asset_name: app-amd64
+          asset_content_type: application/octet-stream
 
