@@ -18,6 +18,8 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
+      - name: Install Ldid
+        run: apt update && apt install ldid
       - name: Install pkg
         run: npm install -g pkg
       - name: Install dependencies
@@ -26,12 +28,12 @@ jobs:
         run: npm run build
       - name: Create macOS arm binary
         run: pkg package.json --targets node14-macos-arm64 --output monokle-cli-arm
-      - name: Code-sign macOS arm binary
-        run: codesign --sign - ./monokle-cli-arm
+#       - name: Code-sign macOS arm binary
+#         run: codesign --sign - ./monokle-cli-arm
       - name: Create macOS amd64 binary
         run: pkg package.json --targets node14-macos-x64 --output monokle-cli-amd64
-      - name: Code-sign macOS amd64 binary
-        run: codesign --sign - ./monokle-cli-amd64
+#       - name: Code-sign macOS amd64 binary
+#         run: codesign --sign - ./monokle-cli-amd64
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
