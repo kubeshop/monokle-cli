@@ -1,4 +1,4 @@
-name: Build Monokle Api
+name: Build Monokle-cli
 env:
   repo_name: kubeshop/monokle-saas-backend
   GKE_CLUSTER_NAME: prod-saas
