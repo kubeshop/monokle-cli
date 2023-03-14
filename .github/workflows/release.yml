@@ -1,8 +1,4 @@
 name: Build Monokle-cli
-env:
-  repo_name: kubeshop/monokle-saas-backend
-  GKE_CLUSTER_NAME: prod-saas
-  GKE_ZONE: us-east1-c
 
 on:
   workflow_dispatch: 
