@@ -32,7 +32,7 @@ jobs:
 #       - name: Code-sign macOS arm binary
 #         run: codesign --sign - ./monokle-cli-arm
       - name: Create macOS amd64 binary
-        run: pkg src/main.ts --targets node16-macos-x64 --output monokle-cli-amd64
+        run: pkg src/main.ts --targets node16-macos-x64 --output monokle-cli
 #       - name: Code-sign macOS amd64 binary
 #         run: codesign --sign - ./monokle-cli-amd64
       - name: Finn all files
@@ -43,8 +43,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v1.0.2
-          release_name: Release v1.0.2
+          tag_name: v1.0.3
+          release_name: Release v1.0.3
           draft: false
           prerelease: false
       - name: Upload macOS arm binary to Release
@@ -53,8 +53,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./app-arm
-          asset_name: app-arm
+          asset_path: ./monokle-cli
+          asset_name: monokle-cli
           asset_content_type: application/octet-stream
       - name: Upload macOS amd64 binary to Release
         uses: actions/upload-release-asset@v1
