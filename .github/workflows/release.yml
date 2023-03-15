@@ -21,6 +21,8 @@ jobs:
 
       - name: Install pkg
         run: npm install -g pkg
+      - name: Install Rosetta
+        run: softwareupdate --install-rosetta
       - name: Install dependencies
         run: npm install
       - name: Build app
