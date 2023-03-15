@@ -32,7 +32,7 @@ jobs:
 #       - name: Code-sign macOS arm binary
 #         run: codesign --sign - ./monokle-cli-arm
       - name: Create macOS amd64 binary
-        run: pkg main.ts --targets node16-macos-x64 --output monokle-cli-amd64
+        run: pkg src/main.ts --targets node16-macos-x64 --output monokle-cli-amd64
 #       - name: Code-sign macOS amd64 binary
 #         run: codesign --sign - ./monokle-cli-amd64
       - name: Finn all files
