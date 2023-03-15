@@ -33,8 +33,8 @@ jobs:
 #         run: codesign --sign - ./monokle-cli-arm
       - name: Create macOS amd64 binary
         run: pkg package.json --targets node16-macos-x64 --output monokle-cli-amd64
-      - name: Code-sign macOS amd64 binary
-        run: codesign --sign - ./monokle-cli-amd64
+#       - name: Code-sign macOS amd64 binary
+#         run: codesign --sign - ./monokle-cli-amd64
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
