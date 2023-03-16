@@ -1,5 +1,5 @@
 import {
-  createExtensibleNodeMonokleValidator,
+  createExtensibleMonokleValidator,
   processRefs,
   readConfig,
   ResourceParser,
@@ -52,7 +52,7 @@ export const validate = command<Options>({
     }
 
     const parser = new ResourceParser();
-    const validator = createExtensibleNodeMonokleValidator(parser);
+    const validator = createExtensibleMonokleValidator(parser);
     const config = await readConfig(configPath);
     await validator.preload(config);
 

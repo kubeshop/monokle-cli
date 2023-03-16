@@ -10,13 +10,14 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "dev": "npm run cli",
+    "rollup": "rollup -c",
     "build": "npm-run-all build:*",
     "build:1": "rimraf build && mkdir build",
     "build:2": "tsc",
     "build:3": "chmod +x ./build/main.js",
     "dist": "npm-run-all dist:*",
     "dist:1": "rimraf dist && mkdir dist && rimraf cjs",
-    "dist:2": "rollup -c && pkg cjs/main.cjs --output dist/monokle",
+    "dist:2": "npm run rollup && pkg cjs/main.cjs --output dist/monokle",
     "predist": "npm run build"
   },
   "files": [
@@ -57,7 +58,7 @@
     "typescript": "4.8.3"
   },
   "dependencies": {
-    "@monokle/validation": "0.13.0",
+    "@monokle/validation": "0.15.1",
     "abortcontroller-polyfill": "1.7.5",
     "boxen": "7.0.0",
     "chalk": "5.0.1",
