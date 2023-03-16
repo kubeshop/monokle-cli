@@ -19,25 +19,15 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Install pkg
-        run: npm install -g pkg
-#       - name: Install Rosetta
-#         run: softwareupdate --install-rosetta
+
       - name: Install dependencies
         run: npm install
-      - name: Build app
-        run: npm run build
-      - name: Rollup
-        run:  brew install rollup && rollup -c 
-#       - name: Create macOS arm binary
-#         run: pkg package.json --targets node16-macos-arm64 --output monokle-cli-arm --no-bytecode
-#       - name: Code-sign macOS arm binary
-#         run: codesign --sign - ./monokle-cli-arm
-      - name: Create macOS amd64 binary
-#        run: pkg src/main.ts --targets node16-macos-x64 --output monokle-cli
-        run:  pkg cjs/main.cjs --target node14-macos-x64 --output monokle-cli --no-bytecode --public
-#       - name: Code-sign macOS amd64 binary
-#         run: codesign --sign - ./monokle-cli-amd64
+      - name: Package
+        run: npm run package
+      - name: Code-sign macOS binaries
+        run: |
+          codesign --sign - ./dist/monokle-cli-macos-amd64
+          codesign --sign - ./dist/monokle-cli-macos-arm
       - name: Finn all files
         run: find .
       - name: Create GitHub Release
