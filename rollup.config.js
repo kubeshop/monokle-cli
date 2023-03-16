@@ -11,12 +11,13 @@ export default {
     inlineDynamicImports: true,
   },
   plugins: [
-    json(),
     commonjs(),
+    json(),
     nodeResolve({
       exportConditions: ['node'],
       browser: false,
       preferBuiltins: true,
     }),
-  ]
+  ],
+  external: ['fsevents']
 };
