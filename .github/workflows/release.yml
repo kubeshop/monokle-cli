@@ -27,12 +27,15 @@ jobs:
         run: npm install
       - name: Build app
         run: npm run build
+      - name: Rollup
+        run:  npm run rollup 
 #       - name: Create macOS arm binary
 #         run: pkg package.json --targets node16-macos-arm64 --output monokle-cli-arm --no-bytecode
 #       - name: Code-sign macOS arm binary
 #         run: codesign --sign - ./monokle-cli-arm
       - name: Create macOS amd64 binary
-        run: pkg src/main.ts --targets node16-macos-x64 --output monokle-cli
+#        run: pkg src/main.ts --targets node16-macos-x64 --output monokle-cli
+        run:  pkg cjs/main.cjs --target node14-macos-x64 --output monokle-cli --no-bytecode --public
 #       - name: Code-sign macOS amd64 binary
 #         run: codesign --sign - ./monokle-cli-amd64
       - name: Finn all files
