@@ -18,14 +18,10 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-
-
       - name: Install dependencies
         run: npm install
       - name: Package
         run: npm run package
-#       - name: Code-sign macOS binaries
-#         run: codesign --sign - ./dist/monokle-cli-macos-arm
       - name: Finn all files
         run: find .
       - name: Create GitHub Release
@@ -34,8 +30,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v1.0.3
-          release_name: Release v1.0.3
+          tag_name: v1.0.4
+          release_name: Release v1.0.4
           draft: false
           prerelease: false
       - name: Upload macOS amd binary to Release
@@ -44,16 +40,34 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./monokle-cli
-          asset_name: monokle-cli
+          asset_path: ./dist/monokle-cli-macos-amd64
+          asset_name: monokle-cli-macos-amd64
           asset_content_type: application/octet-stream
-#       - name: Upload macOS amd64 binary to Release
-#         uses: actions/upload-release-asset@v1
-#         env:
-#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#         with:
-#           upload_url: ${{ steps.create_release.outputs.upload_url }}
-#           asset_path: ./app-amd64
-#           asset_name: app-amd64
-#           asset_content_type: application/octet-stream
 
+      - name: Upload macOS amd binary to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/monokle-cli-macos-arm
+          asset_name: monokle-cli-macos-arm
+          asset_content_type: application/octet-stream
+      - name: Upload macOS amd binary to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/monokle-cli-linux
+          asset_name: monokle-cli-linux
+          asset_content_type: application/octet-stream
+      - name: Upload macOS amd binary to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/monokle-cli-win.exe
+          asset_name: monokle-cli-win.exe
+          asset_content_type: application/octet-stream
