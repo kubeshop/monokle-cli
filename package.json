@@ -11,14 +11,16 @@
     "typecheck": "tsc --noEmit",
     "dev": "npm run cli",
     "rollup": "rollup -c",
+    "package": " npm-run-all package:*",
+    "package:macos-arm": "pkg cjs/main.cjs --target node16-macos-arm64 --output dist/monokle-cli-macos-arm",
+    "package:macos-x64": "pkg cjs/main.cjs --target node16-macos-x64 --output dist/monokle-cli-macos-amd64",
+    "package:linux": "pkg cjs/main.cjs --target node16-linux --output dist/monokle-cli-linux",
+    "package:win": "pkg cjs/main.cjs --target node16-win --output dist/monokle-cli-win",
     "build": "npm-run-all build:*",
     "build:1": "rimraf build && mkdir build",
     "build:2": "tsc",
     "build:3": "chmod +x ./build/main.js",
-    "dist": "npm-run-all dist:*",
-    "dist:1": "rimraf dist && mkdir dist && rimraf cjs",
-    "dist:2": "npm run rollup && pkg cjs/main.cjs --output dist/monokle",
-    "predist": "npm run build"
+    "prepackage": "rimraf build cjs dist && npm run build && npm run rollup"
   },
   "files": [
     "build"
