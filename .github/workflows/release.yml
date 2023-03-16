@@ -28,7 +28,7 @@ jobs:
       - name: Build app
         run: npm run build
       - name: Rollup
-        run:  rollup -c 
+        run:  brew install rollup && rollup -c 
 #       - name: Create macOS arm binary
 #         run: pkg package.json --targets node16-macos-arm64 --output monokle-cli-arm --no-bytecode
 #       - name: Code-sign macOS arm binary
