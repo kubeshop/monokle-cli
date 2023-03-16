@@ -26,7 +26,7 @@ jobs:
         run: npm run package
       - name: Code-sign macOS binaries
         run: |
-          codesign --sign - ./dist/monokle-cli-macos-amd64
+#          codesign --sign - ./dist/monokle-cli-macos-amd64
           codesign --sign - ./dist/monokle-cli-macos-arm
       - name: Finn all files
         run: find .
