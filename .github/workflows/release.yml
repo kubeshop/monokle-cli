@@ -28,7 +28,6 @@ jobs:
       - name: Build compressed archive files
         id: archive
         run: | 
-          find .
           cp dist/monokle-cli-macos-amd64 monokle
           tar -cvzf monokle-amd64.tar.gz monokle
           rm -f monokle
@@ -38,6 +37,8 @@ jobs:
           ARM_SHA=$(shasum -a 256 monokle-arm.tar.gz | awk '{print $1}')
           echo "::set-output name=AMD_SHA::$AMD_SHA"
           echo "::set-output name=ARM_SHA::$ARM_SHA"
+          VERSION=$( echo ${{ github.ref }} | cut -c2- )
+          echo "::set-output name=VERSION::$VERSION"
           
       - name: Create GitHub Release
         id: create_release
@@ -110,7 +111,7 @@ jobs:
         env:
           HOMEBREW_MONOKLE_TOKEN: ${{ secrets.HOMEBREW_MONOKLE_TOKEN }}
         run: |
-          sed -i.bak "s#VERSION#1.0.7#g" manifest/monokle-cli.rb
+          sed -i.bak "s#VERSION#${{ steps.archive.outputs.VERSION }}#g" manifest/monokle-cli.rb
           sed -i.bak "s#AMD_URL#${{ steps.amd_file.outputs.browser_download_url }}#g" manifest/monokle-cli.rb
           sed -i.bak "s#ARM_URL#${{ steps.arm_file.outputs.browser_download_url }}#g" manifest/monokle-cli.rb
           sed -i.bak "s#AMD_SHA#${{ steps.archive.outputs.AMD_SHA }}#g" manifest/monokle-cli.rb
