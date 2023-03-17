@@ -117,7 +117,6 @@ jobs:
           sed -i.bak "s#AMD_SHA#${{ steps.archive.outputs.AMD_SHA }}#g" manifest/monokle-cli.rb
           sed -i.bak "s#ARM_SHA#${{ steps.archive.outputs.ARM_SHA }}#g" manifest/monokle-cli.rb
           
-          SHA=$(shasum -a 256 manifest/monokle-cli.rb | awk '{print $1}')
           SHA=$(curl -s -H "Authorization: token $HOMEBREW_MONOKLE_TOKEN" https://api.github.com/repos/kubeshop/homebrew-monokle/contents/Formula/monokle-cli.rb\?ref\=main | jq -r .sha)
           CONTENT=$(base64 -i manifest/monokle-cli.rb)
           
