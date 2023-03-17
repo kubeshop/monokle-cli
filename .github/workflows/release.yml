@@ -38,6 +38,7 @@ jobs:
           echo "::set-output name=AMD_SHA::$AMD_SHA"
           echo "::set-output name=ARM_SHA::$ARM_SHA"
           VERSION=$( echo ${{ github.ref }} | cut -c2- )
+          echo $VERSION
           echo "::set-output name=VERSION::$VERSION"
           
       - name: Create GitHub Release
