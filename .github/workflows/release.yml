@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
-  workflow_dispatch: 
 
 jobs:
   build_and_push:
@@ -37,7 +36,7 @@ jobs:
           ARM_SHA=$(shasum -a 256 monokle-arm.tar.gz | awk '{print $1}')
           echo "::set-output name=AMD_SHA::$AMD_SHA"
           echo "::set-output name=ARM_SHA::$ARM_SHA"
-          VERSION=$( echo ${{ github.ref }} | cut -c2- )
+          VERSION=$( echo ${{ github.ref }} | cut -d/ -f3 | cut -c2- )
           echo $VERSION
           echo "::set-output name=VERSION::$VERSION"
           
