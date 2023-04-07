@@ -42,13 +42,19 @@ Check out the [announcement blog-post](https://monokle.io/blog/monokle-cli-flexi
 
 ## Installation
 
-You can install the CLI as an NPM package (more installers coming up soon!).
+You can install the CLI using brew (if you're on MacOS) 
+
+```bash
+brew install kubeshop/monokle/monokle-cli
+```
+
+or as an NPM package (more installers coming up...).
 
 ```bash
 npm install --global @monokle/cli
 ```
 
-We recommend using the LTS NodeJs version.
+(We recommend using the LTS NodeJs version)
 
 ## Usage
 
@@ -123,7 +129,7 @@ settings:
 
 ### Custom validators
 
-It is easy to extend the Monokle CLI with [custom validators](../validation/docs/custom-plugins.md) that can be shared with others using
+It is easy to extend the Monokle CLI with [custom validators][custom-validators] that can be shared with others using
 our [Monokle Community Plugins][monokle-community-plugins] repository. 
 
 ## GitHub Action
@@ -131,6 +137,7 @@ our [Monokle Community Plugins][monokle-community-plugins] repository.
 The [Monokle GitHub Action](https://github.com/marketplace/actions/monokle-validation) can be used to validate your resources as part of your CI/CD pipelines
 on GitHub
 
+[custom-validators]: https://github.com/kubeshop/monokle-core/blob/main/packages/validation/docs/custom-plugins.md
 [monokle-community-plugins]: https://github.com/kubeshop/monokle-community-plugins
 [monokle-validation]: https://github.com/kubeshop/monokle-core/tree/main/packages/validation
 [monokle-validation-docs]: https://github.com/kubeshop/monokle-core/blob/main/packages/validation/docs/configuration.md
