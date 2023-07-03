@@ -35,10 +35,12 @@ Check out the [announcement blog-post](https://monokle.io/blog/monokle-cli-flexi
     - [Validate a directory](#validate-a-directory)
     - [Validate a templated Helm chart](#validate-a-templated-helm-chart)
     - [Validate a Kustomize build](#validate-a-kustomize-build)
+    - [Frameworks](#frameworks)
     - [Generate SARIF analysis](#generate-sarif-analysis)
   - [Configuration](#configuration)
     - [Command-line arguments](#command-line-arguments)
     - [@monokle/validation rules](#monoklevalidation-rules)
+    - [Predefined rules](#predefined-rules)
     - [Custom validators](#custom-validators)
   - [GitHub Action](#github-action)
   - [Docker](#docker)
@@ -89,6 +91,29 @@ helm template helm-dir | monokle validate -
 kustomize build kustomize-dir/overlays/local | monokle validate -
 ```
 
+### Frameworks
+Monokle CLI supports predefined sets of rules called frameworks, which allow you to quickly run Monokle validation without the need for additional configuration.  
+By using a framework, you can easily perform comprehensive validations based on established best practices and industry standards.  
+
+When using a framework, you don't have to configure the `monokle.validation.yaml` file manually.  
+Simply specify the desired framework using the `--framework` or `-f` CLI arguments, and Monokle CLI will automatically apply the corresponding set of rules.  
+
+Available frameworks:
+
+- `pss-restricted`
+- `pss-baseline`
+- `nsa`
+
+Using frameworks is an excellent way to get started quickly with Monokle CLI and perform comprehensive validations without the need for extensive configuration.  
+If you prefer a more customized validation, you can still configure the `monokle.validation.yaml` file with your own rules.  
+
+Here's an example of how to use the `--framework` argument:
+
+```bash
+monokle validate k8s-dir --framework pss-restricted
+```
+
+
 ### Generate SARIF analysis
 
 The Monokle CLI can output its results in [SARIF format](https://sarifweb.azurewebsites.net/).
@@ -111,6 +136,8 @@ The Monokle CLI looks for a Monokle Validation configuration file
 at `./monokle.validation.yaml`. You can change this by using the `--config` flag.
 
 All rules are enabled by default and are described in the [Monokle Validation configuration][monokle-validation-docs] documentation.
+
+### Predefined rules
 
 **Example**
 
