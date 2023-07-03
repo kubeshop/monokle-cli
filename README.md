@@ -95,7 +95,7 @@ Monokle CLI supports predefined sets of rules called frameworks, which allow you
 By using a framework, you can easily perform comprehensive validations based on established best practices and industry standards.  
 
 When using a framework, you don't have to configure the `monokle.validation.yaml` file manually.  
-Simply specify the desired framework using the `--framework` or `-f` CLI arguments, and Monokle CLI will automatically apply the corresponding set of rules.  
+Simply specify the desired framework using the `--framework` or `--fw` CLI arguments, and Monokle CLI will automatically apply the corresponding set of rules.  
 
 Available frameworks:
 
