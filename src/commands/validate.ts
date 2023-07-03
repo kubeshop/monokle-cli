@@ -41,7 +41,7 @@ export const validate = command<Options>({
       .option("framework", {
         type: "string",
         choices: ["pss-restricted", "pss-baseline", "nsa"] as const,
-        alias: "f",
+        alias: "fw",
       })
       .positional("path", { type: "string", demandOption: true });
   },
