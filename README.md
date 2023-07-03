@@ -35,6 +35,7 @@ Check out the [announcement blog-post](https://monokle.io/blog/monokle-cli-flexi
     - [Validate a directory](#validate-a-directory)
     - [Validate a templated Helm chart](#validate-a-templated-helm-chart)
     - [Validate a Kustomize build](#validate-a-kustomize-build)
+    - [Frameworks](#frameworks)
     - [Generate SARIF analysis](#generate-sarif-analysis)
   - [Configuration](#configuration)
     - [Command-line arguments](#command-line-arguments)
@@ -88,6 +89,29 @@ helm template helm-dir | monokle validate -
 ```bash
 kustomize build kustomize-dir/overlays/local | monokle validate -
 ```
+
+### Frameworks
+Monokle CLI supports predefined sets of rules called frameworks, which allow you to quickly run Monokle validation without the need for additional configuration.  
+By using a framework, you can easily perform comprehensive validations based on established best practices and industry standards.  
+
+When using a framework, you don't have to configure the `monokle.validation.yaml` file manually.  
+Simply specify the desired framework using the `--framework` or `--fw` CLI arguments, and Monokle CLI will automatically apply the corresponding set of rules.  
+
+Available frameworks:
+
+- `pss-restricted`
+- `pss-baseline`
+- `nsa`
+
+Using frameworks is an excellent way to get started quickly with Monokle CLI and perform comprehensive validations without the need for extensive configuration.  
+If you prefer a more customized validation, you can still configure the `monokle.validation.yaml` file with your own rules.  
+
+Here's an example of how to use the `--framework` argument:
+
+```bash
+monokle validate k8s-dir --framework pss-restricted
+```
+
 
 ### Generate SARIF analysis
 

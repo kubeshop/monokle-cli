@@ -1,9 +1,4 @@
-import {
-  createExtensibleMonokleValidator,
-  processRefs,
-  readConfig,
-  ResourceParser,
-} from "@monokle/validation";
+import { createExtensibleMonokleValidator, processRefs, readConfig, ResourceParser } from "@monokle/validation";
 import { lstatSync } from "fs";
 import { readFile as readFileFromFs } from "fs/promises";
 import chunkArray from "lodash/chunk.js";
@@ -13,12 +8,14 @@ import { extractK8sResources, File } from "../utils/extract.js";
 import { print } from "../utils/screens.js";
 import { streamToPromise } from "../utils/stdin.js";
 import { displayInventory, failure, success } from "./validate.io.js";
+import { getFrameworkConfig } from "../frameworks/index.js";
 
 type Options = {
   path: string;
   config: string;
   inventory: boolean;
   output: "pretty" | "sarif";
+  framework?: "pss-restricted" | "pss-baseline" | "nsa";
 };
 
 export const validate = command<Options>({
@@ -41,9 +38,14 @@ export const validate = command<Options>({
         description: "Prints all inventory.",
         default: false,
       })
+      .option("framework", {
+        type: "string",
+        choices: ["pss-restricted", "pss-baseline", "nsa"] as const,
+        alias: "fw",
+      })
       .positional("path", { type: "string", demandOption: true });
   },
-  async handler({ path, output, inventory, config: configPath }) {
+  async handler({ path, output, inventory, config: configPath, framework }) {
     const files = await readFiles(path);
     const resources = extractK8sResources(files);
 
@@ -51,10 +53,11 @@ export const validate = command<Options>({
       print(displayInventory(resources));
     }
 
+    const frameworkConfig = await getFrameworkConfig(framework);
     const parser = new ResourceParser();
     const validator = createExtensibleMonokleValidator(parser);
     const config = await readConfig(configPath);
-    await validator.preload(config);
+    await validator.preload(frameworkConfig ?? config);
 
     processRefs(
       resources,
@@ -64,10 +67,7 @@ export const validate = command<Options>({
     );
     const response = await validator.validate({ resources });
 
-    const errorCount = response.runs.reduce(
-      (sum, r) => sum + r.results.length,
-      0
-    );
+    const errorCount = response.runs.reduce((sum, r) => sum + r.results.length, 0);
 
     if (output === "pretty") {
       if (errorCount) {
@@ -129,9 +129,7 @@ async function readDirectory(directoryPath: string): Promise<File[]> {
   for (const chunk of chunkArray(filePaths, 5)) {
     const promise = await Promise.allSettled(
       chunk.map((path) => {
-        return readFileFromFs(path, "utf8").then(
-          (content): File => ({ id: path, path, content })
-        );
+        return readFileFromFs(path, "utf8").then((content): File => ({ id: path, path, content }));
       })
     );
 
