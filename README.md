@@ -148,7 +148,7 @@ on GitHub
 
 ## Docker
 
-You can use the Docker `image monokle-cli:latest` to run the Monokle CLI in a containerized environment.  
+You can use the Docker image `monokle-cli:latest` to run the Monokle CLI in a containerized environment.  
 This can be particularly useful for integrating Monokle into CI/CD pipelines or other automated systems.
 
 To run the Docker image, you can use the `docker run` command. 
