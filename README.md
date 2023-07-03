@@ -27,18 +27,21 @@ Check out the [announcement blog-post](https://monokle.io/blog/monokle-cli-flexi
 
 ## Table of contents
 
-- [Installation](#installation)
-- [Usage](#usage)
-  - [Validate a YAML file](#validate-a-yaml-file)
-  - [Validate a directory](#validate-a-directory)
-  - [Validate a templated Helm chart](#validate-a-templated-helm-chart)
-  - [Validate a Kustomize build](#validate-a-kustomize-build)
-  - [Generate SARIF analysis](#generate-sarif-analysis)
-- [Configuration](#configuration)
-  - [Command-line arguments](#command-line-arguments)
-  - [@monokle/validation rules](#monoklevalidation-rules)
-  - [Custom validators](#custom-validators)
-- [GitHub Action](#github-action)
+- [Welcome to Monokle CLI](#welcome-to-monokle-cli)
+  - [Table of contents](#table-of-contents)
+  - [Installation](#installation)
+  - [Usage](#usage)
+    - [Validate a YAML file](#validate-a-yaml-file)
+    - [Validate a directory](#validate-a-directory)
+    - [Validate a templated Helm chart](#validate-a-templated-helm-chart)
+    - [Validate a Kustomize build](#validate-a-kustomize-build)
+    - [Generate SARIF analysis](#generate-sarif-analysis)
+  - [Configuration](#configuration)
+    - [Command-line arguments](#command-line-arguments)
+    - [@monokle/validation rules](#monoklevalidation-rules)
+    - [Custom validators](#custom-validators)
+  - [GitHub Action](#github-action)
+  - [Docker](#docker)
 
 ## Installation
 
@@ -142,3 +145,20 @@ on GitHub
 [monokle-validation]: https://github.com/kubeshop/monokle-core/tree/main/packages/validation
 [monokle-validation-docs]: https://github.com/kubeshop/monokle-core/blob/main/packages/validation/docs/configuration.md
 [vsc-sarif]: https://marketplace.visualstudio.com/items?itemName=MS-SarifVSCode.sarif-viewer
+
+## Docker
+
+You can use the Docker image `monokle-cli:latest` to run the Monokle CLI in a containerized environment.  
+This can be particularly useful for integrating Monokle into CI/CD pipelines or other automated systems.
+
+To run the Docker image, you can use the `docker run` command. 
+The Monokle CLI arguments can be passed directly to the Docker run command. 
+For example:
+```
+docker run -v /path/to/input:/input -e CONFIG_FILE=my-validation-config.yaml monokle-cli:latest validate /input
+```
+
+In this command:
+  - `-v /path/to/input:/input` mounts a directory from your host system to the /input directory inside the Docker container.
+  - `-e CONFIG_FILE=my-validation-config.yaml` sets an environment variable inside the Docker container. If this environment variable is set, the Docker container will use the specified file as the Monokle validation configuration.
+  - `validate /input` is the command that will be passed to the Monokle CLI. You can replace this with any command you want to run with the Monokle CLI.
