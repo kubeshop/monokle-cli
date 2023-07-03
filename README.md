@@ -40,7 +40,6 @@ Check out the [announcement blog-post](https://monokle.io/blog/monokle-cli-flexi
   - [Configuration](#configuration)
     - [Command-line arguments](#command-line-arguments)
     - [@monokle/validation rules](#monoklevalidation-rules)
-    - [Predefined rules](#predefined-rules)
     - [Custom validators](#custom-validators)
   - [GitHub Action](#github-action)
   - [Docker](#docker)
@@ -136,8 +135,6 @@ The Monokle CLI looks for a Monokle Validation configuration file
 at `./monokle.validation.yaml`. You can change this by using the `--config` flag.
 
 All rules are enabled by default and are described in the [Monokle Validation configuration][monokle-validation-docs] documentation.
-
-### Predefined rules
 
 **Example**
 
