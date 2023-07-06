@@ -27,22 +27,20 @@ Check out the [announcement blog-post](https://monokle.io/blog/monokle-cli-flexi
 
 ## Table of contents
 
-- [Welcome to Monokle CLI](#welcome-to-monokle-cli)
-  - [Table of contents](#table-of-contents)
-  - [Installation](#installation)
-  - [Usage](#usage)
-    - [Validate a YAML file](#validate-a-yaml-file)
-    - [Validate a directory](#validate-a-directory)
-    - [Validate a templated Helm chart](#validate-a-templated-helm-chart)
-    - [Validate a Kustomize build](#validate-a-kustomize-build)
-    - [Frameworks](#frameworks)
-    - [Generate SARIF analysis](#generate-sarif-analysis)
-  - [Configuration](#configuration)
-    - [Command-line arguments](#command-line-arguments)
-    - [@monokle/validation rules](#monoklevalidation-rules)
-    - [Custom validators](#custom-validators)
-  - [GitHub Action](#github-action)
-  - [Docker](#docker)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Validate a YAML file](#validate-a-yaml-file)
+  - [Validate a directory](#validate-a-directory)
+  - [Validate a templated Helm chart](#validate-a-templated-helm-chart)
+  - [Validate a Kustomize build](#validate-a-kustomize-build)
+  - [Frameworks](#frameworks)
+  - [Generate SARIF analysis](#generate-sarif-analysis)
+- [Configuration](#configuration)
+  - [Command-line arguments](#command-line-arguments)
+  - [@monokle/validation rules](#monoklevalidation-rules)
+  - [Custom validators](#custom-validators)
+- [GitHub Action](#github-action)
+- [Docker](#docker)
 
 ## Installation
 
