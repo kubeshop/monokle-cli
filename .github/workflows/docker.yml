@@ -3,7 +3,7 @@ name: Docker Build and Push
 on:
   push:
     branches:
-      - main
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   build-and-push:
@@ -27,7 +27,14 @@ jobs:
       - name: Log in to Docker Hub
         run: docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Extract version from tag
+        run: | 
+          VERSION=$( echo ${{ github.ref }} | cut -d/ -f3 | cut -c2- )
+          echo $VERSION
+          echo "::set-output name=VERSION::$VERSION"
+
       - name: Build and Push Docker Image
         run: |
-          docker build -t kubeshop/monokle-cli:latest .
+          docker build -t kubeshop/monokle-cli:latest -t kubeshop/monokle-cli:${VERSION} .
+          docker push kubeshop/monokle-cli:${VERSION}
           docker push kubeshop/monokle-cli:latest
