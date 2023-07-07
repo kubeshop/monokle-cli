@@ -25,16 +25,20 @@ jobs:
         run: npm run build
 
       - name: Log in to Docker Hub
-        run: docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+        run: docker login -u ${{ secrets.MONOKLE_CLI_DOCKERHUB_USERNAME }} -p ${{ secrets.MONOKLE_CLI_DOCKERHUB_TOKEN }}
 
       - name: Extract version from tag
-        run: | 
-          VERSION=$( echo ${{ github.ref }} | cut -d/ -f3 | cut -c2- )
-          echo $VERSION
-          echo "::set-output name=VERSION::$VERSION"
-
-      - name: Build and Push Docker Image
+        id: extract_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+      
+      - name: Debug version
+        run: echo ${{ env.VERSION }}
+      
+      - name: Build and deploy Docker image
+        env:
+          VERSION: ${{ env.VERSION }}
         run: |
+          echo "Building Docker image with version: ${VERSION}"
           docker build -t kubeshop/monokle-cli:latest -t kubeshop/monokle-cli:${VERSION} .
           docker push kubeshop/monokle-cli:${VERSION}
           docker push kubeshop/monokle-cli:latest
