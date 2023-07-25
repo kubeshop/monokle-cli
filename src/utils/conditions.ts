@@ -1,6 +1,6 @@
 import { getStoreAuth } from "./store.js";
 
-export async function throwIfNotAuthorized() {
+export async function throwIfNotAuthenticated() {
   const store = await getStoreAuth();
 
   if (!store?.auth) {
@@ -8,7 +8,7 @@ export async function throwIfNotAuthorized() {
   }
 }
 
-export async function throwIfAuthorized() {
+export async function throwIfAuthenticated() {
   const store = await getStoreAuth();
 
   if (store?.auth) {

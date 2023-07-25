@@ -19,17 +19,17 @@ const CONFIG_FILE_SETTINGS = 'cli.yaml';
 const CONFIG_FILE_AUTH = 'auth.yaml';
 
 export async function getStoreSettings(): Promise<StoreSettings | undefined> {
-  const configPath = getStorePath(CONFIG_FILE_SETTINGS);
+  const configPath = getStoreConfigPath(CONFIG_FILE_SETTINGS);
   return getStoreData(configPath);
 }
 
 export async function getStoreAuth(): Promise<StoreAuth | undefined> {
-  const configPath = getStorePath(CONFIG_FILE_AUTH);
+  const configPath = getStoreConfigPath(CONFIG_FILE_AUTH);
   return getStoreData(configPath);
 }
 
 export async function emptyStoreAuth(): Promise<boolean> {
-  const configPath = getStorePath(CONFIG_FILE_AUTH);
+  const configPath = getStoreConfigPath(CONFIG_FILE_AUTH);
 
   try {
     await writeFile(configPath, '');
@@ -39,9 +39,27 @@ export async function emptyStoreAuth(): Promise<boolean> {
   }
 }
 
-function getStorePath(file: string): string {
+export async function writeToCache(file: string, data: string): Promise<boolean> {
+  const filePath = getStoreCachePath(file);
+
+  try {
+    await writeFile(filePath, data);
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
+function getStoreConfigPath(file: string): string {
   const xdg: XDGAppPaths = xdgAppPaths as unknown as XDGAppPaths; // there is some issue with TS typings
   const configDir = xdg({ name: CONFIG_FOLDER }).config();
+  const configPath = `${untildify(configDir)}/${file}`;
+  return configPath;
+}
+
+function getStoreCachePath(file: string): string {
+  const xdg: XDGAppPaths = xdgAppPaths as unknown as XDGAppPaths; // there is some issue with TS typings
+  const configDir = xdg({ name: CONFIG_FOLDER }).cache();
   const configPath = `${untildify(configDir)}/${file}`;
   return configPath;
 }

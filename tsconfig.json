@@ -2,7 +2,7 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "build",
-    "lib": ["ES2020"],
+    "lib": ["ES2020", "DOM"],
     "module": "NodeNext",
     "target": "es2022",
     "moduleResolution": "NodeNext",
