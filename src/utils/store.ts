@@ -1,5 +1,5 @@
 import { existsSync } from "fs";
-import { readFile } from "fs/promises";
+import { readFile, writeFile } from "fs/promises";
 import YAML from 'yaml';
 import untildify from 'untildify';
 import xdgAppPaths from 'xdg-app-paths';
@@ -25,8 +25,18 @@ export async function getStoreSettings(): Promise<StoreSettings | undefined> {
 
 export async function getStoreAuth(): Promise<StoreAuth | undefined> {
   const configPath = getStorePath(CONFIG_FILE_AUTH);
-  console.log(configPath);
   return getStoreData(configPath);
+}
+
+export async function emptyStoreAuth(): Promise<boolean> {
+  const configPath = getStorePath(CONFIG_FILE_AUTH);
+
+  try {
+    await writeFile(configPath, '');
+    return true;
+  } catch (err) {
+    return false;
+  }
 }
 
 function getStorePath(file: string): string {

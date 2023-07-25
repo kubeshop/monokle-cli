@@ -2,6 +2,7 @@
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { validate } from "./commands/validate.js";
+import { logout } from "./commands/logout.js";
 import { whoami } from "./commands/whoami.js";
 import fetch from "isomorphic-fetch";
 
@@ -14,6 +15,7 @@ yargs(hideBin(process.argv))
     "greedy-arrays": false,
   })
   .command(validate)
+  .command(logout)
   .command(whoami)
   .showHelpOnFail(false)
   .parseAsync();
