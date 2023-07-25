@@ -70,7 +70,9 @@
     "log-symbols": "5.1.0",
     "strands": "1.0.1",
     "tiny-glob": "0.2.9",
+    "untildify": "^5.0.0",
     "uuid": "9.0.0",
+    "xdg-app-paths": "^8.3.0",
     "yaml": "2.1.1",
     "yargs": "17.5.1"
   }
