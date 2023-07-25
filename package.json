@@ -9,7 +9,7 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "dev": "npm run cli",
+    "dev": "npm run build && node ./build/main.js",
     "rollup": "rollup -c",
     "package": " npm-run-all package:*",
     "package:macos-arm": "pkg cjs/main.cjs --target node16-macos-arm64 --output dist/monokle-cli-macos-arm --no-bytecode --public",
