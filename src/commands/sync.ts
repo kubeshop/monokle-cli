@@ -10,6 +10,7 @@ type Options = {
   path?: string;
 };
 
+// @TODO could also accept --apiToken as alternative auth option.
 export const sync = command<Options>({
   command: "sync [path]",
   describe: "Synchronize remote policy from Monokle Cloud locally",

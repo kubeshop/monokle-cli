@@ -35,6 +35,19 @@ export async function emptyStoreAuth(): Promise<boolean> {
   return writeStoreData(configPath, '');
 }
 
+export async function setStoreAuth(email: string, accessToken: string): Promise<boolean> {
+  const configPath = getStoreConfigPath(CONFIG_FILE_AUTH);
+  const configDoc = new YAML.Document();
+  configDoc.contents = ({
+    auth: {
+      email,
+      accessToken
+    }
+  } as any);
+
+  return writeStoreData(configPath, configDoc.toString());
+}
+
 export async function writeToCache(file: string, data: string): Promise<boolean> {
   const filePath = getStoreCachePath(file);
   return writeStoreData(filePath, data);

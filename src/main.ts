@@ -2,6 +2,7 @@
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { validate } from "./commands/validate.js";
+import { login } from "./commands/login.js";
 import { logout } from "./commands/logout.js";
 import { whoami } from "./commands/whoami.js";
 import { sync } from "./commands/sync.js";
@@ -16,6 +17,7 @@ yargs(hideBin(process.argv))
     "greedy-arrays": false,
   })
   .command(validate)
+  .command(login)
   .command(sync)
   .command(logout)
   .command(whoami)
