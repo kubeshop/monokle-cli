@@ -4,7 +4,7 @@ export async function throwIfNotAuthenticated() {
   const store = await getStoreAuth();
 
   if (!store?.auth) {
-    throw new Error("Not authorized.");
+    throw new Error("Not authenticated.");
   }
 }
 
@@ -12,6 +12,6 @@ export async function throwIfAuthenticated() {
   const store = await getStoreAuth();
 
   if (store?.auth) {
-    throw new Error("Already authorized.");
+    throw new Error("Already authenticated.");
   }
 }

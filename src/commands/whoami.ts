@@ -10,7 +10,7 @@ export const whoami = command<Options>({
   command: "whoami",
   describe: "Get info about current user",
   async handler() {
-    throwIfNotAuthenticated();
+    await throwIfNotAuthenticated();
 
     const store = await getStoreAuth();
     print(success(store!.auth!.email));

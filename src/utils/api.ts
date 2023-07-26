@@ -1,7 +1,5 @@
 import normalizeUrl from 'normalize-url';
 
-const REMOTE_POLICY_URL_DEFAULT = 'https://api.monokle.com'
-
 type UserProjectRepo = {
   id: string;
   projectId: number;
@@ -77,6 +75,8 @@ const getPolicyQuery = `
     }
   }
 `;
+
+export const REMOTE_POLICY_URL_DEFAULT = 'https://api.monokle.com'
 
 export async function getUser(accessToken: string, remotePolicyUrl?: string): Promise<UserData | undefined> {
   return queryApi(getUserQuery, accessToken, remotePolicyUrl);

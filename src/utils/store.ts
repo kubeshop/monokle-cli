@@ -1,7 +1,9 @@
-import { existsSync } from "fs";
-import { readFile, writeFile } from "fs/promises";
 import YAML from 'yaml';
 import untildify from 'untildify';
+import { mkdirp } from 'mkdirp'
+import { existsSync } from "fs";
+import { readFile, writeFile } from "fs/promises";
+import { dirname } from "path";
 import xdgAppPaths from 'xdg-app-paths';
 import type { XDGAppPaths } from 'xdg-app-paths';
 
@@ -30,24 +32,12 @@ export async function getStoreAuth(): Promise<StoreAuth | undefined> {
 
 export async function emptyStoreAuth(): Promise<boolean> {
   const configPath = getStoreConfigPath(CONFIG_FILE_AUTH);
-
-  try {
-    await writeFile(configPath, '');
-    return true;
-  } catch (err) {
-    return false;
-  }
+  return writeStoreData(configPath, '');
 }
 
 export async function writeToCache(file: string, data: string): Promise<boolean> {
   const filePath = getStoreCachePath(file);
-
-  try {
-    await writeFile(filePath, data);
-    return true;
-  } catch (err) {
-    return false;
-  }
+  return writeStoreData(filePath, data);
 }
 
 function getStoreConfigPath(file: string): string {
@@ -76,5 +66,17 @@ async function getStoreData(file: string) {
   } catch (err) {
     console.error('Failed to read configuration from ' + file);
     return undefined;
+  }
+}
+
+async function writeStoreData(file: string, data: string) {
+  const dir = dirname(file);
+
+  try {
+    await mkdirp(dir);
+    await writeFile(file, data);
+    return true;
+  } catch (err) {
+    return false;
   }
 }
