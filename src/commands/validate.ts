@@ -1,4 +1,4 @@
-import { createExtensibleMonokleValidator, processRefs, readConfig, ResourceParser } from "@monokle/validation";
+import { createExtensibleMonokleValidator, processRefs, ResourceParser } from "@monokle/validation";
 import { lstatSync } from "fs";
 import { readFile as readFileFromFs } from "fs/promises";
 import chunkArray from "lodash/chunk.js";
@@ -6,9 +6,9 @@ import glob from "tiny-glob";
 import { command } from "../utils/command.js";
 import { extractK8sResources, File } from "../utils/extract.js";
 import { print } from "../utils/screens.js";
-import { streamToPromise } from "../utils/stdin.js";
-import { displayInventory, failure, success } from "./validate.io.js";
-import { getFrameworkConfig } from "../frameworks/index.js";
+import { isStdinLike, streamToPromise } from "../utils/stdin.js";
+import { displayInventory, failure, success, configInfo } from "./validate.io.js";
+import { getConfig } from "../utils/config.js";
 
 type Options = {
   path: string;
@@ -53,11 +53,11 @@ export const validate = command<Options>({
       print(displayInventory(resources));
     }
 
-    const frameworkConfig = await getFrameworkConfig(framework);
     const parser = new ResourceParser();
     const validator = createExtensibleMonokleValidator(parser);
-    const config = await readConfig(configPath);
-    await validator.preload(frameworkConfig ?? config);
+    const configData = await getConfig(path, configPath, framework);
+
+    await validator.preload(configData.config);
 
     processRefs(
       resources,
@@ -70,6 +70,8 @@ export const validate = command<Options>({
     const errorCount = response.runs.reduce((sum, r) => sum + r.results.length, 0);
 
     if (output === "pretty") {
+      print(configInfo(configData));
+
       if (errorCount) {
         print(failure(response));
       } else {
@@ -105,10 +107,6 @@ async function readFile(path: string): Promise<File> {
     path,
     content,
   };
-}
-
-function isStdinLike(path: string) {
-  return path === "";
 }
 
 async function readStdin(): Promise<File> {

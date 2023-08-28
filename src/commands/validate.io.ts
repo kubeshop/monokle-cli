@@ -5,6 +5,7 @@ import {
 } from "@monokle/validation";
 import groupBy from "lodash/groupBy.js";
 import { B, C, S, Screen } from "../utils/screens.js";
+import { ConfigData } from "../utils/config.js";
 
 export const success = () => `
 ${S.success} All resources are valid.
@@ -78,6 +79,31 @@ export const failure = (response: ValidationResponse) => {
   screen.line(
     B(
       ` ${icon} ${validationCount} misconfigurations found. (${errorCount} errors)`,
+      {
+        padding: 1,
+        dimBorder: true,
+      }
+    )
+  );
+
+  return screen.toString();
+};
+
+export const configInfo = (configData: ConfigData) => {
+  let configInfo = '';
+  if (configData.isFrameworkBased) {
+    configInfo = `${C.bold(configData.framework)} framework based policy`;
+  } else if (configData.isRemote) {
+    configInfo = `remote policy from ${C.bold(configData.remoteParentProject?.name ?? 'unknown')} project. It can be adjusted on ${configData.remoteParentProject?.remoteUrl}`;
+  } else {
+    configInfo = `local policy from ${C.bold(configData.path)} file`;
+  }
+
+  const screen = new Screen();
+
+  screen.line(
+    B(
+      ` ${S.info} Validating using ${configInfo}.`,
       {
         padding: 1,
         dimBorder: true,
