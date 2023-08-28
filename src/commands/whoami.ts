@@ -1,7 +1,7 @@
-import { command } from "../utils/command.js";
-import { getStoreAuth } from "../utils/store.js";
-import { print } from "../utils/screens.js";
+import { createDefaultMonokleAuthenticator } from "@monokle/synchronizer";
 import { success } from "./whoami.io.js";
+import { command } from "../utils/command.js";
+import { print } from "../utils/screens.js";
 import { throwIfNotAuthenticated } from "../utils/conditions.js";
 
 type Options = {};
@@ -12,7 +12,7 @@ export const whoami = command<Options>({
   async handler() {
     await throwIfNotAuthenticated();
 
-    const store = await getStoreAuth();
-    print(success(store!.auth!.email));
+    const authenticator = createDefaultMonokleAuthenticator();
+    print(success(authenticator.user.email!));
   },
 });

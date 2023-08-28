@@ -1,10 +1,9 @@
-import prompts from "prompts";
+import open from 'open';
+import { createDefaultMonokleAuthenticator, AuthenticatorLoginResponse } from "@monokle/synchronizer";
+import { promptForLoginMethod, promptForDeviceFlowInput, promptForToken, cancelled, error, success, urlInfo, waiting } from "./login.io.js";
 import { command } from "../utils/command.js";
 import { throwIfAuthenticated } from "../utils/conditions.js";
 import { print } from "../utils/screens.js";
-import { getDeviceCode, waitForToken } from "../utils/api.js";
-import { setStoreAuth } from "../utils/store.js";
-import { error, success, codeInfo, urlInfo } from "./login.io.js";
 import { isDefined } from "../utils/isDefined.js";
 
 type Options = {};
@@ -15,28 +14,49 @@ export const login = command<Options>({
   async handler() {
     await throwIfAuthenticated();
 
-    const deviceCode = await getDeviceCode();
-    if (!deviceCode) {
-      print(error('Error getting device code'));
+    const authenticator = createDefaultMonokleAuthenticator();
+    const methods = authenticator.methods;
+
+    const selectedMethod = await promptForLoginMethod(methods);
+
+    if (!isDefined(selectedMethod)) {
+      print(cancelled);
       return;
     }
-
-    const response = await prompts({
-      type: 'text',
-      name: 'value',
-      message: codeInfo(deviceCode),
-    });
-
-    if (!isDefined(response.value)) {
-      return;
-    }
-
-    print(urlInfo('https://app.monokle.com/settings/tokens'));
 
     try {
-      const accessData = await waitForToken(deviceCode, 5000);
-      await setStoreAuth(accessData.email, accessData.accessToken);
-      print(success(accessData.email));
+      let loginRequest: AuthenticatorLoginResponse | undefined = undefined;
+
+      if (selectedMethod === 'device code') {
+        loginRequest = await authenticator.login(selectedMethod);
+
+        const handle =  loginRequest.handle;
+
+        if (!handle) {
+          throw new Error('Error connecting to authentication service.');
+        }
+
+        const confirmed = await promptForDeviceFlowInput();
+        if (confirmed) {
+          await open(handle.verification_uri_complete);
+        }
+
+        print(urlInfo(handle.verification_uri_complete));
+      } else if (selectedMethod === 'token') {
+        const token = await promptForToken();
+        loginRequest = await authenticator.login(selectedMethod, token);
+      }
+
+      if (!isDefined(loginRequest)) {
+        print(cancelled);
+        return;
+      }
+
+      print(waiting);
+
+      const user = await loginRequest.onDone;
+
+      print(success(user.email!));
     } catch (err: any) {
       print(error(err.message));
     }

@@ -1,8 +1,8 @@
+import { createDefaultMonokleAuthenticator } from "@monokle/synchronizer";
+import { error, success } from "./logout.io.js";
 import { command } from "../utils/command.js";
 import { throwIfNotAuthenticated } from "../utils/conditions.js";
-import { emptyStoreAuth } from "../utils/store.js";
 import { print } from "../utils/screens.js";
-import { error, success } from "./logout.io.js";
 
 type Options = {};
 
@@ -12,12 +12,13 @@ export const logout = command<Options>({
   async handler() {
     await throwIfNotAuthenticated();
 
-    const logoutResult = await emptyStoreAuth();
-    if (!logoutResult) {
-      print(error());
-      return;
-    }
+    const authenticator = createDefaultMonokleAuthenticator();
 
-    print(success());
+    try {
+      await authenticator.logout();
+      print(success());
+    } catch (err: any) {
+      print(error(err.message));
+    }
   },
 });

@@ -1,17 +1,17 @@
-import { getStoreAuth } from "./store.js";
+import { createDefaultMonokleAuthenticator } from "@monokle/synchronizer";
 
 export async function throwIfNotAuthenticated() {
-  const store = await getStoreAuth();
+  const authenticator = createDefaultMonokleAuthenticator();
 
-  if (!store?.auth) {
+  if (!authenticator.user.isAuthenticated) {
     throw new Error("Not authenticated.");
   }
 }
 
 export async function throwIfAuthenticated() {
-  const store = await getStoreAuth();
+  const authenticator = createDefaultMonokleAuthenticator();
 
-  if (store?.auth) {
+  if (authenticator.user.isAuthenticated) {
     throw new Error("Already authenticated.");
   }
 }
