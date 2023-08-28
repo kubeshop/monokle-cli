@@ -5,7 +5,6 @@ import { validate } from "./commands/validate.js";
 import { login } from "./commands/login.js";
 import { logout } from "./commands/logout.js";
 import { whoami } from "./commands/whoami.js";
-import { sync } from "./commands/sync.js";
 import fetch from "isomorphic-fetch";
 
 (global as any).fetch = fetch;
@@ -18,7 +17,6 @@ yargs(hideBin(process.argv))
   })
   .command(validate)
   .command(login)
-  .command(sync)
   .command(logout)
   .command(whoami)
   .showHelpOnFail(false)
