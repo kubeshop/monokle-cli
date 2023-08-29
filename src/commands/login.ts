@@ -6,45 +6,60 @@ import { throwIfAuthenticated } from "../utils/conditions.js";
 import { print } from "../utils/screens.js";
 import { isDefined } from "../utils/isDefined.js";
 
-type Options = {};
+type Options = {
+  'api-token'?: string;
+};
 
 export const login = command<Options>({
   command: "login",
   describe: "Login to Monokle Cloud",
-  async handler() {
+  builder(args) {
+    return args
+      .option("api-token", {
+        type: "string",
+        description: "API token to use for authentication instead of interactive flow. Useful for CI/CD scenarios.",
+        alias: "t",
+      });
+  },
+  async handler({ apiToken }) {
     await throwIfAuthenticated();
 
     const authenticator = createDefaultMonokleAuthenticator();
-    const methods = authenticator.methods;
-
-    const selectedMethod = await promptForLoginMethod(methods);
-
-    if (!isDefined(selectedMethod)) {
-      print(cancelled);
-      return;
-    }
 
     try {
       let loginRequest: AuthenticatorLoginResponse | undefined = undefined;
 
-      if (selectedMethod === 'device code') {
-        loginRequest = await authenticator.login(selectedMethod);
+      if (apiToken) {
+        loginRequest = await authenticator.login('token', apiToken);
+      } else {
+        const methods = authenticator.methods;
 
-        const handle =  loginRequest.handle;
+        const selectedMethod = await promptForLoginMethod(methods);
 
-        if (!handle) {
-          throw new Error('Error connecting to authentication service.');
+        if (!isDefined(selectedMethod)) {
+          print(cancelled);
+          return;
         }
 
-        const confirmed = await promptForDeviceFlowInput();
-        if (confirmed) {
-          await open(handle.verification_uri_complete);
-        }
+        if (selectedMethod === 'device code') {
+          loginRequest = await authenticator.login(selectedMethod);
 
-        print(urlInfo(handle.verification_uri_complete));
-      } else if (selectedMethod === 'token') {
-        const token = await promptForToken();
-        loginRequest = await authenticator.login(selectedMethod, token);
+          const handle =  loginRequest.handle;
+
+          if (!handle) {
+            throw new Error('Error connecting to authentication service.');
+          }
+
+          const confirmed = await promptForDeviceFlowInput();
+          if (confirmed) {
+            await open(handle.verification_uri_complete);
+          }
+
+          print(urlInfo(handle.verification_uri_complete));
+        } else if (selectedMethod === 'token') {
+          const token = await promptForToken();
+          loginRequest = await authenticator.login(selectedMethod, token);
+        }
       }
 
       if (!isDefined(loginRequest)) {

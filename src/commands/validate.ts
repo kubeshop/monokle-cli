@@ -8,14 +8,16 @@ import { extractK8sResources, File } from "../utils/extract.js";
 import { print } from "../utils/screens.js";
 import { isStdinLike, streamToPromise } from "../utils/stdin.js";
 import { displayInventory, failure, success, configInfo } from "./validate.io.js";
-import { getConfig } from "../utils/config.js";
+import { getConfig, getRemotePolicy } from "../utils/config.js";
+import { Framework } from "../frameworks/index.js";
 
 type Options = {
   path: string;
   config: string;
   inventory: boolean;
   output: "pretty" | "sarif";
-  framework?: "pss-restricted" | "pss-baseline" | "nsa";
+  framework?: Framework;
+  'api-token'?: string;
 };
 
 export const validate = command<Options>({
@@ -43,9 +45,14 @@ export const validate = command<Options>({
         choices: ["pss-restricted", "pss-baseline", "nsa"] as const,
         alias: "fw",
       })
+      .option("api-token", {
+        type: "string",
+        description: "Monokle Cloud API token to fetch remote policy. It will be used instead of authenticated user credentials.",
+        alias: "t",
+      })
       .positional("path", { type: "string", demandOption: true });
   },
-  async handler({ path, output, inventory, config: configPath, framework }) {
+  async handler({ path, output, inventory, config: configPath, framework, apiToken }) {
     const files = await readFiles(path);
     const resources = extractK8sResources(files);
 
@@ -55,7 +62,9 @@ export const validate = command<Options>({
 
     const parser = new ResourceParser();
     const validator = createExtensibleMonokleValidator(parser);
-    const configData = await getConfig(path, configPath, framework);
+
+    // If --api-token set explicitly we try to use remote policy only.
+    const configData = apiToken ? await getRemotePolicy(path, apiToken) :  await getConfig(path, configPath, framework);
 
     await validator.preload(configData.config);
 
@@ -78,7 +87,7 @@ export const validate = command<Options>({
         print(success());
       }
     } else {
-      console.log(JSON.stringify(response, null, 2));
+      print(JSON.stringify(response, null, 2));
     }
   },
 });

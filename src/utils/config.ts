@@ -57,22 +57,7 @@ export async function getConfig(path: string, configPath: string, framework: Fra
   const authenticator = createDefaultMonokleAuthenticator();
   if (authenticator.user.isAuthenticated) {
     await authenticator.refreshToken();
-
-    const synchronizer = createDefaultMonokleSynchronizer();
-    const policyData = await synchronizer.synchronize(path, authenticator.user.token!);
-    const parentProject = await synchronizer.getProjectInfo(path, authenticator.user.token!);
-
-    return {
-      config: policyData.policy,
-      path: policyData.path,
-      isRemote: true,
-      isFrameworkBased: false,
-      remoteParentProject: {
-        name: parentProject?.name ?? 'unknown',
-        slug: parentProject?.slug ?? '',
-        remoteUrl: synchronizer.generateDeepLinkProjectPolicy(parentProject?.slug ?? ''),
-      }
-    };
+    return getRemotePolicy(path, authenticator.user.token!);
   }
 
   const localConfig = await readConfig(configPath);
@@ -82,4 +67,22 @@ export async function getConfig(path: string, configPath: string, framework: Fra
     isRemote: false,
     isFrameworkBased: false,
   }
+}
+
+export async function getRemotePolicy(path: string, token: string): Promise<ConfigData> {
+  const synchronizer = createDefaultMonokleSynchronizer();
+  const policyData = await synchronizer.synchronize(path, token);
+  const parentProject = await synchronizer.getProjectInfo(path, token);
+
+  return {
+    config: policyData.policy,
+    path: policyData.path,
+    isRemote: true,
+    isFrameworkBased: false,
+    remoteParentProject: {
+      name: parentProject?.name ?? 'unknown',
+      slug: parentProject?.slug ?? '',
+      remoteUrl: synchronizer.generateDeepLinkProjectPolicy(parentProject?.slug ?? ''),
+    }
+  };
 }
