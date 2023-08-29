@@ -1,10 +1,10 @@
 import { createExtensibleMonokleValidator, processRefs, ResourceParser } from "@monokle/validation";
+import { extractK8sResources, BaseFile } from "@monokle/parser";
 import { lstatSync } from "fs";
 import { readFile as readFileFromFs } from "fs/promises";
 import chunkArray from "lodash/chunk.js";
 import glob from "tiny-glob";
 import { command } from "../utils/command.js";
-import { extractK8sResources, File } from "../utils/extract.js";
 import { print } from "../utils/screens.js";
 import { isStdinLike, streamToPromise } from "../utils/stdin.js";
 import { displayInventory, failure, success, configInfo } from "./validate.io.js";
@@ -92,7 +92,7 @@ export const validate = command<Options>({
   },
 });
 
-async function readFiles(path: string): Promise<File[]> {
+async function readFiles(path: string): Promise<BaseFile[]> {
   if (isStdinLike(path)) {
     const stdin = await readStdin();
     return [stdin];
@@ -108,7 +108,7 @@ function isFileLike(path: string) {
   return lstatSync(path).isFile();
 }
 
-async function readFile(path: string): Promise<File> {
+async function readFile(path: string): Promise<BaseFile> {
   const content = await readFileFromFs(path, "utf8");
 
   return {
@@ -118,7 +118,7 @@ async function readFile(path: string): Promise<File> {
   };
 }
 
-async function readStdin(): Promise<File> {
+async function readStdin(): Promise<BaseFile> {
   const buffer = await streamToPromise(process.stdin);
   const content = buffer.toString("utf8");
 
@@ -129,14 +129,14 @@ async function readStdin(): Promise<File> {
   };
 }
 
-async function readDirectory(directoryPath: string): Promise<File[]> {
+async function readDirectory(directoryPath: string): Promise<BaseFile[]> {
   const filePaths = await glob(`${directoryPath}/**/*.{yaml,yml}`);
-  const files: File[] = [];
+  const files: BaseFile[] = [];
 
   for (const chunk of chunkArray(filePaths, 5)) {
     const promise = await Promise.allSettled(
       chunk.map((path) => {
-        return readFileFromFs(path, "utf8").then((content): File => ({ id: path, path, content }));
+        return readFileFromFs(path, "utf8").then((content): BaseFile => ({ id: path, path, content }));
       })
     );
 
