@@ -2,10 +2,12 @@ import { command } from "../utils/command.js";
 import { print } from "../utils/screens.js";
 import { Framework } from "../frameworks/index.js";
 import { getConfig } from "../utils/config.js";
+import { configInfo, configYaml } from "./config.io.js";
 
 type Options = {
   action: string;
   path: string;
+  output: "pretty" | "json" | "yaml";
   config: string;
   framework?: Framework;
 };
@@ -15,6 +17,11 @@ export const config = command<Options>({
   describe: "Show current config",
   builder(args) {
     return args
+      .option("output", {
+        choices: ["pretty", "json", "yaml"] as const,
+        default: "pretty" as const,
+        alias: "o",
+      })
       .option("config", {
         type: "string",
         default: "monokle.validation.yaml",
@@ -28,9 +35,15 @@ export const config = command<Options>({
       .positional("action", { choices: ["show"], demandOption: true, allowed: ["show"] })
       .positional("path", { type: "string", demandOption: true });
   },
-  async handler({ action, path, config, framework }) {
+  async handler({ action, path, output, config, framework }) {
     const usedConfig = await getConfig(path, config, framework);
 
-    print(JSON.stringify(usedConfig, null, 2));
+    if (output === "pretty") {
+      print(configInfo(usedConfig, path));
+    } else if (output === "json") {
+      print(JSON.stringify(usedConfig.config, null, 2));
+    } else if (output === "yaml") {
+      print(configYaml(usedConfig));
+    }
   },
 });
