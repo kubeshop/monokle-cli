@@ -20,7 +20,9 @@
     "build:1": "rimraf build && mkdir build",
     "build:2": "tsc",
     "build:3": "chmod +x ./build/main.js",
-    "prepackage": "rimraf build cjs dist && npm run build && npm run rollup"
+    "prepackage": "rimraf build cjs dist && npm run build && npm run rollup",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "files": [
     "build"
@@ -58,7 +60,8 @@
     "pkg": "5.8.0",
     "rimraf": "3.0.2",
     "rollup": "3.18.0",
-    "typescript": "4.8.3"
+    "typescript": "4.8.3",
+    "vitest": "^0.34.3"
   },
   "dependencies": {
     "@monokle/synchronizer": "0.6.0",
