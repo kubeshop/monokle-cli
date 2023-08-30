@@ -12,7 +12,7 @@
 
 Monokle CLI is a command-line interface for static analysis of Kubernetes resources.
 
-Use it to prevent misconfigurations within Kustomize, Helm or default Kubernetes resources. The output is available as a SARIF file 
+Use it to prevent misconfigurations within Kustomize, Helm or default Kubernetes resources. The output is available as a SARIF file
 which you can upload to GitHub CodeScan.
 
 Monokle CLI includes built-in validators for
@@ -44,7 +44,7 @@ Check out the [announcement blog-post](https://monokle.io/blog/monokle-cli-flexi
 
 ## Installation
 
-You can install the CLI using brew (if you're on MacOS) 
+You can install the CLI using brew (if you're on MacOS)
 
 ```bash
 brew install kubeshop/monokle/monokle-cli
@@ -89,11 +89,11 @@ kustomize build kustomize-dir/overlays/local | monokle validate -
 ```
 
 ### Frameworks
-Monokle CLI supports predefined sets of rules called frameworks, which allow you to quickly run Monokle validation without the need for additional configuration.  
-By using a framework, you can easily perform comprehensive validations based on established best practices and industry standards.  
+Monokle CLI supports predefined sets of rules called frameworks, which allow you to quickly run Monokle validation without the need for additional configuration.
+By using a framework, you can easily perform comprehensive validations based on established best practices and industry standards.
 
-When using a framework, you don't have to configure the `monokle.validation.yaml` file manually.  
-Simply specify the desired framework using the `--framework` or `--fw` CLI arguments, and Monokle CLI will automatically apply the corresponding set of rules.  
+When using a framework, you don't have to configure the `monokle.validation.yaml` file manually.
+Simply specify the desired framework using the `--framework` or `-f` CLI arguments, and Monokle CLI will automatically apply the corresponding set of rules.
 
 Available frameworks:
 
@@ -101,8 +101,8 @@ Available frameworks:
 - `pss-baseline`
 - `nsa`
 
-Using frameworks is an excellent way to get started quickly with Monokle CLI and perform comprehensive validations without the need for extensive configuration.  
-If you prefer a more customized validation, you can still configure the `monokle.validation.yaml` file with your own rules.  
+Using frameworks is an excellent way to get started quickly with Monokle CLI and perform comprehensive validations without the need for extensive configuration.
+If you prefer a more customized validation, you can still configure the `monokle.validation.yaml` file with your own rules.
 
 Here's an example of how to use the `--framework` argument:
 
@@ -129,7 +129,7 @@ You can use `--help` to access help information directly from the CLI.
 
 ### @monokle/validation rules
 
-The Monokle CLI looks for a Monokle Validation configuration file 
+The Monokle CLI looks for a Monokle Validation configuration file
 at `./monokle.validation.yaml`. You can change this by using the `--config` flag.
 
 All rules are enabled by default and are described in the [Monokle Validation configuration][monokle-validation-docs] documentation.
@@ -155,7 +155,7 @@ settings:
 ### Custom validators
 
 It is easy to extend the Monokle CLI with [custom validators][custom-validators] that can be shared with others using
-our [Monokle Community Plugins][monokle-community-plugins] repository. 
+our [Monokle Community Plugins][monokle-community-plugins] repository.
 
 ## GitHub Action
 
@@ -170,11 +170,11 @@ on GitHub
 
 ## Docker
 
-You can use the Docker image `monokle-cli:latest` to run the Monokle CLI in a containerized environment.  
+You can use the Docker image `monokle-cli:latest` to run the Monokle CLI in a containerized environment.
 This can be particularly useful for integrating Monokle into CI/CD pipelines or other automated systems.
 
-To run the Docker image, you can use the `docker run` command. 
-The Monokle CLI arguments can be passed directly to the Docker run command. 
+To run the Docker image, you can use the `docker run` command.
+The Monokle CLI arguments can be passed directly to the Docker run command.
 For example:
 ```
 docker run -v /path/to/input:/input -e CONFIG_FILE=my-validation-config.yaml monokle-cli:latest validate /input
