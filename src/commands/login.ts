@@ -23,7 +23,7 @@ export const login = command<Options>({
       });
   },
   async handler({ apiToken }) {
-    await throwIfAuthenticated();
+    throwIfAuthenticated();
 
     const authenticator = authenticatorGetter.authenticator;
 

@@ -1,5 +1,6 @@
 import { describe as describeVitest, afterAll, beforeAll, afterEach } from 'vitest'
 import sinon from 'sinon';
+import { ApiHandler, Authenticator, DeviceFlowHandler, StorageHandlerAuth } from '@monokle/synchronizer';
 import { authenticatorGetter } from '../src/utils/authenticator.js';
 import { synchronizerGetter } from '../src/utils/synchronizer.js';
 
@@ -9,6 +10,14 @@ type RunCommandFn = (command: string) => Promise<{err: any, argv: any, output: s
 // use e.g. 'console.info' to log temporary messages in test for debug purposes.
 
 export function describe(name: string, fn: (runCommand: RunCommandFn) => void) {
+
+  // Make sure tests always use tmp storage path instead of default one which may break tests if user is authenticated.
+  (authenticatorGetter as any)._authenticator = new Authenticator(
+    new StorageHandlerAuth('./test/'),
+    new ApiHandler(),
+    new DeviceFlowHandler(),
+  );
+
   describeVitest(name, () => {
     const testLogs: string[] = [];
 
@@ -41,7 +50,7 @@ export function describe(name: string, fn: (runCommand: RunCommandFn) => void) {
       }
 
       return new Promise((resolve) => {
-        cliInstance.parse(command, (err, argv, _output) => {
+        cliInstance.parseAsync(command, (err, argv, _output) => {
           resolve({
             err,
             argv,

@@ -10,7 +10,7 @@ export const logout = command<Options>({
   command: "logout",
   describe: "Logout from Monokle Cloud",
   async handler() {
-    await throwIfNotAuthenticated();
+    throwIfNotAuthenticated();
 
     const authenticator = authenticatorGetter.authenticator;
 

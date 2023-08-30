@@ -32,7 +32,7 @@ export const config = command<Options>({
         choices: ["pss-restricted", "pss-baseline", "nsa"] as const,
         alias: "fw",
       })
-      .positional("action", { choices: ["show"], demandOption: true, allowed: ["show"] })
+      .positional("action", { choices: ["show"], demandOption: true })
       .positional("path", { type: "string", demandOption: true });
   },
   async handler({ action, path, output, config, framework }) {

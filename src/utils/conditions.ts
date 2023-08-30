@@ -1,6 +1,6 @@
 import { authenticatorGetter } from "./authenticator.js";
 
-export async function throwIfNotAuthenticated() {
+export function throwIfNotAuthenticated() {
   const authenticator = authenticatorGetter.authenticator;
 
   if (!authenticator.user.isAuthenticated) {
@@ -8,7 +8,7 @@ export async function throwIfNotAuthenticated() {
   }
 }
 
-export async function throwIfAuthenticated() {
+export function throwIfAuthenticated() {
   const authenticator = authenticatorGetter.authenticator;
 
   if (authenticator.user.isAuthenticated) {
