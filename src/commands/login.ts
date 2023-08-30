@@ -1,5 +1,6 @@
 import open from 'open';
-import { createDefaultMonokleAuthenticator, AuthenticatorLoginResponse } from "@monokle/synchronizer";
+import { AuthenticatorLoginResponse } from "@monokle/synchronizer";
+import { authenticatorGetter } from "../utils/authenticator.js";
 import { promptForLoginMethod, promptForDeviceFlowInput, promptForToken, cancelled, error, success, urlInfo, waiting } from "./login.io.js";
 import { command } from "../utils/command.js";
 import { throwIfAuthenticated } from "../utils/conditions.js";
@@ -24,7 +25,7 @@ export const login = command<Options>({
   async handler({ apiToken }) {
     await throwIfAuthenticated();
 
-    const authenticator = createDefaultMonokleAuthenticator();
+    const authenticator = authenticatorGetter.authenticator;
 
     try {
       let loginRequest: AuthenticatorLoginResponse | undefined = undefined;

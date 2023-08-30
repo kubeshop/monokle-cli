@@ -1,5 +1,6 @@
-import { createDefaultMonokleAuthenticator, createDefaultMonokleSynchronizer } from "@monokle/synchronizer";
 import { Config, readConfig } from "@monokle/validation";
+import { authenticatorGetter } from "./authenticator.js";
+import { synchronizerGetter } from "./synchronizer.js";
 import { resolve } from "path";
 import { Framework, getFrameworkConfig } from "../frameworks/index.js";
 import { isStdinLike } from "./stdin.js";
@@ -54,7 +55,7 @@ export async function getConfig(path: string, configPath: string, framework: Fra
     }
   }
 
-  const authenticator = createDefaultMonokleAuthenticator();
+  const authenticator = authenticatorGetter.authenticator;
   if (authenticator.user.isAuthenticated) {
     await authenticator.refreshToken();
     return getRemotePolicy(path, authenticator.user.token!);
@@ -70,7 +71,7 @@ export async function getConfig(path: string, configPath: string, framework: Fra
 }
 
 export async function getRemotePolicy(path: string, token: string): Promise<ConfigData> {
-  const synchronizer = createDefaultMonokleSynchronizer();
+  const synchronizer = synchronizerGetter.synchronizer;
   const policyData = await synchronizer.synchronize(path, token);
   const parentProject = await synchronizer.getProjectInfo(path, token);
 

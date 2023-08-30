@@ -1,4 +1,4 @@
-import { createDefaultMonokleAuthenticator } from "@monokle/synchronizer";
+import { authenticatorGetter } from "../utils/authenticator.js";
 import { error, success } from "./logout.io.js";
 import { command } from "../utils/command.js";
 import { throwIfNotAuthenticated } from "../utils/conditions.js";
@@ -12,7 +12,7 @@ export const logout = command<Options>({
   async handler() {
     await throwIfNotAuthenticated();
 
-    const authenticator = createDefaultMonokleAuthenticator();
+    const authenticator = authenticatorGetter.authenticator;
 
     try {
       await authenticator.logout();

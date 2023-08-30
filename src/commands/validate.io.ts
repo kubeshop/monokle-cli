@@ -1,5 +1,5 @@
 import {
-  getRuleForResult,
+  getRuleForResult, //@TODO migrate to v2 method
   Resource,
   ValidationResponse,
 } from "@monokle/validation";

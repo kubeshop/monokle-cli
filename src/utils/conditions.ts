@@ -1,7 +1,7 @@
-import { createDefaultMonokleAuthenticator } from "@monokle/synchronizer";
+import { authenticatorGetter } from "./authenticator.js";
 
 export async function throwIfNotAuthenticated() {
-  const authenticator = createDefaultMonokleAuthenticator();
+  const authenticator = authenticatorGetter.authenticator;
 
   if (!authenticator.user.isAuthenticated) {
     throw new Error("Not authenticated.");
@@ -9,7 +9,7 @@ export async function throwIfNotAuthenticated() {
 }
 
 export async function throwIfAuthenticated() {
-  const authenticator = createDefaultMonokleAuthenticator();
+  const authenticator = authenticatorGetter.authenticator;
 
   if (authenticator.user.isAuthenticated) {
     throw new Error("Already authenticated.");

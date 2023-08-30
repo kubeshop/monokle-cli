@@ -1,7 +1,13 @@
-import { it, expect } from 'vitest';
-import { describe } from './describe.js';
+import { it, expect, afterEach } from 'vitest';
+import { describe, getRemoteLikeEnvStubber } from './setup.js';
 
 describe('Validate command', (runCommand) => {
+  let stubber: ReturnType<typeof getRemoteLikeEnvStubber>;
+
+  afterEach(() => {
+    stubber?.restore();
+  });
+
   it('can validate single resource file', async () => {
     const result = await runCommand('validate ./test/assets/single-bad-resource.yaml');
 
@@ -19,10 +25,10 @@ describe('Validate command', (runCommand) => {
     expect(result.output).toContain('test/assets/single-bad-resource.yaml');
   });
 
-  // @TODO: Fix stdin test
+  // @TODO: Add stdin test
   // it('can validate resources from stdin', async () => {
   //   const result = await runCommand('validate -');
-
+  //
   //   expect(result.err).toBe(null);
   // });
 
@@ -39,5 +45,16 @@ describe('Validate command', (runCommand) => {
     expect(result.err).toBe(null);
     expect(result.output).toContain('1 misconfigurations found. (0 errors)');
     expect(result.output).toContain('Check that ArgoCD ConfigMaps');
+  });
+
+  it('can validate resources with remote config', async () => {
+    stubber = getRemoteLikeEnvStubber();
+    stubber.stub();
+
+    const result = await runCommand('validate ./test/assets/single-bad-resource.yaml');
+
+    expect(result.err).toBe(null);
+    expect(result.output).toContain('11 misconfigurations found. (0 errors)');
+    expect(result.output).toContain('test/assets/single-bad-resource.yaml');
   });
 });
