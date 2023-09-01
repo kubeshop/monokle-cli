@@ -16,6 +16,7 @@ type Options = {
   inventory: boolean;
   output: "pretty" | "sarif";
   framework?: "pss-restricted" | "pss-baseline" | "nsa";
+  failOnWarnings: boolean;
 };
 
 export const validate = command<Options>({
@@ -43,11 +44,20 @@ export const validate = command<Options>({
         choices: ["pss-restricted", "pss-baseline", "nsa"] as const,
         alias: "fw",
       })
+      .option("failOnWarnings", {
+        type: "boolean",
+        description: "Fails the validation if there are warnings",
+        default: false
+      })
       .positional("path", { type: "string", demandOption: true });
   },
-  async handler({ path, output, inventory, config: configPath, framework }) {
+  async handler({ path, output, inventory, config: configPath, framework, failOnWarnings }) {
     const files = await readFiles(path);
     const resources = extractK8sResources(files);
+    if( resources.length === 0 ){
+      print( "No YAML resources found");
+      return;
+    }
 
     if (inventory) {
       print(displayInventory(resources));
@@ -66,17 +76,24 @@ export const validate = command<Options>({
       files.map((f) => f.path)
     );
     const response = await validator.validate({ resources });
-
-    const errorCount = response.runs.reduce((sum, r) => sum + r.results.length, 0);
+    const problemCount = response.runs.reduce((sum, r) => sum + r.results.length, 0);
+    const errorCount = response.runs.reduce((sum, r) => sum + r.results.filter(r => r.level === "error").length, 0);
 
     if (output === "pretty") {
-      if (errorCount) {
+      if (problemCount) {
         print(failure(response));
       } else {
         print(success());
       }
     } else {
       console.log(JSON.stringify(response, null, 2));
+    }
+
+    if( failOnWarnings && problemCount > 0 ){
+      throw "Validation failed with " + problemCount + " problems";
+    }
+    else if( errorCount > 0 ){
+      throw "Validation failed with " + errorCount + " errors";
     }
   },
 });
