@@ -14,4 +14,8 @@ yargs(hideBin(process.argv))
   })
   .command(validate)
   .showHelpOnFail(false)
+  .demandCommand(1, 'Missing command, try --help to see available commands')
+  .wrap(100)
   .parseAsync();
+
+

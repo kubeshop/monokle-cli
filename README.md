@@ -15,11 +15,13 @@ Monokle CLI is a command-line interface for static analysis of Kubernetes resour
 Use it to prevent misconfigurations within Kustomize, Helm or default Kubernetes resources. The output is available as a SARIF file 
 which you can upload to GitHub CodeScan.
 
-Monokle CLI includes built-in validators for
-- YAML Syntax
-- Kubernetes Schema compliance
-- Resource links between Kubernetes resources
-- OPA Security policies
+Monokle CLI includes [core validators][core-validators] for
+- Kubernetes Pod Security Standards
+- JSON Schemas and Kubernetes version compliance
+- Links between Kubernetes resources
+- Resource metadata
+- Common practices
+- Security policies - using OPA
 
 Under the hood it uses [@monokle/validation][monokle-validation] which allows you to configure validation rules extensively.
 
@@ -50,13 +52,14 @@ You can install the CLI using brew (if you're on MacOS)
 brew install kubeshop/monokle/monokle-cli
 ```
 
-or as an NPM package (more installers coming up...).
+or as an NPM package (more installers coming up...) 
 
 ```bash
 npm install --global @monokle/cli
 ```
-
 (We recommend using the LTS NodeJs version)
+
+or using the Docker Image - [see below](#docker)
 
 ## Usage
 
@@ -110,7 +113,6 @@ Here's an example of how to use the `--framework` argument:
 monokle validate k8s-dir --framework pss-restricted
 ```
 
-
 ### Generate SARIF analysis
 
 The Monokle CLI can output its results in [SARIF format](https://sarifweb.azurewebsites.net/).
@@ -119,7 +121,7 @@ The Monokle CLI can output its results in [SARIF format](https://sarifweb.azurew
 monokle validate --output sarif k8s-dir > results.sarif
 ```
 
-Afterwards you could use [VSC's SARIF Viewer][vsc-sarif] or other tools to inspect the results.
+Afterward you could use [VSC's SARIF Viewer][vsc-sarif] or other tools to inspect the results.
 
 ## Configuration
 
@@ -162,12 +164,6 @@ our [Monokle Community Plugins][monokle-community-plugins] repository.
 The [Monokle GitHub Action](https://github.com/marketplace/actions/monokle-validation) can be used to validate your resources as part of your CI/CD pipelines
 on GitHub
 
-[custom-validators]: https://github.com/kubeshop/monokle-core/blob/main/packages/validation/docs/custom-plugins.md
-[monokle-community-plugins]: https://github.com/kubeshop/monokle-community-plugins
-[monokle-validation]: https://github.com/kubeshop/monokle-core/tree/main/packages/validation
-[monokle-validation-docs]: https://github.com/kubeshop/monokle-core/blob/main/packages/validation/docs/configuration.md
-[vsc-sarif]: https://marketplace.visualstudio.com/items?itemName=MS-SarifVSCode.sarif-viewer
-
 ## Docker
 
 You can use the Docker image `monokle-cli:latest` to run the Monokle CLI in a containerized environment.  
@@ -184,3 +180,10 @@ In this command:
   - `-v /path/to/input:/input` mounts a directory from your host system to the /input directory inside the Docker container.
   - `-e CONFIG_FILE=my-validation-config.yaml` sets an environment variable inside the Docker container. If this environment variable is set, the Docker container will use the specified file as the Monokle validation configuration.
   - `validate /input` is the command that will be passed to the Monokle CLI. You can replace this with any command you want to run with the Monokle CLI.
+
+[core-validators]: https://github.com/kubeshop/monokle-core/blob/main/packages/validation/docs/core-plugins.md
+[custom-validators]: https://github.com/kubeshop/monokle-core/blob/main/packages/validation/docs/custom-plugins.md
+[monokle-community-plugins]: https://github.com/kubeshop/monokle-community-plugins
+[monokle-validation]: https://github.com/kubeshop/monokle-core/tree/main/packages/validation
+[monokle-validation-docs]: https://github.com/kubeshop/monokle-core/blob/main/packages/validation/docs/configuration.md
+[vsc-sarif]: https://marketplace.visualstudio.com/items?itemName=MS-SarifVSCode.sarif-viewer

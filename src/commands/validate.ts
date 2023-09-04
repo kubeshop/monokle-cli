@@ -11,7 +11,7 @@ import { displayInventory, failure, success } from "./validate.io.js";
 import { getFrameworkConfig } from "../frameworks/index.js";
 
 type Options = {
-  path: string;
+  input: string;
   config: string;
   inventory: boolean;
   output: "pretty" | "sarif";
@@ -20,18 +20,20 @@ type Options = {
 };
 
 export const validate = command<Options>({
-  command: "validate [path]",
+  command: "validate [options]",
   describe: "Validate your Kubernetes resources",
   builder(args) {
     return args
       .option("output", {
         choices: ["pretty", "sarif"] as const,
+        description: "Output format.",
         default: "pretty" as const,
         alias: "o",
       })
       .option("config", {
         type: "string",
         default: "monokle.validation.yaml",
+        description: "Path to configuration file.",
         alias: "c",
       })
       .option("inventory", {
@@ -42,17 +44,19 @@ export const validate = command<Options>({
       .option("framework", {
         type: "string",
         choices: ["pss-restricted", "pss-baseline", "nsa"] as const,
+        description: "Validation framework to use.",
         alias: "fw",
       })
       .option("failOnWarnings", {
         type: "boolean",
-        description: "Fails the validation if there are warnings",
+        description: "Fails the validation if there are warnings.",
         default: false
       })
-      .positional("path", { type: "string", demandOption: true });
+      .positional("input", { type: "string", description: "file/folder path or resource YAMLs via stdin", demandOption: true })
+      .demandOption("input", "Path or stdin required for target resources");
   },
-  async handler({ path, output, inventory, config: configPath, framework, failOnWarnings }) {
-    const files = await readFiles(path);
+  async handler({ input, output, inventory, config: configPath, framework, failOnWarnings }) {
+    const files = await readFiles(input);
     const resources = extractK8sResources(files);
     if( resources.length === 0 ){
       print( "No YAML resources found");
@@ -99,7 +103,7 @@ export const validate = command<Options>({
 });
 
 async function readFiles(path: string): Promise<File[]> {
-  if (isStdinLike(path)) {
+  if ( isStdinLike(path)) {
     const stdin = await readStdin();
     return [stdin];
   } else if (isFileLike(path)) {
