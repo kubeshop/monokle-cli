@@ -46,7 +46,7 @@ jobs:
         run: npm run build
 
       - name: Check Build
-        run: node ./build/main.js validate .
+        run: node ./build/main.js validate . -f 'pss-baseline'
 
   package:
     name: Package

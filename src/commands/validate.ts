@@ -22,7 +22,7 @@ type Options = {
 };
 
 export const validate = command<Options>({
-  command: "validate [options]",
+  command: "validate [input] [options]",
   describe: "Validate your Kubernetes resources",
   builder(args) {
     return args
