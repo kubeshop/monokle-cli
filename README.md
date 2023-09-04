@@ -205,7 +205,7 @@ After the setup is done, you can run `monokle validate` command and it will use 
 
 ## Using on CI/CD pipelines
 
-> We have dedicated [`Monokle GitHub Bot`](#monokle-github-bot) to integrate centralized policy management into GitHub CI/CD pipelines which gives more extensive integration than using CLI directly.
+> We have dedicated [`Monokle GitHub Bot`](#monokle-github-bot) to integrate centralized policy management into GitHub CI/CD pipelines which gives tighter integration with Monokle Cloud than using CLI directly.
 
 To use Monokle CLI as part of CI/CD pipeline, it needs to be installed first and then simply run with `monokle validate path/to/resources`.
 
@@ -217,12 +217,12 @@ If you need to run single validation it should be enough to use `monokle validat
 
 ## Monokle GitHub Bot
 
-The [Monokle GitHub Bot](https://docs.monokle.com/concepts/github-bot) can be used to validate your resources as part of your CI/CD pipelines. It is integrated with [Monokle Cloud](https://app.monokle.com/) out-of-the-box to allow easy centralized policy management.
+The [Monokle GitHub Bot](https://docs.monokle.com/concepts/github-bot) can be used to validate your resources as part of your GitHub CI/CD pipelines. It is integrated with [Monokle Cloud](https://app.monokle.com/) out-of-the-box to allow easy centralized policy management.
 
 ## Monokle GitHub Action
 
 The [Monokle GitHub Action](https://github.com/marketplace/actions/monokle-validation) can be used to validate your resources as part of your CI/CD pipelines
-on GitHub.
+on GitHub. It gives more customizability when it comes to validating Dry Runs results.
 
 If you need something tightly integrated with Monokle Cloud, we recommend using [`Monokle GitHub Bot`](#monokle-github-bot).
 
