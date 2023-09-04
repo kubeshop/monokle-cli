@@ -9,7 +9,7 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "dev": "npm run cli",
+    "dev": "npm run build && node ./build/main.js",
     "rollup": "rollup -c",
     "package": " npm-run-all package:*",
     "package:macos-arm": "pkg cjs/main.cjs --target node16-macos-arm64 --output dist/monokle-cli-macos-arm --no-bytecode --public",
@@ -20,7 +20,9 @@
     "build:1": "rimraf build && mkdir build",
     "build:2": "tsc",
     "build:3": "chmod +x ./build/main.js",
-    "prepackage": "rimraf build cjs dist && npm run build && npm run rollup"
+    "prepackage": "rimraf build cjs dist && npm run build && npm run rollup",
+    "test": "vitest run --test-timeout=10000",
+    "test:watch": "vitest --test-timeout=10000"
   },
   "files": [
     "build"
@@ -50,17 +52,21 @@
     "@types/marked": "4.0.7",
     "@types/marked-terminal": "3.1.3",
     "@types/node": "18.7.18",
-    "@types/uuid": "8.3.4",
+    "@types/prompts": "^2.4.4",
     "@types/yaml": "1.9.7",
     "@types/yargs": "17.0.24",
     "npm-run-all": "4.1.5",
     "pkg": "5.8.0",
     "rimraf": "3.0.2",
     "rollup": "3.18.0",
-    "typescript": "4.8.3"
+    "sinon": "^15.2.0",
+    "typescript": "4.8.3",
+    "vitest": "^0.34.3"
   },
   "dependencies": {
-    "@monokle/validation": "0.24.2",
+    "@monokle/parser": "0.1.0",
+    "@monokle/synchronizer": "0.6.0",
+    "@monokle/validation": "0.25.4",
     "abortcontroller-polyfill": "1.7.5",
     "boxen": "7.0.0",
     "chalk": "5.0.1",
@@ -68,9 +74,10 @@
     "isomorphic-fetch": "^3.0.0",
     "lodash": "^4.17.21",
     "log-symbols": "5.1.0",
+    "open": "^9.1.0",
+    "prompts": "^2.4.2",
     "strands": "1.0.1",
     "tiny-glob": "0.2.9",
-    "uuid": "9.0.0",
     "yaml": "2.1.1",
     "yargs": "17.7.2"
   }

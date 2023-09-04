@@ -1,26 +1,28 @@
-import { createExtensibleMonokleValidator, processRefs, readConfig, ResourceParser } from "@monokle/validation";
+import { createExtensibleMonokleValidator, processRefs, ResourceParser } from "@monokle/validation";
+import { extractK8sResources, BaseFile } from "@monokle/parser";
 import { lstatSync } from "fs";
 import { readFile as readFileFromFs } from "fs/promises";
 import chunkArray from "lodash/chunk.js";
 import glob from "tiny-glob";
 import { command } from "../utils/command.js";
-import { extractK8sResources, File } from "../utils/extract.js";
 import { print } from "../utils/screens.js";
-import { streamToPromise } from "../utils/stdin.js";
-import { displayInventory, failure, success } from "./validate.io.js";
-import { getFrameworkConfig } from "../frameworks/index.js";
+import { isStdinLike, streamToPromise } from "../utils/stdin.js";
+import { displayInventory, failure, success, configInfo } from "./validate.io.js";
+import { getConfig, getRemotePolicy } from "../utils/config.js";
+import { Framework } from "../frameworks/index.js";
 
 type Options = {
   input: string;
   config: string;
   inventory: boolean;
   output: "pretty" | "sarif";
-  framework?: "pss-restricted" | "pss-baseline" | "nsa";
+  framework?: Framework;
+  'api-token'?: string;
   failOnWarnings: boolean;
 };
 
 export const validate = command<Options>({
-  command: "validate [options]",
+  command: "validate [input] [options]",
   describe: "Validate your Kubernetes resources",
   builder(args) {
     return args
@@ -45,7 +47,12 @@ export const validate = command<Options>({
         type: "string",
         choices: ["pss-restricted", "pss-baseline", "nsa"] as const,
         description: "Validation framework to use.",
-        alias: "fw",
+        alias: "f",
+      })
+      .option("api-token", {
+        type: "string",
+        description: "Monokle Cloud API token to fetch remote policy. It will be used instead of authenticated user credentials.",
+        alias: "t",
       })
       .option("failOnWarnings", {
         type: "boolean",
@@ -55,7 +62,7 @@ export const validate = command<Options>({
       .positional("input", { type: "string", description: "file/folder path or resource YAMLs via stdin", demandOption: true })
       .demandOption("input", "Path or stdin required for target resources");
   },
-  async handler({ input, output, inventory, config: configPath, framework, failOnWarnings }) {
+  async handler({ input, output, inventory, config: configPath, framework, apiToken, failOnWarnings }) {
     const files = await readFiles(input);
     const resources = extractK8sResources(files);
     if( resources.length === 0 ){
@@ -67,11 +74,13 @@ export const validate = command<Options>({
       print(displayInventory(resources));
     }
 
-    const frameworkConfig = await getFrameworkConfig(framework);
     const parser = new ResourceParser();
     const validator = createExtensibleMonokleValidator(parser);
-    const config = await readConfig(configPath);
-    await validator.preload(frameworkConfig ?? config);
+
+    // If --api-token set explicitly we try to use remote policy only.
+    const configData = apiToken ? await getRemotePolicy(input, apiToken) :  await getConfig(input, configPath, framework);
+
+    await validator.preload(configData.config);
 
     processRefs(
       resources,
@@ -84,13 +93,15 @@ export const validate = command<Options>({
     const errorCount = response.runs.reduce((sum, r) => sum + r.results.filter(r => r.level === "error").length, 0);
 
     if (output === "pretty") {
+      print(configInfo(configData));
+
       if (problemCount) {
         print(failure(response));
       } else {
         print(success());
       }
     } else {
-      console.log(JSON.stringify(response, null, 2));
+      print(JSON.stringify(response, null, 2));
     }
 
     if( failOnWarnings && problemCount > 0 ){
@@ -102,8 +113,8 @@ export const validate = command<Options>({
   },
 });
 
-async function readFiles(path: string): Promise<File[]> {
-  if ( isStdinLike(path)) {
+async function readFiles(path: string): Promise<BaseFile[]> {
+  if (isStdinLike(path)) {
     const stdin = await readStdin();
     return [stdin];
   } else if (isFileLike(path)) {
@@ -118,7 +129,7 @@ function isFileLike(path: string) {
   return lstatSync(path).isFile();
 }
 
-async function readFile(path: string): Promise<File> {
+async function readFile(path: string): Promise<BaseFile> {
   const content = await readFileFromFs(path, "utf8");
 
   return {
@@ -128,11 +139,7 @@ async function readFile(path: string): Promise<File> {
   };
 }
 
-function isStdinLike(path: string) {
-  return path === "";
-}
-
-async function readStdin(): Promise<File> {
+async function readStdin(): Promise<BaseFile> {
   const buffer = await streamToPromise(process.stdin);
   const content = buffer.toString("utf8");
 
@@ -143,14 +150,14 @@ async function readStdin(): Promise<File> {
   };
 }
 
-async function readDirectory(directoryPath: string): Promise<File[]> {
+async function readDirectory(directoryPath: string): Promise<BaseFile[]> {
   const filePaths = await glob(`${directoryPath}/**/*.{yaml,yml}`);
-  const files: File[] = [];
+  const files: BaseFile[] = [];
 
   for (const chunk of chunkArray(filePaths, 5)) {
     const promise = await Promise.allSettled(
       chunk.map((path) => {
-        return readFileFromFs(path, "utf8").then((content): File => ({ id: path, path, content }));
+        return readFileFromFs(path, "utf8").then((content): BaseFile => ({ id: path, path, content }));
       })
     );
 

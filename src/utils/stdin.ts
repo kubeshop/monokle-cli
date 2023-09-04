@@ -27,3 +27,7 @@ export function streamToPromise(stream: NodeJS.ReadStream): Promise<Buffer> {
     stream.on("error", onError);
   });
 }
+
+export function isStdinLike(path: string) {
+  return path === "";
+}

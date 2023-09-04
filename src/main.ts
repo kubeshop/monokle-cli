@@ -1,21 +1,4 @@
 #!/usr/bin/env node
-import yargs from "yargs";
-import { hideBin } from "yargs/helpers";
-import { validate } from "./commands/validate.js";
-import fetch from "isomorphic-fetch";
+import { cli } from "./cli.js";
 
-(global as any).fetch = fetch;
-import "abortcontroller-polyfill/dist/polyfill-patch-fetch.js";
-
-yargs(hideBin(process.argv))
-  .scriptName("monokle")
-  .parserConfiguration({
-    "greedy-arrays": false,
-  })
-  .command(validate)
-  .showHelpOnFail(false)
-  .demandCommand(1, 'Missing command, try --help to see available commands')
-  .wrap(100)
-  .parseAsync();
-
-
+cli.parseAsync();
