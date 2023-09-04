@@ -1,5 +1,5 @@
 import {
-  getRuleForResult, //@TODO migrate to v2 method
+  getRuleForResultV2,
   Resource,
   ValidationResponse,
 } from "@monokle/validation";
@@ -43,20 +43,20 @@ export const displayInventory = (allResources: Resource[]) => {
 export const failure = (response: ValidationResponse) => {
   const screen = new Screen();
 
-  const allResults = response.runs.flatMap((r) => r.results);
-  const groupedResults = groupBy(allResults, (r) => {
-    const location = r.locations[1]?.logicalLocations?.[0]?.fullyQualifiedName;
+  const allResultsData = response.runs.flatMap((r, i) => r.results.map(result => ({result, run: i})));
+  const groupedResults = groupBy(allResultsData, (r) => {
+    const location = r.result.locations[1]?.logicalLocations?.[0]?.fullyQualifiedName;
     return location ?? "unknown";
   });
 
-  for (const [location, results] of Object.entries(groupedResults)) {
+  for (const [location, resultsData] of Object.entries(groupedResults)) {
     screen.line(C.bold(location));
 
-    for (const result of results) {
-      const color = result.level === "error" ? C.red : C.yellow;
-      const icon = result.level === "error" ? S.error : S.warning;
-      const rule = getRuleForResult(response, result);
-      const message = result.message.text;
+    for (const item of resultsData) {
+      const color = item.result.level === "error" ? C.red : C.yellow;
+      const icon = item.result.level === "error" ? S.error : S.warning;
+      const rule = getRuleForResultV2(response.runs[item.run], item.result);
+      const message = item.result.message.text;
       screen.line(`${color(`[${icon} ${rule.name}]`)} ${message}`);
     }
 
