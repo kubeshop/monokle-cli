@@ -49,15 +49,22 @@ export function describe(name: string, fn: (runCommand: RunCommandFn) => void) {
         cliInstance = cli;
       }
 
-      return new Promise((resolve) => {
-        cliInstance.parseAsync(command, (err, argv, _output) => {
-          resolve({
-            err,
+      // Empty callback needs to be provided, otherwise this code breaks resulting in process exiting with code 1.
+      return cliInstance.parseAsync(command, (_err, _argv, _output) => {})
+        .then((argv) => {
+          return {
+            err: null,
             argv,
             output: getCommandOutput(),
-          });
+          };
         })
-      });
+        .catch((err) => {
+          return {
+            err,
+            argv: null,
+            output: getCommandOutput(),
+          };
+        });
     }
 
     fn(runCommand);

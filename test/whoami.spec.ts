@@ -19,12 +19,10 @@ describe('Whoami command', (runCommand) => {
     expect(result.output).toContain('testuser@kubeshop.io');
   });
 
-  // @TODO: This throws uncatchable error and vitest complains about it (even though test passes).
-  // I suspect it's related how yargs handle running async command handler.
-  // it('throws error when not authenticated', async () => {
-  //   const result = await runCommand('whoami');
+  it('throws error when not authenticated', async () => {
+    const result = await runCommand('whoami');
 
-  //   expect(result.err).not.toBe(null);
-  //   expect(result.err.message).toContain('Not authenticated');
-  // });
+    expect(result.err).not.toBe(null);
+    expect(result.err.message).toContain('Not authenticated');
+  });
 });

@@ -17,4 +17,11 @@ describe('Logout command', (runCommand) => {
     expect(result.err).toBe(null);
     expect(result.output).toContain('Logged out successfully');
   });
+
+  it('throws error when already logged out', async () => {
+    const result = await runCommand('logout');
+
+    expect(result.err).not.toBe(null);
+    expect(result.err.message).toContain('Not authenticated');
+  });
 });
