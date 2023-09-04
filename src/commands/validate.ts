@@ -12,27 +12,30 @@ import { getConfig, getRemotePolicy } from "../utils/config.js";
 import { Framework } from "../frameworks/index.js";
 
 type Options = {
-  path: string;
+  input: string;
   config: string;
   inventory: boolean;
   output: "pretty" | "sarif";
   framework?: Framework;
   'api-token'?: string;
+  failOnWarnings: boolean;
 };
 
 export const validate = command<Options>({
-  command: "validate [path]",
+  command: "validate [options]",
   describe: "Validate your Kubernetes resources",
   builder(args) {
     return args
       .option("output", {
         choices: ["pretty", "sarif"] as const,
+        description: "Output format.",
         default: "pretty" as const,
         alias: "o",
       })
       .option("config", {
         type: "string",
         default: "monokle.validation.yaml",
+        description: "Path to configuration file.",
         alias: "c",
       })
       .option("inventory", {
@@ -43,6 +46,7 @@ export const validate = command<Options>({
       .option("framework", {
         type: "string",
         choices: ["pss-restricted", "pss-baseline", "nsa"] as const,
+        description: "Validation framework to use.",
         alias: "f",
       })
       .option("api-token", {
@@ -50,11 +54,21 @@ export const validate = command<Options>({
         description: "Monokle Cloud API token to fetch remote policy. It will be used instead of authenticated user credentials.",
         alias: "t",
       })
-      .positional("path", { type: "string", demandOption: true });
+      .option("failOnWarnings", {
+        type: "boolean",
+        description: "Fails the validation if there are warnings.",
+        default: false
+      })
+      .positional("input", { type: "string", description: "file/folder path or resource YAMLs via stdin", demandOption: true })
+      .demandOption("input", "Path or stdin required for target resources");
   },
-  async handler({ path, output, inventory, config: configPath, framework, apiToken }) {
-    const files = await readFiles(path);
+  async handler({ input, output, inventory, config: configPath, framework, apiToken, failOnWarnings }) {
+    const files = await readFiles(input);
     const resources = extractK8sResources(files);
+    if( resources.length === 0 ){
+      print( "No YAML resources found");
+      return;
+    }
 
     if (inventory) {
       print(displayInventory(resources));
@@ -64,7 +78,7 @@ export const validate = command<Options>({
     const validator = createExtensibleMonokleValidator(parser);
 
     // If --api-token set explicitly we try to use remote policy only.
-    const configData = apiToken ? await getRemotePolicy(path, apiToken) :  await getConfig(path, configPath, framework);
+    const configData = apiToken ? await getRemotePolicy(input, apiToken) :  await getConfig(input, configPath, framework);
 
     await validator.preload(configData.config);
 
@@ -75,19 +89,26 @@ export const validate = command<Options>({
       files.map((f) => f.path)
     );
     const response = await validator.validate({ resources });
-
-    const errorCount = response.runs.reduce((sum, r) => sum + r.results.length, 0);
+    const problemCount = response.runs.reduce((sum, r) => sum + r.results.length, 0);
+    const errorCount = response.runs.reduce((sum, r) => sum + r.results.filter(r => r.level === "error").length, 0);
 
     if (output === "pretty") {
       print(configInfo(configData));
 
-      if (errorCount) {
+      if (problemCount) {
         print(failure(response));
       } else {
         print(success());
       }
     } else {
       print(JSON.stringify(response, null, 2));
+    }
+
+    if( failOnWarnings && problemCount > 0 ){
+      throw "Validation failed with " + problemCount + " problems";
+    }
+    else if( errorCount > 0 ){
+      throw "Validation failed with " + errorCount + " errors";
     }
   },
 });

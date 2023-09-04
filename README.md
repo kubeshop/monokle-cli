@@ -169,7 +169,7 @@ The Monokle CLI can output its results in [SARIF format](https://sarifweb.azurew
 monokle validate --output sarif k8s-dir > results.sarif
 ```
 
-Afterwards you could use [VSC's SARIF Viewer][vsc-sarif] or other tools to inspect the results.
+Afterward you could use [VSC's SARIF Viewer][vsc-sarif] or other tools to inspect the results.
 
 ## Using with Monokle Cloud
 
@@ -263,8 +263,7 @@ settings:
 
 ### Custom validators
 
-It is easy to extend the Monokle CLI with [custom validators][custom-validators] that can be shared with others using
-our [Monokle Community Plugins][monokle-community-plugins] repository.
+It is easy to extend the Monokle CLI with [custom validators][custom-validators] that can be shared with others using our [Monokle Community Plugins][monokle-community-plugins] repository.
 
 ## Docker
 
@@ -282,3 +281,10 @@ In this command:
   - `-v /path/to/input:/input` mounts a directory from your host system to the /input directory inside the Docker container.
   - `-e CONFIG_FILE=my-validation-config.yaml` sets an environment variable inside the Docker container. If this environment variable is set, the Docker container will use the specified file as the Monokle validation configuration.
   - `validate /input` is the command that will be passed to the Monokle CLI. You can replace this with any command you want to run with the Monokle CLI.
+
+[core-validators]: https://github.com/kubeshop/monokle-core/blob/main/packages/validation/docs/core-plugins.md
+[custom-validators]: https://github.com/kubeshop/monokle-core/blob/main/packages/validation/docs/custom-plugins.md
+[monokle-community-plugins]: https://github.com/kubeshop/monokle-community-plugins
+[monokle-validation]: https://github.com/kubeshop/monokle-core/tree/main/packages/validation
+[monokle-validation-docs]: https://github.com/kubeshop/monokle-core/blob/main/packages/validation/docs/configuration.md
+[vsc-sarif]: https://marketplace.visualstudio.com/items?itemName=MS-SarifVSCode.sarif-viewer

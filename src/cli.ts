@@ -22,4 +22,6 @@ export const cli = yargs(hideBin(process.argv))
   .command(whoami)
   .command(config)
   .command(init)
-  .showHelpOnFail(false);
+  .showHelpOnFail(false)
+  .demandCommand(1, 'Missing command, try --help to see available commands')
+  .wrap(100);
