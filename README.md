@@ -65,7 +65,7 @@ brew install kubeshop/monokle/monokle-cli
 Monokle CLI exposes following commands:
 
 * `monokle validate [path]` - validate Kubernetes resources in a given path.
-* `monokle init` - use wizard to generate local policy configuration file.
+* `monokle init` - generate local configuration file.
 * `monokle login` - login to Monokle Cloud to use remote policy.
 * `monokle logout`- logout from Monokle Cloud.
 * `monokle whoami` - get information about currently authenticated user.

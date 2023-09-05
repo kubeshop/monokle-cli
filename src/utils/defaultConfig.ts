@@ -1,0 +1,22 @@
+export default {
+  plugins: {
+    'yaml-syntax': true,
+    'open-policy-agent': true,
+    'resource-links': true,
+    'kubernetes-schema': true,
+    annotations: true
+  },
+  rules: {
+    'yaml-syntax/no-bad-alias': 'warn',
+    'yaml-syntax/no-bad-directive': false,
+    'open-policy-agent/no-last-image': 'err',
+    'open-policy-agent/cpu-limit': 'err',
+    'open-policy-agent/memory-limit': 'err',
+    'open-policy-agent/memory-request': 'err'
+  },
+  settings: {
+    "kubernetes-schema": {
+      schemaVersion: "v1.24.2",
+    },
+  },
+};
