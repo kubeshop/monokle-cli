@@ -16,7 +16,7 @@ export default {
   },
   settings: {
     "kubernetes-schema": {
-      schemaVersion: "v1.24.2",
+      schemaVersion: "v1.26.8",
     },
   },
 };
