@@ -45,7 +45,3 @@ export const promptForOverwrite = async () => {
 export const success = (path: string) => `
 Successfully generated policy configuration file in ${C.bold(path)}.
 `;
-
-export const error = (err: string) => `
-Error generating policy configuration file: ${C.bold(err)}.
-`;

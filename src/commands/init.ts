@@ -1,12 +1,12 @@
-import { readFile, writeFile } from "fs/promises";
+import { writeFile } from "fs/promises";
 import { existsSync } from "fs";
 import { resolve } from "path";
-import { Document, parseDocument } from "yaml";
+import { Document } from "yaml";
 import { Config, PluginMap, RuleMap } from "@monokle/validation";
 import { command } from "../utils/command.js";
 import { print } from "../utils/screens.js";
 import { isDefined } from "../utils/isDefined.js";
-import { promptForFrameworks, promptForKubernetesVersion, promptForOverwrite, success, error } from './init.io.js';
+import { promptForFrameworks, promptForKubernetesVersion, promptForOverwrite, success } from './init.io.js';
 import { Framework, getFrameworkConfig } from "../frameworks/index.js";
 import defaultConfig from "../utils/defaultConfig.js";
 
@@ -113,7 +113,7 @@ export const init = command<Options>({
 
       print(success(configPath));
     } catch (err: any) {
-      print(error(err.message));
+      throw `Error initializing config: ${err.message}}`;
     }
   },
 });
