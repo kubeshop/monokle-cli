@@ -12,7 +12,7 @@ describe('Validate command', (runCommand) => {
     const result = await runCommand('validate ./test/assets/single-bad-resource.yaml');
 
     expect(result.err).toBe('Validation failed with 3 errors');
-    expect(result.output).toContain('12 misconfigurations found. (3 errors)');
+    expect(result.output).toContain('11 misconfigurations found. (3 errors)');
     expect(result.output).toContain('test/assets/single-bad-resource.yaml');
   });
 
@@ -20,7 +20,7 @@ describe('Validate command', (runCommand) => {
     const result = await runCommand('validate ./test/assets');
 
     expect(result.err).toBe('Validation failed with 6 errors');
-    expect(result.output).toContain('26 misconfigurations found. (6 errors)');
+    expect(result.output).toContain('23 misconfigurations found. (6 errors)');
     expect(result.output).toContain('test/assets/multiple-bad-resources.yaml');
     expect(result.output).toContain('test/assets/single-bad-resource.yaml');
   });

@@ -1,59 +1,119 @@
 import { writeFile } from "fs/promises";
+import { existsSync } from "fs";
+import { resolve } from "path";
 import { Document } from "yaml";
 import { Config, PluginMap, RuleMap } from "@monokle/validation";
 import { command } from "../utils/command.js";
 import { print } from "../utils/screens.js";
 import { isDefined } from "../utils/isDefined.js";
-import { promptForFrameworks, promptForKubernetesVersion, success, error } from './init.io.js';
+import { promptForFrameworks, promptForKubernetesVersion, promptForOverwrite, success } from './init.io.js';
 import { Framework, getFrameworkConfig } from "../frameworks/index.js";
-import { resolve } from "path";
+import defaultConfig from "../utils/defaultConfig.js";
 
-type Options = {};
+type Options = {
+  version?: string;
+  framework?: Framework;
+  overwrite?: boolean;
+};
 
 export const init = command<Options>({
   command: "init",
   describe: "Generate a Monokle policy config file for your project.",
-  async handler() {
+  builder(args) {
+    return args
+      .option("schema-version", {
+        type: "string",
+        description: "Kubernetes version to use.",
+        alias: "v",
+      })
+      .option("framework", {
+        type: "string",
+        choices: ["pss-restricted", "pss-baseline", "nsa"] as const,
+        description: "Validation framework to use.",
+        alias: "f",
+      })
+      .option("overwrite", {
+        type: "boolean",
+        description: "Overwrite existing config file.",
+        default: false,
+        alias: "o",
+      });
+  },
+  async handler({ schemaVersion, framework, overwrite }) {
+    const interactive = !isDefined(schemaVersion) && !isDefined(framework) && isDefined(overwrite);
+    const configPath = resolve(process.cwd(), 'monokle.validation.yaml');
+    const hasConfig = existsSync(configPath);
+
+    if (hasConfig && !interactive && !overwrite) {
+      throw `Config file already exists in ${configPath}. Use --overwrite flag to overwrite it.`
+    }
+
     try {
-      const kubernetesVersion = await promptForKubernetesVersion();
+      let kubernetesVersion = schemaVersion;
+      let frameworks = framework ? [framework] : [];
 
-      if (!isDefined(kubernetesVersion)) {
-        return;
-      }
+      if (interactive) {
+        kubernetesVersion = await promptForKubernetesVersion();
 
-      const frameworks = await promptForFrameworks();
+        if (!isDefined(kubernetesVersion)) {
+          return;
+        }
 
-      if (!isDefined(frameworks)) {
-        return;
-      }
+        frameworks = await promptForFrameworks();
 
-      const configs: Config[] = await Promise.all(frameworks.map(async (framework: Framework) => {
-        return getFrameworkConfig(framework);
-      }));
+        if (!isDefined(frameworks)) {
+          return;
+        }
 
-      const fullConfig: Config = {
-        plugins: configs.reduce<PluginMap>((acc, config) => {
-          return {
-            ...acc,
-            ...config.plugins
+        if (hasConfig) {
+          const canOverwrite = await promptForOverwrite();
+
+          if (!canOverwrite) {
+            return;
           }
-        }, {}),
-        rules: mergeRules(configs.map(config => config.rules).filter(isDefined)),
-        settings: {
+        }
+      }
+
+      const config: Config = {};
+      if (frameworks.length > 0) {
+        const configs: Config[] = (await Promise.all(frameworks.map(async (framework: Framework) => {
+          return getFrameworkConfig(framework);
+        }))).filter(isDefined);
+
+        const fullConfig: Config = {
+          plugins: configs.reduce<PluginMap>((acc, config) => {
+            return {
+              ...acc,
+              ...config.plugins
+            }
+          }, {}),
+          rules: mergeRules(configs.map(config => config.rules).filter(isDefined)),
+        };
+
+        config.plugins = fullConfig.plugins;
+        config.rules = fullConfig.rules;
+      } else {
+        const defaultConfigJson = defaultConfig as Config;
+        config.plugins = defaultConfigJson.plugins;
+        config.rules = defaultConfigJson.rules;
+        config.settings = defaultConfigJson.settings;
+      }
+
+      if (isDefined(kubernetesVersion)) {
+        config.settings = {
           "kubernetes-schema": {
-            schemaVersion: kubernetesVersion,
+            schemaVersion: `v${kubernetesVersion}`.replace(/v+/g, 'v'),
           },
-        },
-      };
+        };
+      }
 
       const configYaml = new Document();
-      (configYaml.contents as any) = fullConfig;
-      await writeFile(resolve('monokle.validation.yaml'), configYaml.toString())
+      (configYaml.contents as any) = config;
+      await writeFile(configPath, configYaml.toString())
 
-      print(success(resolve('monokle.validation.yaml')));
-
+      print(success(configPath));
     } catch (err: any) {
-      print(error(err.message));
+      throw `Error initializing config: ${err.message}}`;
     }
   },
 });
