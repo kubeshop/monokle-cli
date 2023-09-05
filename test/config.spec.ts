@@ -31,7 +31,7 @@ describe('Config command', (runCommand) => {
     expect(result.err).toBe(null);
     expect(result.output).toContain('local policy from');
     expect(result.output).toContain('/monokle.validation.yaml');
-    expect(result.output).toContain('schemaVersion: v1.24.2');
+    expect(result.output).toContain('schemaVersion: v1.26.8');
   });
 
   it('shows info about remote config', async () => {
