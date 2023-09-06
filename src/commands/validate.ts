@@ -99,7 +99,7 @@ export const validate = command<Options>({
     const errorCount = response.runs.reduce((sum, r) => sum + r.results.filter(r => r.level === "error").length, 0);
 
     if (output === "pretty") {
-      print(configInfo(configData));
+      print(configInfo(configData, resources.length ));
 
       if (problemCount) {
         print(failure(response));
@@ -107,6 +107,7 @@ export const validate = command<Options>({
         print(success());
       }
     } else {
+      print( "Validated " + resources.length + " resource" + (resources.length > 1 ? "s" : "" ));
       print(JSON.stringify(response, null, 2));
     }
 

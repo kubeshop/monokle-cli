@@ -43,5 +43,9 @@ export const promptForOverwrite = async () => {
 
 
 export const success = (path: string) => `
-Successfully generated policy configuration file in ${C.bold(path)}.
+Successfully generated policy configuration file in ${C.bold(path)}. Validate your resources with
+
+ monokle validate . 
+ 
+Learn more about usage and configuration at https://github.com/kubeshop/monokle-cli
 `;
