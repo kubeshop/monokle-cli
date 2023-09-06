@@ -69,19 +69,20 @@ export async function getConfig(
   const accessToken = options.apiToken ?? authenticator.user.token;
 
   if (useRemoteExplicit && useLocalExplicit) { // Remote or local or fail
-    let remoteConfig: ConfigData | null = null;
-    let localConfig: ConfigData | null = null;
+    const results = await Promise.allSettled([
+      getRemotePolicyForProject(projectSlug, accessToken!),
+      getLocalPolicy(configPath)
+    ]);
 
-    try {
-      remoteConfig = await getRemotePolicyForProject(projectSlug, accessToken!);
-      localConfig = await getLocalPolicy(configPath);
-    } catch (err) {
-      if (!remoteConfig && !localConfig) {
-        throw err;
-      }
-
-      return remoteConfig ?? localConfig;
+    if (results[0].status === 'fulfilled') {
+      return results[0].value;
     }
+
+    if (results[1].status === 'fulfilled') {
+      return results[1].value;
+    }
+
+    throw new Error(`Error when reading policy: ${results[0].reason}; ${results[1].reason}.`);
   }
 
   if (useRemoteExplicit) { // Remote or fail
