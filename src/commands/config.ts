@@ -1,3 +1,4 @@
+import { ResourceParser, createExtensibleMonokleValidator } from "@monokle/validation";
 import { command } from "../utils/command.js";
 import { print } from "../utils/screens.js";
 import { Framework } from "../frameworks/index.js";
@@ -8,8 +9,10 @@ type Options = {
   action: string;
   path: string;
   output: "pretty" | "json" | "yaml";
-  config: string;
+  config?: string;
+  project?: string;
   framework?: Framework;
+  'api-token'?: string;
 };
 
 export const config = command<Options>({
@@ -24,26 +27,45 @@ export const config = command<Options>({
       })
       .option("config", {
         type: "string",
-        default: "monokle.validation.yaml",
         alias: "c",
+      })
+      .option("project", {
+        type: "string",
+        description: "Monokle Cloud project slug to use policy from.",
+        alias: "p",
       })
       .option("framework", {
         type: "string",
         choices: ["pss-restricted", "pss-baseline", "nsa"] as const,
         alias: "fw",
       })
+      .option("api-token", {
+        type: "string",
+        description: "Monokle Cloud API token to fetch remote policy. It will be used instead of authenticated user credentials.",
+        alias: "t",
+      })
       .positional("action", { choices: ["show"], demandOption: true })
       .positional("path", { type: "string", demandOption: true });
   },
-  async handler({ action, path, output, config, framework }) {
-    const usedConfig = await getConfig(path, config, framework);
+  async handler({ _action, path, output, config, project, framework, apiToken }) {
+    const configPath = config ?? 'monokle.validation.yaml';
+    const isDefaultConfigPath = config === undefined;
+    const usedConfig = await getConfig(path, configPath, project, framework, { isDefaultConfigPath, apiToken });
+
+    let configContent = usedConfig?.config ?? {};
+    if (!usedConfig) {
+      const parser = new ResourceParser();
+      const validator = createExtensibleMonokleValidator(parser);
+      await validator.preload();
+      configContent = validator.config;
+    }
 
     if (output === "pretty") {
-      print(configInfo(usedConfig, path));
+      print(configInfo(usedConfig ?? configContent, path));
     } else if (output === "json") {
-      print(JSON.stringify(usedConfig.config, null, 2));
+      print(JSON.stringify(configContent, null, 2));
     } else if (output === "yaml") {
-      print(configYaml(usedConfig));
+      print(configYaml(configContent));
     }
   },
 });

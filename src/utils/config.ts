@@ -21,18 +21,33 @@ export type ConfigData = {
 /**
  * Returns information about config to be used for validation.
  *
- * The priority is as follows:
- * 1. Frameworks if defined (if passed to validation command).
- * 2. If stdin is used, local config is used (because it's not fs context and we cannot determine local/remote config file).
- * 3. If user is authenticated, remote config is fetched and used.
- * 4. In other cases, local config is used.
+ * Config precedence is as follows:
+ * - No flags passed, use `Implicit Remote > Implicit Local > Default`-and-never-fail;
+ * - `--config ./monokle-custom.yaml` for `Explicit Local`-or-fail;
+ * - `--project ProjectIdentifier` for `Explicit remote`-or-fail;
+ * - Passing both `--config` and `--project`, it should try to read both `Explicit Remote > Explicit Local`-or-fail`.
+ * - `--framework` use framework based config and ignore other flags;
+ * - `--api-token` behaves as user being authenticated, doesn't change config precedence.
+ *
+ * @see https://github.com/kubeshop/monokle-cli/issues/16
  *
  * @param path Path to be validated.
  * @param configPath Path to config file.
+ * @param project Monokle Cloud project slug to fetch config from.
  * @param framework Framework to be used for validation.
+ * @param options Additional options.
  * @returns Config data.
  */
-export async function getConfig(path: string, configPath: string, framework: Framework | undefined): Promise<ConfigData> {
+export async function getConfig(
+  path: string,
+  configPath: string,
+  projectSlug: string | undefined = undefined,
+  framework: Framework | undefined = undefined,
+  options: { isDefaultConfigPath?: boolean, apiToken?: string | undefined } = {
+    isDefaultConfigPath: true,
+    apiToken: undefined,
+  }
+) {
   const frameworkConfig = await getFrameworkConfig(framework);
   if (frameworkConfig) {
     return {
@@ -44,33 +59,61 @@ export async function getConfig(path: string, configPath: string, framework: Fra
     };
   }
 
-  const isStdin = isStdinLike(path);
-  if (isStdin) {
-    const localConfig = await readConfig(configPath);
-    return {
-      config: localConfig,
-      path: resolve(configPath),
-      isRemote: false,
-      isFrameworkBased: false,
+  const useRemoteExplicit = !!projectSlug;
+  const useLocalExplicit = !!configPath && !options.isDefaultConfigPath;
+
+  const authenticator = authenticatorGetter.authenticator;
+  if (!options.apiToken && authenticator.user.isAuthenticated) {
+    await authenticator.refreshToken();
+  }
+  const accessToken = options.apiToken ?? authenticator.user.token;
+
+  if (useRemoteExplicit && useLocalExplicit) { // Remote or local or fail
+    let remoteConfig: ConfigData | null = null;
+    let localConfig: ConfigData | null = null;
+
+    try {
+      remoteConfig = await getRemotePolicyForProject(projectSlug, accessToken!);
+      localConfig = await getLocalPolicy(configPath);
+    } catch (err) {
+      if (!remoteConfig && !localConfig) {
+        throw err;
+      }
+
+      return remoteConfig ?? localConfig;
     }
   }
 
-  const authenticator = authenticatorGetter.authenticator;
-  if (authenticator.user.isAuthenticated) {
-    await authenticator.refreshToken();
-    return getRemotePolicy(path, authenticator.user.token!);
+  if (useRemoteExplicit) { // Remote or fail
+    return getRemotePolicyForProject(projectSlug, accessToken!);
   }
 
-  const localConfig = await readConfig(configPath);
-  return {
-    config: localConfig,
-    path: resolve(configPath),
-    isRemote: false,
-    isFrameworkBased: false,
+  if (useLocalExplicit) { // Local or fail
+    return getLocalPolicy(configPath);
   }
+
+  return getPolicyImplicit(path, configPath, accessToken!);
 }
 
-export async function getRemotePolicy(path: string, token: string): Promise<ConfigData> {
+export async function getRemotePolicyForProject(slug: string, token: string): Promise<ConfigData> {
+  const synchronizer = synchronizerGetter.synchronizer;
+  const policyData = await synchronizer.synchronize({ slug }, token);
+  const parentProject = await synchronizer.getProjectInfo({ slug }, token);
+
+  return {
+    config: policyData.policy,
+    path: policyData.path,
+    isRemote: true,
+    isFrameworkBased: false,
+    remoteParentProject: {
+      name: parentProject?.name ?? 'unknown',
+      slug: parentProject?.slug ?? '',
+      remoteUrl: synchronizer.generateDeepLinkProjectPolicy(parentProject?.slug ?? ''),
+    }
+  };
+}
+
+export async function getRemotePolicyForPath(path: string, token: string): Promise<ConfigData> {
   const synchronizer = synchronizerGetter.synchronizer;
   const policyData = await synchronizer.synchronize(path, token);
   const parentProject = await synchronizer.getProjectInfo(path, token);
@@ -86,4 +129,41 @@ export async function getRemotePolicy(path: string, token: string): Promise<Conf
       remoteUrl: synchronizer.generateDeepLinkProjectPolicy(parentProject?.slug ?? ''),
     }
   };
+}
+
+export async function getLocalPolicy(configPath: string): Promise<ConfigData> {
+  const localConfig = await readConfig(configPath);
+
+  if (!localConfig) {
+    throw new Error(`Config file ${configPath} not found!`);
+  }
+
+  return {
+    config: localConfig,
+    path: resolve(configPath),
+    isRemote: false,
+    isFrameworkBased: false,
+  }
+}
+
+export async function getPolicyImplicit(path: string, configPath: string, accessToken: string): Promise<ConfigData> {
+  const isStdin = isStdinLike(path);
+
+  if (accessToken && !isStdin) {
+    try {
+      const remoteConfig = await getRemotePolicyForPath(path, accessToken);
+      return remoteConfig;
+    } catch (err) {
+      console.error(err);
+      // Ignore error since we fallback to local config.
+    }
+  }
+
+  const localConfig = await readConfig(configPath);
+  return {
+    config: localConfig,
+    path: resolve(configPath),
+    isRemote: false,
+    isFrameworkBased: false,
+  }
 }

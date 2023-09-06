@@ -82,6 +82,7 @@ export function getRemoteLikeEnvStubber() {
     (authenticatorGetter.authenticator as any)._user = {
       email: 'testuser@kubeshop.io',
       isAuthenticated: true,
+      token: 'test-token',
     };
 
     const synchronizeStub = sinon.stub(synchronizer, 'synchronize').resolves({
