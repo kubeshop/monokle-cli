@@ -54,7 +54,7 @@ describe('Validate command', (runCommand) => {
     const result = await runCommand('validate ./test/assets/single-bad-resource.yaml');
 
     expect(result.err).toBe(null);
-    expect(result.output).toContain('Validating using remote policy');
+    expect(result.output).toContain('Validated 1 resources using remote policy');
     expect(result.output).toContain('11 misconfigurations found. (0 errors)');
     expect(result.output).toContain('test/assets/single-bad-resource.yaml');
   });
@@ -66,7 +66,7 @@ describe('Validate command', (runCommand) => {
     const result = await runCommand('validate ./test/assets/single-bad-resource.yaml -p test-project');
 
     expect(result.err).toBe(null);
-    expect(result.output).toContain('Validating using remote policy');
+    expect(result.output).toContain('Validated 1 resources using remote policy');
     expect(result.output).toContain('11 misconfigurations found. (0 errors)');
     expect(result.output).toContain('test/assets/single-bad-resource.yaml');
   });
@@ -78,7 +78,7 @@ describe('Validate command', (runCommand) => {
     const result = await runCommand('validate ./test/assets/single-bad-resource.yaml --project test-project --config ./monokle.full-validation.yaml');
 
     expect(result.err).toBe(null);
-    expect(result.output).toContain('Validating using remote policy');
+    expect(result.output).toContain('Validated 1 resources using remote policy');
     expect(result.output).toContain('11 misconfigurations found. (0 errors)');
     expect(result.output).toContain('test/assets/single-bad-resource.yaml');
   });
@@ -90,7 +90,7 @@ describe('Validate command', (runCommand) => {
     const result = await runCommand('validate ./test/assets/single-bad-resource.yaml -p test-project -c ./monokle.full-validation.yaml');
 
     expect(result.err).toBe(null);
-    expect(result.output).toContain('Validating using local policy');
+    expect(result.output).toContain('Validated 1 resources using local policy');
     expect(result.output).toContain('12 misconfigurations found. (0 errors)');
     expect(result.output).toContain('test/assets/single-bad-resource.yaml');
   });
