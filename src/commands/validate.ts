@@ -8,12 +8,13 @@ import { command } from "../utils/command.js";
 import { print } from "../utils/screens.js";
 import { isStdinLike, streamToPromise } from "../utils/stdin.js";
 import { displayInventory, failure, success, configInfo } from "./validate.io.js";
-import { getConfig, getRemotePolicy } from "../utils/config.js";
+import { getConfig } from "../utils/config.js";
 import { Framework } from "../frameworks/index.js";
 
 type Options = {
   input: string;
-  config: string;
+  config?: string;
+  project?: string;
   inventory: boolean;
   output: "pretty" | "sarif";
   framework?: Framework;
@@ -34,9 +35,13 @@ export const validate = command<Options>({
       })
       .option("config", {
         type: "string",
-        default: "monokle.validation.yaml",
         description: "Path to configuration file.",
         alias: "c",
+      })
+      .option("project", {
+        type: "string",
+        description: "Monokle Cloud project slug to use policy from.",
+        alias: "p",
       })
       .option("inventory", {
         type: "boolean",
@@ -62,7 +67,7 @@ export const validate = command<Options>({
       .positional("input", { type: "string", description: "file/folder path or resource YAMLs via stdin", demandOption: true })
       .demandOption("input", "Path or stdin required for target resources");
   },
-  async handler({ input, output, inventory, config: configPath, framework, apiToken, failOnWarnings }) {
+  async handler({ input, output, project, config, inventory, framework, apiToken, failOnWarnings }) {
     const files = await readFiles(input);
     const resources = extractK8sResources(files);
     if( resources.length === 0 ){
@@ -74,13 +79,14 @@ export const validate = command<Options>({
       print(displayInventory(resources));
     }
 
+    const configPath = config ?? 'monokle.validation.yaml';
+    const isDefaultConfigPath = config === undefined;
+
     const parser = new ResourceParser();
     const validator = createExtensibleMonokleValidator(parser);
+    const configData = await getConfig(input, configPath, project, framework, {isDefaultConfigPath, apiToken});
 
-    // If --api-token set explicitly we try to use remote policy only.
-    const configData = apiToken ? await getRemotePolicy(input, apiToken) :  await getConfig(input, configPath, framework);
-
-    await validator.preload(configData.config);
+    await validator.preload(configData?.config);
 
     processRefs(
       resources,

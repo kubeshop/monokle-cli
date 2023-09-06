@@ -71,7 +71,7 @@ export function describe(name: string, fn: (runCommand: RunCommandFn) => void) {
   });
 }
 
-export function getRemoteLikeEnvStubber() {
+export function getRemoteLikeEnvStubber(throwsOnSynchronize = false) {
   const authenticator = authenticatorGetter.authenticator;
   const synchronizer = synchronizerGetter.synchronizer;
 
@@ -82,17 +82,24 @@ export function getRemoteLikeEnvStubber() {
     (authenticatorGetter.authenticator as any)._user = {
       email: 'testuser@kubeshop.io',
       isAuthenticated: true,
+      token: 'test-token',
     };
 
-    const synchronizeStub = sinon.stub(synchronizer, 'synchronize').resolves({
-      valid: true,
-      path: 'some/fake/path',
-      policy: {
-        plugins: {
-          'yaml-syntax': true,
-          'open-policy-agent': true
-        }
+    const synchronizeStub = sinon.stub(synchronizer, 'synchronize').callsFake(async () => {
+      if (throwsOnSynchronize) {
+        throw new Error('Error when synchronizing policy...');
       }
+
+      return {
+        valid: true,
+        path: 'some/fake/path',
+        policy: {
+          plugins: {
+            'yaml-syntax': true,
+            'open-policy-agent': true
+          }
+        }
+      };
     });
     stubs.push(synchronizeStub);
 

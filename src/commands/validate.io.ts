@@ -91,7 +91,9 @@ export const failure = (response: ValidationResponse) => {
 
 export const configInfo = (configData: ConfigData) => {
   let configInfo = '';
-  if (configData.isFrameworkBased) {
+  if (!configData?.config) {
+    configInfo = 'default policy';
+  } else if (configData.isFrameworkBased) {
     configInfo = `${C.bold(configData.framework)} framework based policy`;
   } else if (configData.isRemote) {
     configInfo = `remote policy from ${C.bold(configData.remoteParentProject?.name ?? 'unknown')} project. It can be adjusted on ${configData.remoteParentProject?.remoteUrl}`;

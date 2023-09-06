@@ -1,19 +1,25 @@
+import { Config } from "@monokle/validation";
 import { C, Screen } from "../utils/screens.js";
 import { ConfigData } from "../utils/config.js";
 import { Document } from "yaml";
 
-export const configInfo = (configData: ConfigData, targetPath: string) => {
+export const configInfo = (configData: ConfigData, configContent: Config, targetPath: string) => {
   let configInfo = '';
-  if (configData.isFrameworkBased) {
-    configInfo = `${C.bold(configData.framework)} framework based policy`;
-  } else if (configData.isRemote) {
-    configInfo = `remote policy from ${C.bold(configData.remoteParentProject?.name ?? 'unknown')} project`;
+
+  if (!configData?.config) {
+    configInfo = 'default policy';
   } else {
-    configInfo = `local policy from ${C.bold(configData.path)} file`;
+    if (configData.isFrameworkBased) {
+      configInfo = `${C.bold(configData.framework)} framework based policy`;
+    } else if (configData.isRemote) {
+      configInfo = `remote policy from ${C.bold(configData.remoteParentProject?.name ?? 'unknown')} project`;
+    } else {
+      configInfo = `local policy from ${C.bold(configData.path)} file`;
+    }
   }
 
   const configYaml = new Document();
-  (configYaml.contents as any) = configData.config;
+  (configYaml.contents as any) = configContent;
 
   const screen = new Screen();
 
@@ -24,8 +30,8 @@ export const configInfo = (configData: ConfigData, targetPath: string) => {
   return screen.toString();
 };
 
-export const configYaml = (configData: ConfigData) => {
+export const configYaml = (configData: Config) => {
   const configYaml = new Document();
-  (configYaml.contents as any) = configData.config;
+  (configYaml.contents as any) = configData ?? {};
   return configYaml.toString();
 }
