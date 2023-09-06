@@ -1,5 +1,11 @@
 # @monokle/cli
 
+## 0.5.1
+
+### Patch Changes
+
+- Corrected links in `package.json` and `README.md` files.
+
 ## 0.5.0
 
 ### Major Changes

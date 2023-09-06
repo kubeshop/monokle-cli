@@ -29,7 +29,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kubeshop/monokle-core.git"
+    "url": "git+https://github.com/kubeshop/monokle-cli.git"
   },
   "keywords": [
     "monokle",
@@ -39,9 +39,9 @@
   "author": "Kubeshop",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/kubeshop/monokle-core/issues"
+    "url": "https://github.com/kubeshop/monokle-cli/issues"
   },
-  "homepage": "https://github.com/kubeshop/monokle-core/tree/main/packages/cli",
+  "homepage": "https://github.com/kubeshop/monokle-cli",
   "devDependencies": {
     "@rollup/plugin-commonjs": "24.0.1",
     "@rollup/plugin-json": "6.0.0",

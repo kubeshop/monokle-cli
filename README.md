@@ -6,8 +6,8 @@
   <a href="https://github.com/kubeshop/monokle-cli">
     <img src="https://img.shields.io/github/package-json/v/kubeshop/monokle-cli/master" />
   </a>
-  <a href="https://github.com/kubeshop/monokle-cli/actions/workflows/check.yaml">
-    <img src="https://img.shields.io/github/actions/workflow/status/kubeshop/monokle-cli/test.yaml" />
+  <a href="https://github.com/kubeshop/monokle-cli/actions/workflows/check.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/kubeshop/monokle-cli/check.yml" />
   </a>
   <a href="https://github.com/kubeshop/monokle-cli">
     <img src="https://img.shields.io/badge/License-MIT-yellow.svg" />
