@@ -53,7 +53,7 @@ export const config = command<Options>({
     const usedConfig = await getConfig(path, configPath, project, framework, { isDefaultConfigPath, apiToken });
 
     let configContent = usedConfig?.config ?? {};
-    if (!usedConfig) {
+    if (!usedConfig?.config) {
       const parser = new ResourceParser();
       const validator = createExtensibleMonokleValidator(parser);
       await validator.preload();
@@ -61,7 +61,7 @@ export const config = command<Options>({
     }
 
     if (output === "pretty") {
-      print(configInfo(usedConfig ?? configContent, path));
+      print(configInfo(usedConfig, configContent, path));
     } else if (output === "json") {
       print(JSON.stringify(configContent, null, 2));
     } else if (output === "yaml") {

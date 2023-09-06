@@ -89,9 +89,9 @@ export const failure = (response: ValidationResponse) => {
   return screen.toString();
 };
 
-export const configInfo = (configData: ConfigData | null) => {
+export const configInfo = (configData: ConfigData) => {
   let configInfo = '';
-  if (!configData) {
+  if (!configData?.config) {
     configInfo = 'default policy';
   } else if (configData.isFrameworkBased) {
     configInfo = `${C.bold(configData.framework)} framework based policy`;

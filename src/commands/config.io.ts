@@ -3,22 +3,12 @@ import { C, Screen } from "../utils/screens.js";
 import { ConfigData } from "../utils/config.js";
 import { Document } from "yaml";
 
-const isConfigData = (configData: any) => {
-  return configData && typeof configData === 'object' && configData.config;
-}
-
-export const configInfo = (configInput: ConfigData | Config, targetPath: string) => {
+export const configInfo = (configData: ConfigData, configContent: Config, targetPath: string) => {
   let configInfo = '';
-  let configContent: Config = {};
 
-  if (!isConfigData(configInput)) {
+  if (!configData?.config) {
     configInfo = 'default policy';
-    configContent = configInput as Config;
   } else {
-    const configData = configInput as ConfigData;
-
-    configContent = configData.config ?? {};
-
     if (configData.isFrameworkBased) {
       configInfo = `${C.bold(configData.framework)} framework based policy`;
     } else if (configData.isRemote) {
@@ -29,7 +19,7 @@ export const configInfo = (configInput: ConfigData | Config, targetPath: string)
   }
 
   const configYaml = new Document();
-  (configYaml.contents as any) = configContent || {};
+  (configYaml.contents as any) = configContent;
 
   const screen = new Screen();
 
