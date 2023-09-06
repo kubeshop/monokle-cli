@@ -19,10 +19,10 @@ describe('Whoami command', (runCommand) => {
     expect(result.output).toContain('testuser@kubeshop.io');
   });
 
-  it('throws error when not authenticated', async () => {
+  it('show message when not authenticated', async () => {
     const result = await runCommand('whoami');
 
-    expect(result.err).not.toBe(null);
-    expect(result.err.message).toContain('Not authenticated');
+    expect(result.err).toBe(null);
+    expect(result.output).toContain('You are not signed into Monokle Cloud');
   });
 });
