@@ -23,5 +23,8 @@ export const cli = yargs(hideBin(process.argv))
   .command(config)
   .command(init)
   .showHelpOnFail(false)
-  .demandCommand(1, 'Missing command, try --help to see available commands')
+  .demandCommand(1, "Missing command, try --help to see available commands or use\n\n" +
+    " monokle validate .       Validate resources in your current folder using default validation rules.\n" +
+    " monokle init             Generate a default configuration file.\n\n" +
+    "Learn more at https://github.com/kubeshop/monokle-cli" )
   .wrap(100);

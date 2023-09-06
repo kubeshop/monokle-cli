@@ -6,10 +6,9 @@ import {
 import groupBy from "lodash/groupBy.js";
 import { B, C, S, Screen } from "../utils/screens.js";
 import { ConfigData } from "../utils/config.js";
+import * as fs from 'fs';
 
-export const success = () => `
-${S.success} All resources are valid.
-`;
+export const success = () => `${S.success} All resources are valid.`;
 
 export const displayInventory = (allResources: Resource[]) => {
   const box = new Screen();
@@ -89,21 +88,24 @@ export const failure = (response: ValidationResponse) => {
   return screen.toString();
 };
 
-export const configInfo = (configData: ConfigData) => {
+export const configInfo = (configData: ConfigData, resourceCount : number) => {
   let configInfo = '';
   if (configData.isFrameworkBased) {
     configInfo = `${C.bold(configData.framework)} framework based policy`;
   } else if (configData.isRemote) {
     configInfo = `remote policy from ${C.bold(configData.remoteParentProject?.name ?? 'unknown')} project. It can be adjusted on ${configData.remoteParentProject?.remoteUrl}`;
-  } else {
+  } else if( fs.existsSync( configData.path )){
     configInfo = `local policy from ${C.bold(configData.path)} file`;
+  }
+  else {
+    configInfo = `default Monokle validation policy`;
   }
 
   const screen = new Screen();
 
   screen.line(
     B(
-      ` ${S.info} Validating using ${configInfo}.`,
+      ` ${S.info} Validated ${resourceCount} resources using ${configInfo}.`,
       {
         padding: 1,
         dimBorder: true,
