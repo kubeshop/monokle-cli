@@ -3,19 +3,36 @@ import { FingerprintSuppression } from '@monokle/types';
 import { SuppressionStatus } from '@monokle/validation';
 
 
+// NOTE: The API SuppressionModel uses different status enum values - 
+// - ("ACCEPTED" | "REJECTED" | "UNDER_REVIEW" instead of "accepted" | "rejected" | "underReview")
+// 
+// We can safely transform to lowercase here since the CLI only really cares about "accepted" suppressions
+// TODO: Consider changing the API suppression status to match the spec and eventually remove this adaptor
+
+function toSuppressionStatus(status: SuppressionStatus | string): SuppressionStatus  {
+  switch (status) {
+    case 'ACCEPTED':
+    case 'accepted':
+      return 'accepted'      
+    case 'REJECTED':
+    case 'rejected':
+      return 'rejected'      
+    case 'UNDER_REVIEW':
+    case 'underReview':
+      return 'underReview'      
+    default:
+      return status as SuppressionStatus
+  }
+
+}
+
 export function toFingerprintSuppression(
   suppression: ApiSuppression
 ): FingerprintSuppression  {
-  console.log('suppression:', suppression)
   return {
     guid: suppression.id,
     kind: 'external',
-    // NOTE: The API SuppressionModel uses different status enum values - 
-    // - ("ACCEPTED" | "REJECTED" | "UNDER_REVIEW" instead of "accepted" | "rejected" | "underReview")
-    // 
-    // We can safely transform to lowercase here since the CLI only really cares about "accepted" suppressions
-    // TODO: Consider changing the API suppression status enum to match the spec
-    status: suppression.status.toLowerCase() as SuppressionStatus,
+    status: toSuppressionStatus(suppression.status),
     fingerprint: suppression.fingerprint,
   };
 }
