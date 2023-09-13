@@ -1,5 +1,6 @@
 import {
   getRuleForResultV2,
+  isSuppressed,
   Resource,
   ValidationResponse,
 } from "@monokle/validation";
@@ -7,6 +8,7 @@ import groupBy from "lodash/groupBy.js";
 import { B, C, S, Screen } from "../utils/screens.js";
 import { ConfigData } from "../utils/config.js";
 import * as fs from 'fs';
+import { ValidationResponseBreakdown } from "../utils/getValidationResponseBreakdown.js";
 
 export const success = () => `${S.success} All resources are valid.`;
 
@@ -39,7 +41,7 @@ export const displayInventory = (allResources: Resource[]) => {
   return screen.toString();
 };
 
-export const failure = (response: ValidationResponse) => {
+export const failure = (response: ValidationResponse, breakdown: ValidationResponseBreakdown, showSuppressed?: boolean) => {
   const screen = new Screen();
 
   const allResultsData = response.runs.flatMap((r, i) => r.results.map(result => ({result, run: i})));
@@ -48,41 +50,65 @@ export const failure = (response: ValidationResponse) => {
     return location ?? "unknown";
   });
 
+  let showBox = false
+
   for (const [location, resultsData] of Object.entries(groupedResults)) {
-    screen.line(C.bold(location));
+    const lines: string[] = []
 
     for (const item of resultsData) {
+      const isProblemSuppressed = isSuppressed(item.result)
+      if(!showSuppressed && isProblemSuppressed) {
+        continue
+      }
+
       const color = item.result.level === "error" ? C.red : C.yellow;
       const icon = item.result.level === "error" ? S.error : S.warning;
       const rule = getRuleForResultV2(response.runs[item.run], item.result);
-      const message = item.result.message.text;
-      screen.line(`${color(`[${icon} ${rule.name}]`)} ${message}`);
+      let message = item.result.message.text;
+      let namespace = color(`[${icon} ${rule.name}]`) 
+      
+      let line = `${namespace} ${message}`
+      if(isProblemSuppressed) {
+        line = C.strikethrough(`${namespace} ${message}`)
+        line += ` (Suppressed)`
+        line = C.dim(line)
+      } 
+    
+      lines.push(line);
     }
 
-    screen.line();
+    if(lines.length) {
+      showBox = showBox || true
+      screen.line(C.bold(location));
+      for(const line of lines) {
+        screen.line(line)
+      }
+      screen.line();
+    }
+
   }
 
-  const warningCount = response.runs.reduce(
-    (sum, run) =>
-      sum + run.results.reduce((s, r) => s + (r.level === "error" ? 0 : 1), 0),
-    0
-  );
-  const errorCount = response.runs.reduce(
-    (sum, run) =>
-      sum + run.results.reduce((s, r) => s + (r.level === "error" ? 1 : 0), 0),
-    0
-  );
-  const validationCount = warningCount + errorCount;
-  const icon = errorCount > 0 ? S.error : S.warning;
+  const { problems, errors, suppressions } = breakdown
+  const icon = errors > 0 ? S.error : S.warning;
+  
+  let text = ` ${problems ? icon : S.success} ${problems || 'No'} misconfiguration${problems === 1 ? '' : 's'} found.`
+  if(problems) {
+    text += ` (${errors} errors)`
+  }
+  if(suppressions && !showSuppressed) {
+    text += C.dim(`\n   ${suppressions} problem${suppressions === 1 ? ' is' : 's are'} suppressed. Use ${C.cyan.bold('--show-suppressed')} to include them.`)
+  } 
 
   screen.line(
+    showBox ?
     B(
-      ` ${icon} ${validationCount} misconfigurations found. (${errorCount} errors)`,
+      text,
       {
         padding: 1,
         dimBorder: true,
       }
     )
+    : text
   );
 
   return screen.toString();
