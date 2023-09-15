@@ -1,4 +1,4 @@
-import { createExtensibleMonokleValidator, processRefs, ResourceParser } from "@monokle/validation";
+import {  createDefaultMonokleValidator, isSuppressed, processRefs, ResourceParser, ValidationResult } from "@monokle/validation";
 import { extractK8sResources, BaseFile } from "@monokle/parser";
 import { lstatSync } from "fs";
 import { readFile as readFileFromFs } from "fs/promises";
@@ -10,6 +10,10 @@ import { isStdinLike, streamToPromise } from "../utils/stdin.js";
 import { displayInventory, failure, success, configInfo } from "./validate.io.js";
 import { getConfig } from "../utils/config.js";
 import { Framework } from "../frameworks/index.js";
+import { getSuppressions } from "../utils/suppressions.js";
+import { getValidationResponseBreakdown } from "../utils/getValidationResponseBreakdown.js";
+import { getFingerprintSuppressions } from "../utils/getFingerprintSuppression.js";
+import { ApiSuppression } from "@monokle/synchronizer";
 
 type Options = {
   input: string;
@@ -20,6 +24,7 @@ type Options = {
   framework?: Framework;
   'api-token'?: string;
   failOnWarnings: boolean;
+  'show-suppressed'?: boolean
 };
 
 export const validate = command<Options>({
@@ -64,10 +69,16 @@ export const validate = command<Options>({
         description: "Fails the validation if there are warnings.",
         default: false
       })
+      .option("show-suppressed", {
+        type: "boolean",
+        description: "Show suppressed misconfigurations.",
+        alias: "s",
+        default: false
+      })
       .positional("input", { type: "string", description: "file/folder path or resource YAMLs via stdin", demandOption: true })
       .demandOption("input", "Path or stdin required for target resources");
   },
-  async handler({ input, output, project, config, inventory, framework, apiToken, failOnWarnings }) {
+  async handler({ input, output, project, config, inventory, framework, apiToken, failOnWarnings, showSuppressed }) {
     const files = await readFiles(input);
     const resources = extractK8sResources(files);
     if( resources.length === 0 ){
@@ -81,12 +92,18 @@ export const validate = command<Options>({
 
     const configPath = config ?? 'monokle.validation.yaml';
     const isDefaultConfigPath = config === undefined;
-
+    
     const parser = new ResourceParser();
-    const validator = createExtensibleMonokleValidator(parser);
-    const configData = await getConfig(input, configPath, project, framework, {isDefaultConfigPath, apiToken});
-
-    await validator.preload(configData?.config);
+    const validator = createDefaultMonokleValidator();
+    const [configData, suppressionsData] = await Promise.all([
+      getConfig(input, configPath, project, framework, {isDefaultConfigPath, apiToken}),
+      getSuppressions(input, apiToken).catch(() => {
+        // continue with no suppressions
+        return { suppressions: []} as { suppressions: ApiSuppression[]}
+      })
+    ])
+    const suppressions = getFingerprintSuppressions(suppressionsData.suppressions)
+    await validator.preload(configData?.config, suppressions);
 
     processRefs(
       resources,
@@ -95,14 +112,14 @@ export const validate = command<Options>({
       files.map((f) => f.path)
     );
     const response = await validator.validate({ resources });
-    const problemCount = response.runs.reduce((sum, r) => sum + r.results.length, 0);
-    const errorCount = response.runs.reduce((sum, r) => sum + r.results.filter(r => r.level === "error").length, 0);
+    const breakdown = getValidationResponseBreakdown(response)
 
+    const { problems, errors  } = breakdown
     if (output === "pretty") {
       print(configInfo(configData, resources.length ));
 
-      if (problemCount) {
-        print(failure(response));
+      if (breakdown.problems || breakdown.suppressions) {
+        print(failure(response, breakdown, showSuppressed));
       } else {
         print(success());
       }
@@ -111,11 +128,10 @@ export const validate = command<Options>({
       print(JSON.stringify(response, null, 2));
     }
 
-    if( failOnWarnings && problemCount > 0 ){
-      throw "Validation failed with " + problemCount + " problems";
-    }
-    else if( errorCount > 0 ){
-      throw "Validation failed with " + errorCount + " errors";
+    if(failOnWarnings && problems > 0){
+      throw `Validation failed with ${problems} problem${problems === 1 ? '' : 's'}`;
+    } else if (errors > 0){
+      throw `Validation failed with ${errors} error${errors === 1 ? '' : 's'}`;
     }
   },
 });

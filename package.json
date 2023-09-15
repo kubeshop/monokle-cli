@@ -64,9 +64,10 @@
     "vitest": "^0.34.3"
   },
   "dependencies": {
-    "@monokle/parser": "0.1.0",
-    "@monokle/synchronizer": "0.7.0",
-    "@monokle/validation": "0.25.4",
+    "@monokle/parser": "0.1.1",
+    "@monokle/synchronizer": "0.8.0",
+    "@monokle/types": "0.2.1",
+    "@monokle/validation": "0.28.2",
     "abortcontroller-polyfill": "1.7.5",
     "boxen": "7.0.0",
     "chalk": "5.0.1",

@@ -1,4 +1,4 @@
-import { ResourceParser, createExtensibleMonokleValidator } from "@monokle/validation";
+import {  createDefaultMonokleValidator,  } from "@monokle/validation";
 import { command } from "../utils/command.js";
 import { print } from "../utils/screens.js";
 import { Framework } from "../frameworks/index.js";
@@ -54,8 +54,7 @@ export const config = command<Options>({
 
     let configContent = usedConfig?.config ?? {};
     if (!usedConfig?.config) {
-      const parser = new ResourceParser();
-      const validator = createExtensibleMonokleValidator(parser);
+      const validator = createDefaultMonokleValidator();
       await validator.preload();
       configContent = validator.config;
     }
