@@ -5,8 +5,6 @@ import { SuppressionStatus } from '@monokle/validation';
 
 // NOTE: The API SuppressionModel uses different status enum values - 
 // - ("ACCEPTED" | "REJECTED" | "UNDER_REVIEW" instead of "accepted" | "rejected" | "underReview")
-// 
-// We can safely transform to lowercase here since the CLI only really cares about "accepted" suppressions
 // TODO: Consider changing the API suppression status to match the spec and eventually remove this adaptor
 
 function toSuppressionStatus(status: SuppressionStatus | string): SuppressionStatus  {
