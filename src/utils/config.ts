@@ -1,4 +1,5 @@
 import { Config, readConfig } from "@monokle/validation";
+import { TokenInfo } from '@monokle/synchronizer';
 import { authenticatorGetter } from "./authenticator.js";
 import { synchronizerGetter } from "./synchronizer.js";
 import { resolve } from "path";
@@ -66,11 +67,15 @@ export async function getConfig(
   if (!options.apiToken && authenticator.user.isAuthenticated) {
     await authenticator.refreshToken();
   }
-  const accessToken = options.apiToken ?? authenticator.user.token;
+
+  const tokenInfo = (options.apiToken ? {
+    accessToken: options.apiToken,
+    tokenType: 'ApiKey'
+  } : authenticator.user.tokenInfo) as TokenInfo;
 
   if (useRemoteExplicit && useLocalExplicit) { // Remote or local or fail
     const results = await Promise.allSettled([
-      getRemotePolicyForProject(projectSlug, accessToken!),
+      getRemotePolicyForProject(projectSlug, tokenInfo!),
       getLocalPolicy(configPath)
     ]);
 
@@ -86,17 +91,17 @@ export async function getConfig(
   }
 
   if (useRemoteExplicit) { // Remote or fail
-    return getRemotePolicyForProject(projectSlug, accessToken!);
+    return getRemotePolicyForProject(projectSlug, tokenInfo!);
   }
 
   if (useLocalExplicit) { // Local or fail
     return getLocalPolicy(configPath);
   }
 
-  return getPolicyImplicit(path, configPath, accessToken!);
+  return getPolicyImplicit(path, configPath, tokenInfo!);
 }
 
-export async function getRemotePolicyForProject(slug: string, token: string): Promise<ConfigData> {
+export async function getRemotePolicyForProject(slug: string, token: TokenInfo): Promise<ConfigData> {
   const synchronizer = synchronizerGetter.synchronizer;
   const policyData = await synchronizer.synchronize({ slug }, token);
   const parentProject = await synchronizer.getProjectInfo({ slug }, token);
@@ -114,7 +119,7 @@ export async function getRemotePolicyForProject(slug: string, token: string): Pr
   };
 }
 
-export async function getRemotePolicyForPath(path: string, token: string): Promise<ConfigData> {
+export async function getRemotePolicyForPath(path: string, token: TokenInfo): Promise<ConfigData> {
   const synchronizer = synchronizerGetter.synchronizer;
   const policyData = await synchronizer.synchronize(path, token);
   const parentProject = await synchronizer.getProjectInfo(path, token);
@@ -147,12 +152,12 @@ export async function getLocalPolicy(configPath: string): Promise<ConfigData> {
   }
 }
 
-export async function getPolicyImplicit(path: string, configPath: string, accessToken: string): Promise<ConfigData> {
+export async function getPolicyImplicit(path: string, configPath: string, token: TokenInfo): Promise<ConfigData> {
   const isStdin = isStdinLike(path);
 
-  if (accessToken && !isStdin) {
+  if (token?.accessToken?.length && !isStdin) {
     try {
-      const remoteConfig = await getRemotePolicyForPath(path, accessToken);
+      const remoteConfig = await getRemotePolicyForPath(path, token);
       return remoteConfig;
     } catch (err) {
       console.error(err);

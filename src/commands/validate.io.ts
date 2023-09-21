@@ -12,6 +12,10 @@ import { ValidationResponseBreakdown } from "../utils/getValidationResponseBreak
 
 export const success = () => `${S.success} All resources are valid.`;
 
+export const error = (err: string) => `
+Error running validate command: ${C.red(err)}.
+`;
+
 export const displayInventory = (allResources: Resource[]) => {
   const box = new Screen();
 
@@ -65,15 +69,15 @@ export const failure = (response: ValidationResponse, breakdown: ValidationRespo
       const icon = item.result.level === "error" ? S.error : S.warning;
       const rule = getRuleForResultV2(response.runs[item.run], item.result);
       let message = item.result.message.text;
-      let namespace = color(`[${icon} ${rule.name}]`) 
-      
+      let namespace = color(`[${icon} ${rule.name}]`)
+
       let line = `${namespace} ${message}`
       if(isProblemSuppressed) {
         line = C.strikethrough(`${namespace} ${message}`)
         line += ` (Suppressed)`
         line = C.dim(line)
-      } 
-    
+      }
+
       lines.push(line);
     }
 
@@ -90,14 +94,14 @@ export const failure = (response: ValidationResponse, breakdown: ValidationRespo
 
   const { problems, errors, suppressions } = breakdown
   const icon = errors > 0 ? S.error : S.warning;
-  
+
   let text = ` ${problems ? icon : S.success} ${problems || 'No'} misconfiguration${problems === 1 ? '' : 's'} found.`
   if(problems) {
     text += ` (${errors} errors)`
   }
   if(suppressions && !showSuppressed) {
     text += C.dim(`\n   ${suppressions} problem${suppressions === 1 ? ' is' : 's are'} suppressed. Use ${C.cyan.bold('--show-suppressed')} to include them.`)
-  } 
+  }
 
   screen.line(
     showBox ?

@@ -7,13 +7,14 @@ import glob from "tiny-glob";
 import { command } from "../utils/command.js";
 import { print } from "../utils/screens.js";
 import { isStdinLike, streamToPromise } from "../utils/stdin.js";
-import { displayInventory, failure, success, configInfo } from "./validate.io.js";
+import { displayInventory, failure, success, configInfo, error } from "./validate.io.js";
 import { getConfig } from "../utils/config.js";
 import { Framework } from "../frameworks/index.js";
 import { getSuppressions } from "../utils/suppressions.js";
 import { getValidationResponseBreakdown } from "../utils/getValidationResponseBreakdown.js";
 import { getFingerprintSuppressions } from "../utils/getFingerprintSuppression.js";
 import { ApiSuppression } from "@monokle/synchronizer";
+import { verifyApiFlags } from "../utils/flags.js";
 
 type Options = {
   input: string;
@@ -86,13 +87,20 @@ export const validate = command<Options>({
       return;
     }
 
+    try {
+      verifyApiFlags(apiToken, project);
+    } catch (err: any) {
+      print(error(err.message));
+      return;
+    }
+
     if (inventory) {
       print(displayInventory(resources));
     }
 
     const configPath = config ?? 'monokle.validation.yaml';
     const isDefaultConfigPath = config === undefined;
-    
+
     const parser = new ResourceParser();
     const validator = createDefaultMonokleValidator();
     const [configData, suppressionsData] = await Promise.all([
