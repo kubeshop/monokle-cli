@@ -3,7 +3,8 @@ import { command } from "../utils/command.js";
 import { print } from "../utils/screens.js";
 import { Framework } from "../frameworks/index.js";
 import { getConfig } from "../utils/config.js";
-import { configInfo, configYaml } from "./config.io.js";
+import { configInfo, configYaml, error } from "./config.io.js";
+import { verifyApiFlags } from "../utils/flags.js";
 
 type Options = {
   action: string;
@@ -48,6 +49,13 @@ export const config = command<Options>({
       .positional("path", { type: "string", demandOption: true });
   },
   async handler({ _action, path, output, config, project, framework, apiToken }) {
+    try {
+      verifyApiFlags(apiToken, project);
+    } catch (err: any) {
+      print(error(err.message));
+      return;
+    }
+
     const configPath = config ?? 'monokle.validation.yaml';
     const isDefaultConfigPath = config === undefined;
     const usedConfig = await getConfig(path, configPath, project, framework, { isDefaultConfigPath, apiToken });

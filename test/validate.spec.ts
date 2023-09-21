@@ -1,5 +1,5 @@
 import { it, expect, afterEach } from 'vitest';
-import { describe, getRemoteLikeEnvStubber } from './setup.js';
+import { describe, getRemoteLikeEnvStubber, getRemoteLikeApiKeyEnvStubber } from './setup.js';
 
 describe('Validate command', (runCommand) => {
   let stubber: ReturnType<typeof getRemoteLikeEnvStubber>;
@@ -58,11 +58,11 @@ describe('Validate command', (runCommand) => {
     expect(result.output).toContain('test/assets/single-bad-resource.yaml');
   });
 
-  it('can validate resources with remote config with -p flag', async () => {
-    stubber = getRemoteLikeEnvStubber();
+  it('can validate resources with remote config with -p, -t flag', async () => {
+    stubber = getRemoteLikeApiKeyEnvStubber();
     stubber.stub();
 
-    const result = await runCommand('validate ./test/assets/single-bad-resource.yaml -p test-project');
+    const result = await runCommand('validate ./test/assets/single-bad-resource.yaml -p test-project -t sample-token');
 
     expect(result.err).toBe(null);
     expect(result.output).toContain('Validated 1 resources using remote policy');
@@ -70,11 +70,11 @@ describe('Validate command', (runCommand) => {
     expect(result.output).toContain('test/assets/single-bad-resource.yaml');
   });
 
-  it('can validate resources with remote or local config when -p and -c flags passed (remote)', async () => {
-    stubber = getRemoteLikeEnvStubber();
+  it('can validate resources with remote or local config when -p, -t and -c flags passed (remote)', async () => {
+    stubber = getRemoteLikeApiKeyEnvStubber();
     stubber.stub();
 
-    const result = await runCommand('validate ./test/assets/single-bad-resource.yaml --project test-project --config ./monokle.full-validation.yaml');
+    const result = await runCommand('validate ./test/assets/single-bad-resource.yaml --project test-project --api-token sample-token --config ./monokle.full-validation.yaml');
 
     expect(result.err).toBe(null);
     expect(result.output).toContain('Validated 1 resources using remote policy');
@@ -82,11 +82,11 @@ describe('Validate command', (runCommand) => {
     expect(result.output).toContain('test/assets/single-bad-resource.yaml');
   });
 
-  it('can validate resources with remote or local config when -p and -c flags passed (local)', async () => {
-    stubber = getRemoteLikeEnvStubber(true);
+  it('can validate resources with remote or local config when -p, -t and -c flags passed (local)', async () => {
+    stubber = getRemoteLikeApiKeyEnvStubber(true);
     stubber.stub();
 
-    const result = await runCommand('validate ./test/assets/single-bad-resource.yaml -p test-project -c ./monokle.full-validation.yaml');
+    const result = await runCommand('validate ./test/assets/single-bad-resource.yaml -p test-project -t sample-token -c ./monokle.full-validation.yaml');
 
     expect(result.err).toBe(null);
     expect(result.output).toContain('Validated 1 resources using local policy');
@@ -94,11 +94,25 @@ describe('Validate command', (runCommand) => {
     expect(result.output).toContain('test/assets/single-bad-resource.yaml');
   });
 
-  it('throws on -p and no project', async () => {
+  it('warns on -p and no token flag', async () => {
+    const result = await runCommand('validate ./test/assets/single-bad-resource.yaml -p non-existent');
+
+    expect(result.err).toBe(null);
+    expect(result.output).toContain('API token (-t) is required');
+  });
+
+  it('warns on -t and no project flag', async () => {
+    const result = await runCommand('validate ./test/assets/single-bad-resource.yaml -t sample-token');
+
+    expect(result.err).toBe(null);
+    expect(result.output).toContain('Project slug (-p) is required');
+  });
+
+  it('throws on -p -t and no project', async () => {
     stubber = getRemoteLikeEnvStubber(true);
     stubber.stub();
 
-    const result = await runCommand('validate ./test/assets/single-bad-resource.yaml -p non-existent');
+    const result = await runCommand('validate ./test/assets/single-bad-resource.yaml -p non-existent -t fake-token');
 
     expect(result.err.message).toContain('Error when synchronizing policy');
   });
@@ -110,11 +124,11 @@ describe('Validate command', (runCommand) => {
   });
 
 
-  it('throws on -p -c and no project and file', async () => {
+  it('throws on -p -t -c and no project and file', async () => {
     stubber = getRemoteLikeEnvStubber(true);
     stubber.stub();
 
-    const result = await runCommand('validate ./test/assets/single-bad-resource.yaml -p test-project -c non-existent.yaml');
+    const result = await runCommand('validate ./test/assets/single-bad-resource.yaml -p test-project -t sample-token -c non-existent.yaml');
 
     expect(result.err.message).toContain('Error when reading policy');
   });

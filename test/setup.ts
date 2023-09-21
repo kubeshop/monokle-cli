@@ -83,6 +83,10 @@ export function getRemoteLikeEnvStubber(throwsOnSynchronize = false) {
       email: 'testuser@kubeshop.io',
       isAuthenticated: true,
       token: 'test-token',
+      tokenInfo: {
+        accessToken: 'test-token',
+        tokenType: 'Bearer',
+      },
     };
 
     const synchronizeStub = sinon.stub(synchronizer, 'synchronize').callsFake(async () => {
@@ -112,6 +116,47 @@ export function getRemoteLikeEnvStubber(throwsOnSynchronize = false) {
 
   const restore = () => {
     (authenticatorGetter.authenticator as any)._user = userOrig;
+    stubs.forEach((stub) => stub.restore());
+  }
+
+  return {
+    stub,
+    restore,
+  };
+}
+
+export function getRemoteLikeApiKeyEnvStubber(throwsOnSynchronize = false) {
+  const synchronizer = synchronizerGetter.synchronizer;
+
+  const stubs: sinon.SinonStub[] = [];
+
+  const stub = () => {
+    const synchronizeStub = sinon.stub(synchronizer, 'synchronize').callsFake(async () => {
+      if (throwsOnSynchronize) {
+        throw new Error('Error when synchronizing policy...');
+      }
+
+      return {
+        valid: true,
+        path: 'some/fake/path',
+        policy: {
+          plugins: {
+            'yaml-syntax': true,
+            'open-policy-agent': true
+          }
+        }
+      };
+    });
+    stubs.push(synchronizeStub);
+
+    const getProjectInfoStub = sinon.stub(synchronizer, 'getProjectInfo').resolves({
+      name: 'Test Project',
+      slug: 'test-project',
+    });
+    stubs.push(getProjectInfoStub);
+  };
+
+  const restore = () => {
     stubs.forEach((stub) => stub.restore());
   }
 

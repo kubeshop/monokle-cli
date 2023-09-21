@@ -3,6 +3,10 @@ import { C, Screen } from "../utils/screens.js";
 import { ConfigData } from "../utils/config.js";
 import { Document } from "yaml";
 
+export const error = (err: string) => `
+Error running config command: ${C.red(err)}.
+`;
+
 export const configInfo = (configData: ConfigData, configContent: Config, targetPath: string) => {
   let configInfo = '';
 
