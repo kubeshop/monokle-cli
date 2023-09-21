@@ -65,7 +65,7 @@
   },
   "dependencies": {
     "@monokle/parser": "0.2.0",
-    "@monokle/synchronizer": "0.9.0",
+    "@monokle/synchronizer": "0.9.1",
     "@monokle/types": "0.2.2",
     "@monokle/validation": "0.30.0",
     "abortcontroller-polyfill": "1.7.5",
