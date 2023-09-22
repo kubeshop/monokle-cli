@@ -1,5 +1,16 @@
 # @monokle/cli
 
+## 0.6.0
+
+### Minor Changes
+
+- Introduced support for suppressions. Suppression are now shown in `validate` command output when `--show-suppressed` (`-s`) flag is passed.
+
+### Patch Changes
+
+- Fixed Automation token broken authorization flow - [#25](https://github.com/kubeshop/monokle-cli/issues/25).
+- Fixed Helm template files parsing which resulted in warnings cluttering commands output - [#24](https://github.com/kubeshop/monokle-cli/issues/24).
+
 ## 0.5.1
 
 ### Patch Changes
