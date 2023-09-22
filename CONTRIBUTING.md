@@ -36,9 +36,49 @@ kustomize build kustomize-happy-cms/overlays/local | monokle validate -
 note: Development on Windows might need some adjustments.
 note: Programmatic tests should be added in the future.
 
-## Manual publication
+## Releasing
 
-_note: ideally you use changeset to release this. These steps are as a backup._
+Most of the release process is done automatically through GitHub CI. However it requires few manual steps:
+
+0. As a prerequisite, update `CHANGELOG.md` file with release info and push to `master` branch.
+
+1. Make sure you are on `master` branch and have latest changes and no local modifications:
+
+```bash
+git checkout master
+git fetch --all
+git reset --hard origin/master
+```
+
+2. Run `npm version [patch|minor|major]` to bump package version and push (`master` and tag) to remote:
+
+```bash
+npm version patch
+git push origin master
+git push origin vA.B.C
+```
+
+_Creating tag triggers release process (see `release.yml` workflow file)_.
+
+3. Publish to NPM:
+
+_This is not automated for now and needs to be done manually_.
+
+```bash
+npm i && npm build
+npm publish --access public --dry-run # Always good to dry-run first
+npm publish --access public
+```
+
+You can verify the release by:
+
+* Looking on the [package NPM page](https://www.npmjs.com/package/@monokle/cli) to see if latest release is there.
+* Checking if [Monokle CLI brew](https://github.com/kubeshop/homebrew-monokle) repository was updated.
+
+---
+### Manual publication
+
+**IMPORTANT: These steps are just as a backup. You should use automated releasing process!**
 
 First bump the version manually in package.json.
 
