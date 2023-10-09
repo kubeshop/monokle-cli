@@ -9,6 +9,7 @@ import { isDefined } from "../utils/isDefined.js";
 import { promptForFrameworks, promptForKubernetesVersion, promptForOverwrite, success } from './init.io.js';
 import { Framework, getFrameworkConfig } from "../frameworks/index.js";
 import defaultConfig from "../utils/defaultConfig.js";
+import {FailedPrecondition} from "../errors.js";
 
 type Options = {
   version?: string;
@@ -45,7 +46,7 @@ export const init = command<Options>({
     const hasConfig = existsSync(configPath);
 
     if (hasConfig && !interactive && !overwrite) {
-      throw `Config file already exists in ${configPath}. Use --overwrite flag to overwrite it.`
+      throw new FailedPrecondition(`Config file already exists in ${configPath}. Use --overwrite flag to force this.`)
     }
 
     try {

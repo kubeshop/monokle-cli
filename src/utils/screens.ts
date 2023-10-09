@@ -12,5 +12,5 @@ export const S = logSymbols;
 export const C = chalk;
 export const B = boxen;
 
-export const failure = (msg: string) => `${C.bgRed(C.black(" failure "))} ${C.red(msg)}`;
+export const failure = (msg: string, name = "failure") => `${C.bgRed(C.black(name))} ${C.red(msg)}`;
 export const warningInfo = (msg: string) => `${C.bgYellow(C.black(" info "))} ${C.yellow(msg)}`;

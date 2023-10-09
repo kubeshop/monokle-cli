@@ -16,6 +16,7 @@ export class NotFound extends ExtendableError {
         super(identifier ? `No such ${object}, received '${identifier}'` : `No ${object} found`);
     }
 }
+export class FailedPrecondition extends ExtendableError {}
 
 export function handleFailure(err: unknown, debug: boolean) {
     if (!(err instanceof Error)) {
@@ -45,6 +46,10 @@ export function displayError(err: Error) {
         }
         case InvalidArgument.name: {
             print(failure(err.message));
+            return;
+        }
+        case FailedPrecondition.name: {
+            print(failure(err.message, "precondition"));
             return;
         }
         case NotFound.name: {
