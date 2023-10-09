@@ -4,7 +4,7 @@ import { print } from "../utils/screens.js";
 import { Framework } from "../frameworks/index.js";
 import { getConfig } from "../utils/config.js";
 import { configInfo, configYaml, error } from "./config.io.js";
-import { verifyApiFlags } from "../utils/flags.js";
+import { assertApiFlags } from "../utils/flags.js";
 
 type Options = {
   action: string;
@@ -50,7 +50,7 @@ export const config = command<Options>({
   },
   async handler({ _action, path, output, config, project, framework, apiToken }) {
     try {
-      verifyApiFlags(apiToken, project);
+      assertApiFlags(apiToken, project);
     } catch (err: any) {
       print(error(err.message));
       return;

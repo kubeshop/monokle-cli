@@ -1,4 +1,4 @@
-import {print} from "./utils/screens.js";
+import {failure, print, warningInfo} from "./utils/screens.js";
 import {authenticatorGetter} from "./utils/authenticator.js";
 
 export abstract class ExtendableError extends Error {
@@ -10,6 +10,12 @@ export abstract class ExtendableError extends Error {
 
 export class Unauthenticated extends ExtendableError {}
 export class AlreadyAuthenticated extends ExtendableError {}
+export class InvalidArgument extends ExtendableError {}
+export class NotFound extends ExtendableError {
+    constructor(object: string, identifier: string | undefined, public level: "error" | "warning" = "error") {
+        super(identifier ? `No such ${object}, received '${identifier}'` : `No ${object} found`);
+    }
+}
 
 export function handleFailure(err: unknown, debug: boolean) {
     if (!(err instanceof Error)) {
@@ -34,7 +40,20 @@ export function displayError(err: Error) {
         }
         case AlreadyAuthenticated.name: {
             const authenticator = authenticatorGetter.authenticator;
-            print(`You are already authenticated as ${authenticator.user.email!}.`)
+            print(warningInfo(`You are already authenticated as ${authenticator.user.email!}.`))
+            return;
+        }
+        case InvalidArgument.name: {
+            print(failure(err.message));
+            return;
+        }
+        case NotFound.name: {
+            const level = err instanceof NotFound ? err.level : "error";
+            if (level === "error") {
+                print(failure(err.message));
+            } else {
+                print(warningInfo(err.message));
+            }
             return;
         }
         default: {

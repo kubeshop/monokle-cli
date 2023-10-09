@@ -7,14 +7,15 @@ import glob from "tiny-glob";
 import { command } from "../utils/command.js";
 import { print } from "../utils/screens.js";
 import { isStdinLike, streamToPromise } from "../utils/stdin.js";
-import { displayInventory, failure, success, configInfo, error } from "./validate.io.js";
+import { displayInventory, failure, success, configInfo } from "./validate.io.js";
 import { getConfig } from "../utils/config.js";
 import { Framework } from "../frameworks/index.js";
 import { getSuppressions } from "../utils/suppressions.js";
 import { getValidationResponseBreakdown } from "../utils/getValidationResponseBreakdown.js";
 import { getFingerprintSuppressions } from "../utils/getFingerprintSuppression.js";
 import { ApiSuppression } from "@monokle/synchronizer";
-import { verifyApiFlags } from "../utils/flags.js";
+import { assertApiFlags } from "../utils/flags.js";
+import {InvalidArgument, NotFound} from "../errors.js";
 
 type Options = {
   input: string;
@@ -82,17 +83,12 @@ export const validate = command<Options>({
   async handler({ input, output, project, config, inventory, framework, apiToken, failOnWarnings, showSuppressed }) {
     const files = await readFiles(input);
     const resources = extractK8sResources(files);
+
     if( resources.length === 0 ){
-      print( "No YAML resources found");
-      return;
+      throw new NotFound("YAML objects", undefined, "warning");
     }
 
-    try {
-      verifyApiFlags(apiToken, project);
-    } catch (err: any) {
-      print(error(err.message));
-      return;
-    }
+    assertApiFlags(apiToken, project);
 
     if (inventory) {
       print(displayInventory(resources));
@@ -120,26 +116,27 @@ export const validate = command<Options>({
       files.map((f) => f.path)
     );
     const response = await validator.validate({ resources });
-    const breakdown = getValidationResponseBreakdown(response)
 
-    const { problems, errors  } = breakdown
-    if (output === "pretty") {
-      print(configInfo(configData, resources.length ));
-
-      if (breakdown.problems || breakdown.suppressions) {
-        print(failure(response, breakdown, showSuppressed));
-      } else {
-        print(success());
-      }
-    } else {
-      print( "Validated " + resources.length + " resource" + (resources.length > 1 ? "s" : "" ));
+    if (output === "sarif") {
       print(JSON.stringify(response, null, 2));
+      return; // It should only show the JSON so that it can be piped to a file or another command.
     }
 
+    const breakdown = getValidationResponseBreakdown(response)
+
+    print(configInfo(configData, resources.length ));
+
+    if (breakdown.problems || breakdown.suppressions) {
+      print(failure(response, breakdown, showSuppressed));
+    } else {
+      print(success());
+    }
+
+    const { problems, errors  } = breakdown
     if(failOnWarnings && problems > 0){
-      throw `Validation failed with ${problems} problem${problems === 1 ? '' : 's'}`;
+      process.exit(1);
     } else if (errors > 0){
-      throw `Validation failed with ${errors} error${errors === 1 ? '' : 's'}`;
+      process.exit(1);
     }
   },
 });
@@ -151,14 +148,27 @@ async function readFiles(path: string): Promise<BaseFile[]> {
   } else if (isFileLike(path)) {
     const file = await readFile(path);
     return [file];
-  } else {
+  } else if (isDirectoryLike(path)) {
     return readDirectory(path);
+  } else {
+    throw new NotFound("File or directory", path);
   }
 }
 
 function isFileLike(path: string) {
-  return lstatSync(path).isFile();
+  try {
+    return lstatSync(path).isFile();
+  } catch {
+    return false
+  }
 }
+
+function isDirectoryLike(path: string) {
+  try {
+    return lstatSync(path).isDirectory();
+  } catch {
+    return false
+  }}
 
 async function readFile(path: string): Promise<BaseFile> {
   const content = await readFileFromFs(path, "utf8");

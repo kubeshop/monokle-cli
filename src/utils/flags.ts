@@ -1,12 +1,14 @@
-export function verifyApiFlags(apiToken: string | undefined, projectSlug: string | undefined) {
+import {InvalidArgument} from "../errors.js";
+
+export function assertApiFlags(apiToken: string | undefined, projectSlug: string | undefined) {
   const isApiTokenValid = apiToken && apiToken.length > 0;
   const isProjectSlugValid = projectSlug && projectSlug.length > 0;
 
   if (isApiTokenValid && !isProjectSlugValid) {
-    throw new Error('Project slug (-p) is required when using an API token flag');
+    throw new InvalidArgument('Project slug (-p) is required when using an API token (-t) flag');
   }
 
   if (!isApiTokenValid && isProjectSlugValid) {
-    throw new Error('API token (-t) is required when using a project flag');
+    throw new InvalidArgument('API token (-t) is required when using a project (-p) flag');
   }
 }
