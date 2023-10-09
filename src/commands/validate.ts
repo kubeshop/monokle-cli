@@ -25,7 +25,7 @@ type Options = {
   output: "pretty" | "sarif";
   framework?: Framework;
   'api-token'?: string;
-  failOnWarnings: boolean;
+  failOn: 'error' | 'warning' | 'never';
   'show-suppressed'?: boolean
 };
 
@@ -66,10 +66,11 @@ export const validate = command<Options>({
         description: "Monokle Cloud API token to fetch remote policy. It will be used instead of authenticated user credentials.",
         alias: "t",
       })
-      .option("failOnWarnings", {
+      .option("failOn", {
         type: "boolean",
-        description: "Fails the validation if there are warnings.",
-        default: false
+        choices: ["error", "warning", "never"] as const,
+        description: "Whether the process should exit with a non-zero code when a problem with given level is detected.",
+        default: "error" as const
       })
       .option("show-suppressed", {
         type: "boolean",
@@ -80,7 +81,7 @@ export const validate = command<Options>({
       .positional("input", { type: "string", description: "file/folder path or resource YAMLs via stdin", demandOption: true })
       .demandOption("input", "Path or stdin required for target resources");
   },
-  async handler({ input, output, project, config, inventory, framework, apiToken, failOnWarnings, showSuppressed }) {
+  async handler({ input, output, project, config, inventory, framework, apiToken, failOn, showSuppressed }) {
     const files = await readFiles(input);
     const resources = extractK8sResources(files);
 
@@ -133,9 +134,9 @@ export const validate = command<Options>({
     }
 
     const { problems, errors  } = breakdown
-    if(failOnWarnings && problems > 0){
+    if(failOn === 'warning' && errors > 0 || problems > 0){
       process.exit(1);
-    } else if (errors > 0){
+    } else if (failOn === 'error' && errors > 0){
       process.exit(1);
     }
   },
