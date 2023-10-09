@@ -2,15 +2,52 @@ import prompts from "prompts";
 import { C } from "../utils/screens.js";
 
 export const promptForKubernetesVersion = async () => {
+  const response = await fetch("https://plugins.monokle.com/schemas/catalog.json");
+
+  if (!response.ok) {
+    return promptForKubernetesVersionFallback();
+  }
+
+  const data: {versions: string[]} = await response.json();
+  const versions = data?.versions?.reverse();
+
+  if (!versions) {
+    return promptForKubernetesVersionFallback();
+  }
+
+  const mainVersion: string[] =  [...new Set(versions.map((v: string) => v.split(".").slice(0,2).join(".")))];
+  const kubernetesMainVersionSelect = await prompts({
+    type: 'select',
+    name: 'value',
+    message: 'Select your Kubernetes version',
+    choices: mainVersion.map((v: string) => v.split(".").slice(0,2).join(".")).map((v: string) => ({title: v, value: v })),
+    validate: (value: string) => value.length > 0 && value.trim().match(/v?\d\.\d\d\.\d+/g) ? true : 'Please enter a valid Kubernetes version (e.g. 1.27.1)'
+  });
+
+
+  const patchVersions: string[] = versions.filter(v => v.startsWith(kubernetesMainVersionSelect.value))
+  const kubernetesPatchVersionSelect = await prompts({
+    type: 'select',
+    name: 'value',
+    message: 'Select your Kubernetes patch version',
+    choices: patchVersions.map((v: string) => ({title: v, value: v })),
+    validate: (value: string) => value.length > 0 && value.trim().match(/v?\d\.\d\d\.\d+/g) ? true : 'Please enter a valid Kubernetes version (e.g. 1.27.1)'
+  });
+
+  return kubernetesPatchVersionSelect.value;
+};
+
+async function promptForKubernetesVersionFallback() {
   const kubernetesVersionSelect = await prompts({
     type: 'text',
     name: 'value',
-    message: 'Add your Kubernetes version (e.g. 1.27.1)',
-    validate: (value: string) => value.length > 0 && value.trim().match(/v?\d\.\d\d\.\d+/g) ? true : 'Please enter a valid Kubernetes version'
+    initial: "1.28.2",
+    message: 'Enter your Kubernetes version',
+    validate: (value: string) => value.length > 0 && value.trim().match(/v?\d\.\d\d\.\d+/g) ? true : 'Please enter a valid Kubernetes version (e.g. 1.27.1)'
   });
 
   return kubernetesVersionSelect.value;
-};
+}
 
 export const promptForFrameworks = async () => {
   const frameworkSelect = await prompts({
@@ -24,6 +61,7 @@ export const promptForFrameworks = async () => {
     ],
     min: 0,
     max: 3,
+    instructions: false,
     hint: '- Space to select. Return to submit.'
   });
 
