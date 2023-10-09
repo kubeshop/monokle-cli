@@ -7,7 +7,6 @@ import { configInfo, configYaml, error } from "./config.io.js";
 import { assertApiFlags } from "../utils/flags.js";
 
 type Options = {
-  action: string;
   path: string;
   output: "pretty" | "json" | "yaml";
   config?: string;
@@ -17,7 +16,7 @@ type Options = {
 };
 
 export const config = command<Options>({
-  command: "config [action] [path]",
+  command: "config [path]",
   describe: "Show current config",
   builder(args) {
     return args
@@ -45,16 +44,13 @@ export const config = command<Options>({
         description: "Monokle Cloud API token to fetch remote policy. It will be used instead of authenticated user credentials.",
         alias: "t",
       })
-      .positional("action", { choices: ["show"], demandOption: true })
-      .positional("path", { type: "string", demandOption: true });
+      .positional("path", {
+        type: "string",
+        default: "."
+      });
   },
-  async handler({ _action, path, output, config, project, framework, apiToken }) {
-    try {
-      assertApiFlags(apiToken, project);
-    } catch (err: any) {
-      print(error(err.message));
-      return;
-    }
+  async handler({ path, output, config, project, framework, apiToken }) {
+    assertApiFlags(apiToken, project);
 
     const configPath = config ?? 'monokle.validation.yaml';
     const isDefaultConfigPath = config === undefined;

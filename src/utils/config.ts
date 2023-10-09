@@ -34,7 +34,7 @@ export type ConfigData = {
  *
  * @param path Path to be validated.
  * @param configPath Path to config file.
- * @param project Monokle Cloud project slug to fetch config from.
+ * @param projectSlug Monokle Cloud project slug to fetch config from.
  * @param framework Framework to be used for validation.
  * @param options Additional options.
  * @returns Config data.

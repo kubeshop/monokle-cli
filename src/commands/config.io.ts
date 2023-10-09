@@ -27,7 +27,7 @@ export const configInfo = (configData: ConfigData, configContent: Config, target
 
   const screen = new Screen();
 
-  screen.line(`For ${targetPath} path, ${configInfo} will be used:`);
+  screen.line(`For ${targetPath === "." ? "current directory" : targetPath} path, ${configInfo} will be used:`);
   screen.line();
   screen.line(configYaml);
 
