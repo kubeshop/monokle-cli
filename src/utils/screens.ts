@@ -5,7 +5,7 @@ import clearUpstream from "clear";
 import { Strands } from "strands";
 
 export const Screen = Strands;
-export const print = console.log;
+export const print = (msg: string) => console.log(msg);
 export const clear = clearUpstream;
 
 export const S = logSymbols;

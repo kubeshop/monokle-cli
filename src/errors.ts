@@ -17,6 +17,7 @@ export class NotFound extends ExtendableError {
     }
 }
 export class FailedPrecondition extends ExtendableError {}
+export class ValidationFailed extends ExtendableError {}
 
 export function handleFailure(err: unknown, debug: boolean) {
     if (!(err instanceof Error)) {
@@ -60,6 +61,9 @@ export function displayError(err: Error) {
                 print(warningInfo(err.message));
             }
             return;
+        }
+        case ValidationFailed.name: {
+            return; // We just want to exit with process.exit(1)
         }
         default: {
             print("Something unexpected happened, you can run with --debug for more details");

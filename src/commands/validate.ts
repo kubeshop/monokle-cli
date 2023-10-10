@@ -15,7 +15,7 @@ import { getValidationResponseBreakdown } from "../utils/getValidationResponseBr
 import { getFingerprintSuppressions } from "../utils/getFingerprintSuppression.js";
 import { ApiSuppression } from "@monokle/synchronizer";
 import { assertApiFlags } from "../utils/flags.js";
-import {InvalidArgument, NotFound} from "../errors.js";
+import {InvalidArgument, NotFound, ValidationFailed} from "../errors.js";
 
 type Options = {
   input: string;
@@ -25,7 +25,8 @@ type Options = {
   output: "pretty" | "sarif";
   framework?: Framework;
   'api-token'?: string;
-  failOn: 'error' | 'warning' | 'never';
+  'max-warnings': number;
+  force: boolean;
   'show-suppressed'?: boolean
 };
 
@@ -66,11 +67,15 @@ export const validate = command<Options>({
         description: "Monokle Cloud API token to fetch remote policy. It will be used instead of authenticated user credentials.",
         alias: "t",
       })
-      .option("failOn", {
+      .option("max-warnings", {
+        type: "number",
+        description: "return status code 1 when the amount of warnings is higher than the maximum.",
+        default: -1,
+      })
+      .option("force", {
         type: "boolean",
-        choices: ["error", "warning", "never"] as const,
-        description: "Whether the process should exit with a non-zero code when a problem with given level is detected.",
-        default: "error" as const
+        description: "return status code 0 even if there are warnings or errors.",
+        default: false,
       })
       .option("show-suppressed", {
         type: "boolean",
@@ -81,7 +86,7 @@ export const validate = command<Options>({
       .positional("input", { type: "string", description: "file/folder path or resource YAMLs via stdin", demandOption: true })
       .demandOption("input", "Path or stdin required for target resources");
   },
-  async handler({ input, output, project, config, inventory, framework, apiToken, failOn, showSuppressed }) {
+  async handler({ input, output, project, config, inventory, framework, apiToken, maxWarnings, force, showSuppressed }) {
     const files = await readFiles(input);
     const resources = extractK8sResources(files);
 
@@ -133,11 +138,11 @@ export const validate = command<Options>({
       print(success());
     }
 
-    const { problems, errors  } = breakdown
-    if(failOn === 'warning' && errors > 0 || problems > 0){
-      process.exit(1);
-    } else if (failOn === 'error' && errors > 0){
-      process.exit(1);
+    if (!force && breakdown.errors > 0)  {
+      throw new ValidationFailed();
+    }
+    if (!force && maxWarnings !== -1 && breakdown.problems > maxWarnings) {
+      throw new ValidationFailed();
     }
   },
 });

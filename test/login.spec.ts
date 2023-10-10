@@ -2,6 +2,7 @@ import { it, expect, afterEach } from 'vitest';
 import sinon from 'sinon';
 import { describe, getRemoteLikeEnvStubber } from './setup.js';
 import { authenticatorGetter } from '../src/utils/authenticator.js';
+import {AlreadyAuthenticated} from "../src/errors";
 
 describe('Login command', (runCommand) => {
   const stubs: sinon.SinonStub[] = [];
@@ -20,6 +21,6 @@ describe('Login command', (runCommand) => {
     const result = await runCommand('login');
 
     expect(result.err).not.toBe(null);
-    expect(result.err.message).toContain('Already authenticated');
+    expect(result.err instanceof AlreadyAuthenticated).toBeTruthy();
   });
 });
