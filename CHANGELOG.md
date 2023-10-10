@@ -10,6 +10,7 @@
 ### Patch Changes
 
 - Fixed `--output sarif` to include logs which prevents it to be piped to other commands.
+- Fixed `init` for with security frameworks due to incorrectly tree-shaken modules.
 
 ## 0.6.0
 

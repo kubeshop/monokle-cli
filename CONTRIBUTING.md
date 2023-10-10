@@ -65,7 +65,7 @@ _Creating tag triggers release process (see `release.yml` workflow file)_.
 _This is not automated for now and needs to be done manually_.
 
 ```bash
-npm i && npm build
+npm i && npm run build
 npm publish --access public --dry-run # Always good to dry-run first
 npm publish --access public
 ```
