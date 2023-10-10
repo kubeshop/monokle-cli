@@ -1,5 +1,6 @@
 import { it, expect, afterEach } from 'vitest';
 import { describe, getRemoteLikeEnvStubber, getRemoteLikeApiKeyEnvStubber } from './setup.js';
+import {InvalidArgument, ValidationFailed} from "../src/errors.js";
 
 describe('Validate command', (runCommand) => {
   let stubber: ReturnType<typeof getRemoteLikeEnvStubber>;
@@ -11,14 +12,14 @@ describe('Validate command', (runCommand) => {
   it('can validate single resource file', async () => {
     const result = await runCommand('validate ./test/assets/single-bad-resource.yaml');
 
-    expect(result.err).toBe('Validation failed with 3 errors');
+    expect(result.err instanceof ValidationFailed).toBe(true);
     expect(result.output).toContain('12 misconfigurations found. (3 errors)');
     expect(result.output).toContain('test/assets/single-bad-resource.yaml');
   });
 
   it('can validate resources in a folder', async () => {
     const result = await runCommand('validate ./test/assets');
-    expect(result.err).toBe('Validation failed with 6 errors');
+    expect(result.err instanceof ValidationFailed).toBe(true);
     expect(result.output).toContain('26 misconfigurations found. (6 errors)');
     expect(result.output).toContain('test/assets/multiple-bad-resources.yaml');
     expect(result.output).toContain('test/assets/single-bad-resource.yaml');
@@ -97,15 +98,13 @@ describe('Validate command', (runCommand) => {
   it('warns on -p and no token flag', async () => {
     const result = await runCommand('validate ./test/assets/single-bad-resource.yaml -p non-existent');
 
-    expect(result.err).toBe(null);
-    expect(result.output).toContain('API token (-t) is required');
+    expect(result.err instanceof InvalidArgument).toBe(true);
   });
 
   it('warns on -t and no project flag', async () => {
     const result = await runCommand('validate ./test/assets/single-bad-resource.yaml -t sample-token');
 
-    expect(result.err).toBe(null);
-    expect(result.output).toContain('Project slug (-p) is required');
+    expect(result.err instanceof InvalidArgument).toBe(true);
   });
 
   it('throws on -p -t and no project', async () => {

@@ -1,4 +1,5 @@
 import { authenticatorGetter } from "./authenticator.js";
+import {AlreadyAuthenticated, Unauthenticated} from "../errors.js";
 
 export function isAuthenticated() {
   return authenticatorGetter.authenticator.user.isAuthenticated;
@@ -6,12 +7,12 @@ export function isAuthenticated() {
 
 export function throwIfNotAuthenticated() {
   if (!isAuthenticated()) {
-    throw new Error("Not authenticated.");
+    throw new Unauthenticated();
   }
 }
 
 export function throwIfAuthenticated() {
   if (isAuthenticated()) {
-    throw new Error("Already authenticated.");
+    throw new AlreadyAuthenticated()
   }
 }

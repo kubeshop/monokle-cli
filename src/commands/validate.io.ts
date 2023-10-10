@@ -12,10 +12,6 @@ import { ValidationResponseBreakdown } from "../utils/getValidationResponseBreak
 
 export const success = () => `${S.success} All resources are valid.`;
 
-export const error = (err: string) => `
-Error running validate command: ${C.red(err)}.
-`;
-
 export const displayInventory = (allResources: Resource[]) => {
   const box = new Screen();
 

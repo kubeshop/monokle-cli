@@ -1,5 +1,6 @@
 import { it, expect, afterEach } from 'vitest';
 import { describe, getRemoteLikeEnvStubber } from './setup.js';
+import {Unauthenticated} from "../src/errors";
 
 describe('Logout command', (runCommand) => {
   let stubber: ReturnType<typeof getRemoteLikeEnvStubber>;
@@ -22,6 +23,6 @@ describe('Logout command', (runCommand) => {
     const result = await runCommand('logout');
 
     expect(result.err).not.toBe(null);
-    expect(result.err.message).toContain('Not authenticated');
+    expect(result.err instanceof Unauthenticated).toBeTruthy();
   });
 });
