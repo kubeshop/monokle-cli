@@ -160,7 +160,6 @@ export async function getPolicyImplicit(path: string, configPath: string, token:
       const remoteConfig = await getRemotePolicyForPath(path, token);
       return remoteConfig;
     } catch (err) {
-      console.error(err);
       // Ignore error since we fallback to local config.
     }
   }
