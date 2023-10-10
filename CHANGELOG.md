@@ -1,5 +1,16 @@
 # @monokle/cli
 
+## 0.7.0
+
+### Minor Changes
+
+- Improved automation usage by adding flags to change exit codes: `--force` and `--max-warnings`.
+- Improved error handling by displaying known problems prettier and hiding unexpected ones. Added a `--debug` flag to unveil the stack trace of errors.
+
+### Patch Changes
+
+- Fixed `--output sarif` to include logs which prevents it to be piped to other commands.
+
 ## 0.6.0
 
 ### Minor Changes
