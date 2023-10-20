@@ -192,7 +192,7 @@ async function readStdin(): Promise<BaseFile> {
 
   return {
     id: "stdin",
-    path: "stdin",
+    path: "stdin.yaml",
     content,
   };
 }
