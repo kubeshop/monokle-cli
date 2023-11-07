@@ -19,12 +19,12 @@ export class NotFound extends ExtendableError {
 export class FailedPrecondition extends ExtendableError {}
 export class ValidationFailed extends ExtendableError {}
 
-export function handleFailure(err: unknown, debug: boolean) {
+export function handleFailure(err: unknown, debug: boolean, commandName?: string) {
     if (!(err instanceof Error)) {
         return;
     }
 
-    displayError(err);
+    displayError(err, commandName);
 
     if (debug) {
         console.log();
@@ -34,7 +34,7 @@ export function handleFailure(err: unknown, debug: boolean) {
     process.exit(1)
 }
 
-export function displayError(err: Error) {
+export function displayError(err: Error, commandName?: string) {
     switch (err.name) {
         case Unauthenticated.name: {
             print("To get started with Monokle, please run: monokle login")
@@ -66,8 +66,18 @@ export function displayError(err: Error) {
             return; // We just want to exit with process.exit(1)
         }
         default: {
-            print("Something unexpected happened, you can run with --debug for more details");
+            print(getFriendlyErrorMessage(err, commandName) ?? "Something unexpected happened, you can run with --debug for more details");
             return;
         }
     }
+}
+
+function getFriendlyErrorMessage(err: Error, commandName?: string): string | undefined {
+    const errMsg = err.message.toLowerCase().trim();
+
+    if (errMsg.startsWith('not found') && (commandName === "validate" || commandName === "config")) {
+        return "Error communicating with Monokle Cloud. Seems like used project id may be invalid, please make sure it's correct.";
+    }
+
+    return undefined;
 }

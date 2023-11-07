@@ -34,7 +34,7 @@ export const cli = yargs(argv)
   })
   .fail((_, err) => {
       const debug = argv.includes("--debug");
-      handleFailure(err, debug);
+      handleFailure(err, debug, argv[0]);
   })
   .showHelpOnFail(false)
   .wrap(100);
