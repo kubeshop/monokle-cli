@@ -33,8 +33,8 @@ export const cli = yargs(argv)
       "Learn more at https://github.com/kubeshop/monokle-cli");
   })
   .fail((_, err) => {
-      const debug = argv.includes("--debug");
-      handleFailure(err, debug, argv[0]);
+    const debug = argv.includes("--debug");
+    handleFailure(err, debug, argv);
   })
   .showHelpOnFail(false)
   .wrap(100);
