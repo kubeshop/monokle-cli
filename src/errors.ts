@@ -66,18 +66,23 @@ export function displayError(err: Error, commandName?: string) {
             return; // We just want to exit with process.exit(1)
         }
         default: {
-            print(getFriendlyErrorMessage(err, commandName) ?? "Something unexpected happened, you can run with --debug for more details");
+            print(`${getFriendlyErrorMessage(err, commandName)} You can re-run with --debug for more details.`);
             return;
         }
     }
 }
 
-function getFriendlyErrorMessage(err: Error, commandName?: string): string | undefined {
+function getFriendlyErrorMessage(err: Error, commandName?: string): string {
     const errMsg = err.message.toLowerCase().trim();
 
-    if (errMsg.startsWith('not found') && (commandName === "validate" || commandName === "config")) {
-        return "Error communicating with Monokle Cloud. Seems like used project id may be invalid, please make sure it's correct.";
+    // Related to https://github.com/kubeshop/monokle-saas/issues/2173.
+    if (errMsg.includes('cannot read properties of null') && errMsg.includes('organizationid') && (commandName === "validate" || commandName === "config")) {
+        return 'Error communicating with Monokle Cloud. Please make sure you are using valid Automation Token.';
     }
 
-    return undefined;
+    if (errMsg.startsWith('not found') && (commandName === "validate" || commandName === "config")) {
+        return 'Error communicating with Monokle Cloud. Seems like used project id may be invalid, please make sure it is correct.';
+    }
+
+    return 'Something unexpected happened.';
 }
