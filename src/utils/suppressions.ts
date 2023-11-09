@@ -16,7 +16,8 @@ export type SuppressionsData = {
  */
 export async function getSuppressions(
   path: string,
-  apiToken: string | undefined
+  projectSlug: string | undefined,
+  apiToken: string | undefined,
 ) {
   const authenticator = authenticatorGetter.authenticator;
 
@@ -34,10 +35,9 @@ export async function getSuppressions(
   const synchronizer = synchronizerGetter.synchronizer
 
   try {
-    return { suppressions:  await synchronizer.getSuppressions(path, tokenInfo)}
+    return { suppressions: await synchronizer.getSuppressions({ path, ownerProjectSlug: projectSlug }, tokenInfo)}
   } catch (err){
     // continue with no suppressions
+    return { suppressions: [] }
   }
-  return { suppressions: [] }
-
 }

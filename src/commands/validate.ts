@@ -116,7 +116,7 @@ export const validate = command<Options>({
     const validator = createDefaultMonokleValidator();
     const [configData, suppressionsData] = await Promise.all([
       getConfig(input, configPath, project, framework, {isDefaultConfigPath, apiToken}),
-      getSuppressions(input, apiToken).catch(() => {
+      getSuppressions(input, project, apiToken).catch(() => {
         // continue with no suppressions
         return { suppressions: []} as { suppressions: ApiSuppression[]}
       })
