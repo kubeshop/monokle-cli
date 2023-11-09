@@ -2,6 +2,7 @@ import {  Suppression, } from "@monokle/validation";
 import { TokenInfo } from "@monokle/synchronizer";
 import { authenticatorGetter } from "./authenticator.js";
 import { synchronizerGetter } from "./synchronizer.js";
+import { setOrigin } from "./origin.js";
 
 export type SuppressionsData = {
   suppressions: Suppression[],
@@ -22,6 +23,8 @@ export async function getSuppressions(
   const authenticator = authenticatorGetter.authenticator;
 
   if (!apiToken && authenticator.user.isAuthenticated) {
+    // Reset origin when device flow was used, since this is not supported yet.
+    setOrigin(undefined);
     await authenticator.refreshToken();
   }
 
