@@ -5,6 +5,7 @@ import { Framework } from "../frameworks/index.js";
 import { getConfig } from "../utils/config.js";
 import { configInfo, configYaml, error } from "./config.io.js";
 import { assertApiFlags } from "../utils/flags.js";
+import { setOrigin } from "../utils/origin.js";
 
 type Options = {
   path: string;
@@ -13,6 +14,7 @@ type Options = {
   project?: string;
   framework?: Framework;
   'api-token'?: string;
+  origin?: string;
 };
 
 export const config = command<Options>({
@@ -44,13 +46,19 @@ export const config = command<Options>({
         description: "Monokle Cloud API token to fetch remote policy. It will be used instead of authenticated user credentials.",
         alias: "t",
       })
+      .option("origin", {
+        type: "string",
+        description: "Monokle remote instance URL. Defaults to Monokle Cloud SaaS.",
+        alias: "r",
+      })
       .positional("path", {
         type: "string",
         default: "."
       });
   },
-  async handler({ path, output, config, project, framework, apiToken }) {
+  async handler({ path, output, config, project, framework, apiToken, origin }) {
     assertApiFlags(apiToken, project);
+    setOrigin(origin);
 
     const configPath = config ?? 'monokle.validation.yaml';
     const isDefaultConfigPath = config === undefined;
