@@ -15,8 +15,9 @@ import { getValidationResponseBreakdown } from "../utils/getValidationResponseBr
 import { getFingerprintSuppressions } from "../utils/getFingerprintSuppression.js";
 import { ApiSuppression } from "@monokle/synchronizer";
 import { assertApiFlags } from "../utils/flags.js";
-import {InvalidArgument, NotFound, ValidationFailed} from "../errors.js";
+import { NotFound, ValidationFailed} from "../errors.js";
 import { setOrigin } from "../utils/origin.js";
+import { GitResourceMapper } from "../utils/gitResourcesMapper.js";
 
 type Options = {
   input: string;
@@ -124,25 +125,29 @@ export const validate = command<Options>({
     const suppressions = getFingerprintSuppressions(suppressionsData.suppressions)
     await validator.preload(configData?.config, suppressions);
 
+    const gitResourceMapper = new GitResourceMapper(resources);
+    const mappedResources = await gitResourceMapper.mapResourcePathsToRepoRootRelative();
+
     processRefs(
-      resources,
+      mappedResources,
       parser,
       undefined,
       files.map((f) => f.path)
     );
-    const response = await validator.validate({ resources });
+    const response = await validator.validate({ resources: mappedResources });
+    const mappedResponse = gitResourceMapper.restoreInitialResourcePaths(response);
 
     if (output === "sarif") {
-      print(JSON.stringify(response, null, 2));
+      print(JSON.stringify(mappedResponse, null, 2));
       return; // It should only show the JSON so that it can be piped to a file or another command.
     }
 
-    const breakdown = getValidationResponseBreakdown(response)
+    const breakdown = getValidationResponseBreakdown(mappedResponse)
 
-    print(configInfo(configData, resources.length ));
+    print(configInfo(configData, mappedResources.length ));
 
     if (breakdown.problems || breakdown.suppressions) {
-      print(failure(response, breakdown, showSuppressed));
+      print(failure(mappedResponse, breakdown, showSuppressed));
     } else {
       print(success());
     }
