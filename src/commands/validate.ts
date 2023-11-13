@@ -15,7 +15,9 @@ import { getValidationResponseBreakdown } from "../utils/getValidationResponseBr
 import { getFingerprintSuppressions } from "../utils/getFingerprintSuppression.js";
 import { ApiSuppression } from "@monokle/synchronizer";
 import { assertApiFlags } from "../utils/flags.js";
-import {InvalidArgument, NotFound, ValidationFailed} from "../errors.js";
+import { NotFound, ValidationFailed} from "../errors.js";
+import { setOrigin } from "../utils/origin.js";
+import { GitResourceMapper } from "../utils/gitResourcesMapper.js";
 
 type Options = {
   input: string;
@@ -27,7 +29,8 @@ type Options = {
   'api-token'?: string;
   'max-warnings': number;
   force: boolean;
-  'show-suppressed'?: boolean
+  'show-suppressed'?: boolean;
+  origin?: string;
 };
 
 export const validate = command<Options>({
@@ -83,10 +86,17 @@ export const validate = command<Options>({
         alias: "s",
         default: false
       })
+      .option("origin", {
+        type: "string",
+        description: "Monokle remote instance URL. Defaults to Monokle Cloud SaaS.",
+        alias: "r",
+      })
       .positional("input", { type: "string", description: "file/folder path or resource YAMLs via stdin", demandOption: true })
       .demandOption("input", "Path or stdin required for target resources");
   },
-  async handler({ input, output, project, config, inventory, framework, apiToken, maxWarnings, force, showSuppressed }) {
+  async handler({ input, output, project, config, inventory, framework, apiToken, maxWarnings, force, showSuppressed, origin }) {
+    setOrigin(origin);
+
     const files = await readFiles(input);
     const resources = extractK8sResources(files);
 
@@ -107,7 +117,7 @@ export const validate = command<Options>({
     const validator = createDefaultMonokleValidator();
     const [configData, suppressionsData] = await Promise.all([
       getConfig(input, configPath, project, framework, {isDefaultConfigPath, apiToken}),
-      getSuppressions(input, apiToken).catch(() => {
+      getSuppressions(input, project, apiToken).catch(() => {
         // continue with no suppressions
         return { suppressions: []} as { suppressions: ApiSuppression[]}
       })
@@ -115,25 +125,29 @@ export const validate = command<Options>({
     const suppressions = getFingerprintSuppressions(suppressionsData.suppressions)
     await validator.preload(configData?.config, suppressions);
 
+    const gitResourceMapper = new GitResourceMapper(resources);
+    const mappedResources = await gitResourceMapper.mapResourcePathsToRepoRootRelative();
+
     processRefs(
-      resources,
+      mappedResources,
       parser,
       undefined,
       files.map((f) => f.path)
     );
-    const response = await validator.validate({ resources });
+    const response = await validator.validate({ resources: mappedResources });
+    const mappedResponse = gitResourceMapper.restoreInitialResourcePaths(response);
 
     if (output === "sarif") {
-      print(JSON.stringify(response, null, 2));
+      print(JSON.stringify(mappedResponse, null, 2));
       return; // It should only show the JSON so that it can be piped to a file or another command.
     }
 
-    const breakdown = getValidationResponseBreakdown(response)
+    const breakdown = getValidationResponseBreakdown(mappedResponse)
 
-    print(configInfo(configData, resources.length ));
+    print(configInfo(configData, mappedResources.length ));
 
     if (breakdown.problems || breakdown.suppressions) {
-      print(failure(response, breakdown, showSuppressed));
+      print(failure(mappedResponse, breakdown, showSuppressed));
     } else {
       print(success());
     }

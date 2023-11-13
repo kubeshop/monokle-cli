@@ -5,6 +5,7 @@ import { synchronizerGetter } from "./synchronizer.js";
 import { resolve } from "path";
 import { Framework, getFrameworkConfig } from "../frameworks/index.js";
 import { isStdinLike } from "./stdin.js";
+import { setOrigin } from "./origin.js";
 
 export type ConfigData = {
   config: Config | undefined,
@@ -65,6 +66,8 @@ export async function getConfig(
 
   const authenticator = authenticatorGetter.authenticator;
   if (!options.apiToken && authenticator.user.isAuthenticated) {
+    // Reset origin when device flow was used, since this is not supported yet.
+    setOrigin(undefined);
     await authenticator.refreshToken();
   }
 
