@@ -6,18 +6,31 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
-  build_and_push:
-    runs-on: macos-latest
+  build_and_push_npm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - run: npm i
+      - run: npm run build
+      - uses: JS-DevTools/npm-publish@v3
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
 
+  build_and_push_gh_homebrew:
+    runs-on: macos-latest
+    needs: [build_and_push_npm]
 
     strategy:
       matrix:
-        node-version: [16.15.1]
+        node-version: [18]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
       - name: Install dependencies
@@ -26,7 +39,7 @@ jobs:
         run: npm run package
       - name: Build compressed archive files
         id: archive
-        run: | 
+        run: |
           cp dist/monokle-cli-macos-amd64 monokle
           tar -cvzf monokle-amd64.tar.gz monokle
           rm -f monokle
@@ -39,7 +52,6 @@ jobs:
           VERSION=$( echo ${{ github.ref }} | cut -d/ -f3 | cut -c2- )
           echo $VERSION
           echo "::set-output name=VERSION::$VERSION"
-          
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
@@ -59,7 +71,6 @@ jobs:
           asset_path: ./dist/monokle-cli-macos-amd64
           asset_name: monokle-cli-macos-amd64
           asset_content_type: application/octet-stream
-
       - name: Upload macOS arm binary to Release
         uses: actions/upload-release-asset@v1
         env:
@@ -116,10 +127,10 @@ jobs:
           sed -i.bak "s#ARM_URL#${{ steps.arm_file.outputs.browser_download_url }}#g" manifest/monokle-cli.rb
           sed -i.bak "s#AMD_SHA#${{ steps.archive.outputs.AMD_SHA }}#g" manifest/monokle-cli.rb
           sed -i.bak "s#ARM_SHA#${{ steps.archive.outputs.ARM_SHA }}#g" manifest/monokle-cli.rb
-          
+
           SHA=$(curl -s -H "Authorization: token $HOMEBREW_MONOKLE_TOKEN" https://api.github.com/repos/kubeshop/homebrew-monokle/contents/Formula/monokle-cli.rb\?ref\=main | jq -r .sha)
           CONTENT=$(base64 -i manifest/monokle-cli.rb)
-          
+
           curl -X PUT \
             -H "Authorization: token $HOMEBREW_MONOKLE_TOKEN" \
             -H "Content-Type: application/json" \

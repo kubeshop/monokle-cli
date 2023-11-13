@@ -40,8 +40,6 @@ note: Programmatic tests should be added in the future.
 
 Most of the release process is done automatically through GitHub CI. However it requires few manual steps:
 
-0. As a prerequisite, update `CHANGELOG.md` file with release info and push to `master` branch.
-
 1. Make sure you are on `master` branch and have latest changes and no local modifications:
 
 ```bash
@@ -50,7 +48,9 @@ git fetch --all
 git reset --hard origin/master
 ```
 
-2. Run `npm version [patch|minor|major]` to bump package version and push (`master` and tag) to remote:
+2. Update `CHANGELOG.md` file with release info (if needed) and push to `master` branch.
+
+3. Run `npm version [patch|minor|major]` to bump package version and push (`master` and tag) to remote:
 
 ```bash
 npm version patch
@@ -58,17 +58,8 @@ git push origin master
 git push origin vA.B.C
 ```
 
-_Creating tag triggers release process (see `release.yml` workflow file)_.
-
-3. Publish to NPM:
-
-_This is not automated for now and needs to be done manually_.
-
-```bash
-npm i && npm run build
-npm publish --access public --dry-run # Always good to dry-run first
-npm publish --access public
-```
+Pushing a tag to remote triggers release process (see `release.yml` workflow file), which publishes
+CLI to npm, homebrew and creates GitHub release.
 
 You can verify the release by:
 
