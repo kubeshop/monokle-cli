@@ -6,7 +6,8 @@ import { logout } from "./commands/logout.js";
 import { whoami } from "./commands/whoami.js";
 import { config } from "./commands/config.js";
 import { init } from "./commands/init.js";
-import {handleFailure} from "./errors.js";
+import { handleFailure } from "./errors.js";
+import { VERSION } from "./version.js";
 import fetch from "isomorphic-fetch";
 
 (global as any).fetch = fetch;
@@ -15,6 +16,7 @@ import "abortcontroller-polyfill/dist/polyfill-patch-fetch.js";
 const argv = hideBin(process.argv);
 export const cli = yargs(argv)
   .scriptName("monokle")
+  .version(VERSION)
   .parserConfiguration({
     "greedy-arrays": false,
   })

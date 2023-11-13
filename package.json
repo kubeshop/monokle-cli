@@ -22,7 +22,8 @@
     "build:3": "chmod +x ./build/main.js",
     "prepackage": "rimraf build cjs dist && npm run build && npm run rollup",
     "test": "vitest run --test-timeout=10000",
-    "test:watch": "vitest --test-timeout=10000"
+    "test:watch": "vitest --test-timeout=10000",
+    "version": "node ./scripts/bump.js && git add src/version.ts"
   },
   "files": [
     "build"
