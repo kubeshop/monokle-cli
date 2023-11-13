@@ -48,7 +48,7 @@ export const config = command<Options>({
       })
       .option("origin", {
         type: "string",
-        description: "Monokle remote instance URL. Defaults to Monokle Cloud SaaS.",
+        description: "Monokle remote instance URL. Defaults to Monokle Cloud's origin.",
         alias: "r",
       })
       .positional("path", {
