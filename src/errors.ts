@@ -81,11 +81,11 @@ function getFriendlyErrorMessage(err: Error, argv: string[]): string {
 
     // Related to https://github.com/kubeshop/monokle-saas/issues/2173.
     if (errMsg.includes('cannot read properties of null') && errMsg.includes('organizationid')) {
-        return 'Error communicating with Monokle Cloud. Please make sure you are using valid Automation Token.';
+        return 'Cannot connect to Monokle Cloud. You might be using an invalid Automation Token.';
     }
 
     if (errMsg.startsWith('not found')) {
-        return 'Error communicating with Monokle Cloud. Seems like used project id may be invalid, please make sure it is correct.';
+        return 'Cannot connect to Monokle Cloud. You might be using an invalid project identifier.';
     }
 
     return 'Something unexpected happened.';
