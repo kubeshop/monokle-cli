@@ -1,5 +1,22 @@
 # @monokle/cli
 
+## 0.7.3
+
+### Minor Changes
+
+- Improved error messages when invalid Automation Token or Project Id passed to `validate` or `config` command.
+
+### Patch Changes
+
+- Fixed suppressions fetching from Monokle Cloud.
+- Fixed `--version` command when CLI installed with brew.
+
+## 0.7.1, 0.7.2
+
+### Patch Changes
+
+- Minor bugfixes and polishing.
+
 ## 0.7.0
 
 ### Minor Changes
