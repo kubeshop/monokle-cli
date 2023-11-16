@@ -2,7 +2,7 @@ import { authenticatorGetter } from "./authenticator.js";
 import {AlreadyAuthenticated, Unauthenticated} from "../errors.js";
 
 export function isAuthenticated() {
-  return authenticatorGetter.authenticator.user.isAuthenticated;
+  return Boolean(authenticatorGetter.authenticator?.user.isAuthenticated);
 }
 
 export function throwIfNotAuthenticated() {

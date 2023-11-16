@@ -5,7 +5,7 @@ import { Framework } from "../frameworks/index.js";
 import { getConfig } from "../utils/config.js";
 import { configInfo, configYaml, error } from "./config.io.js";
 import { assertApiFlags } from "../utils/flags.js";
-import { setOrigin } from "../utils/origin.js";
+import { settings } from "../utils/settings.js";
 
 type Options = {
   path: string;
@@ -58,7 +58,7 @@ export const config = command<Options>({
   },
   async handler({ path, output, config, project, framework, apiToken, origin }) {
     assertApiFlags(apiToken, project);
-    setOrigin(origin);
+    settings.origin = origin ?? '';
 
     const configPath = config ?? 'monokle.validation.yaml';
     const isDefaultConfigPath = config === undefined;

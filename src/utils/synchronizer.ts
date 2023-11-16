@@ -1,18 +1,22 @@
-import { ApiHandler, createDefaultMonokleSynchronizer, StorageHandlerPolicy, Synchronizer} from "@monokle/synchronizer";
-import { getOrigin } from "./origin.js";
+import { createDefaultMonokleSynchronizer, createMonokleSynchronizerFromOrigin, Synchronizer } from "@monokle/synchronizer";
+import { settings } from "./settings.js";
 
 // This class exists for test purposes to easily mock the synchronizer.
 // It also ensures singleton instance of the synchronizer is used.
 class SynchronizerGetter {
   private _synchronizer: Synchronizer | undefined = undefined;
 
-  get synchronizer(): Synchronizer {
+  async getInstance(): Promise<Synchronizer> {
     // Lazy create synchronizer so initial configuration (like origin) can be set by other parts of the code.
     if (!this._synchronizer) {
-      this._synchronizer = createDefaultMonokleSynchronizer(
-        new StorageHandlerPolicy(),
-        new ApiHandler(getOrigin())
-      );
+      const origin = settings.origin;
+
+      try {
+        this._synchronizer = origin?.length ? await createMonokleSynchronizerFromOrigin(origin) : await createDefaultMonokleSynchronizer();
+      } catch (err) {
+        // If we can't use given origin, it doesn't make sense to continue.
+        throw err;
+      }
     }
 
     return this._synchronizer;

@@ -2,7 +2,7 @@ import { it, expect, afterEach } from 'vitest';
 import { describe, getRemoteLikeEnvStubber } from './setup.js';
 
 describe('Config command', (runCommand) => {
-  let stubber: ReturnType<typeof getRemoteLikeEnvStubber>;
+  let stubber: Awaited<ReturnType<typeof getRemoteLikeEnvStubber>>;
 
   afterEach(() => {
     stubber?.restore();
@@ -35,7 +35,7 @@ describe('Config command', (runCommand) => {
   });
 
   it('shows info about remote config', async () => {
-    stubber = getRemoteLikeEnvStubber();
+    stubber = await getRemoteLikeEnvStubber();
     stubber.stub();
 
     const result = await runCommand('config show .');

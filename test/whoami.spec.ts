@@ -2,14 +2,14 @@ import { it, expect, afterEach } from 'vitest';
 import { describe, getRemoteLikeEnvStubber } from './setup.js';
 
 describe('Whoami command', (runCommand) => {
-  let stubber: ReturnType<typeof getRemoteLikeEnvStubber>;
+  let stubber: Awaited<ReturnType<typeof getRemoteLikeEnvStubber>>;
 
   afterEach(() => {
     stubber?.restore();
   });
 
   it('shows user info when authenticated', async () => {
-    stubber = getRemoteLikeEnvStubber();
+    stubber = await getRemoteLikeEnvStubber();
     stubber.stub();
 
     const result = await runCommand('whoami');

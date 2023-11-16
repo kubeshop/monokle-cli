@@ -5,7 +5,6 @@ import { synchronizerGetter } from "./synchronizer.js";
 import { resolve } from "path";
 import { Framework, getFrameworkConfig } from "../frameworks/index.js";
 import { isStdinLike } from "./stdin.js";
-import { setOrigin } from "./origin.js";
 
 export type ConfigData = {
   config: Config | undefined,
@@ -64,10 +63,8 @@ export async function getConfig(
   const useRemoteExplicit = !!projectSlug;
   const useLocalExplicit = !!configPath && !options.isDefaultConfigPath;
 
-  const authenticator = authenticatorGetter.authenticator;
+  const authenticator = await authenticatorGetter.getInstance();
   if (!options.apiToken && authenticator.user.isAuthenticated) {
-    // Reset origin when device flow was used, since this is not supported yet.
-    setOrigin(undefined);
     await authenticator.refreshToken();
   }
 
@@ -105,7 +102,7 @@ export async function getConfig(
 }
 
 export async function getRemotePolicyForProject(slug: string, token: TokenInfo): Promise<ConfigData> {
-  const synchronizer = synchronizerGetter.synchronizer;
+  const synchronizer = await synchronizerGetter.getInstance();
   const policyData = await synchronizer.synchronize({ slug }, token);
   const parentProject = await synchronizer.getProjectInfo({ slug }, token);
 
@@ -123,7 +120,7 @@ export async function getRemotePolicyForProject(slug: string, token: TokenInfo):
 }
 
 export async function getRemotePolicyForPath(path: string, token: TokenInfo): Promise<ConfigData> {
-  const synchronizer = synchronizerGetter.synchronizer;
+  const synchronizer = await synchronizerGetter.getInstance();
   const policyData = await synchronizer.synchronize(path, token);
   const parentProject = await synchronizer.getProjectInfo(path, token);
 

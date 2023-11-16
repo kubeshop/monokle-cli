@@ -5,6 +5,7 @@ import { command } from "../utils/command.js";
 import { throwIfAuthenticated } from "../utils/conditions.js";
 import { print } from "../utils/screens.js";
 import { isDefined } from "../utils/isDefined.js";
+import { settings } from '../utils/settings.js';
 
 type Options = {
   'api-token'?: string;
@@ -16,7 +17,7 @@ export const login = command<Options>({
   async handler() {
     throwIfAuthenticated();
 
-    const authenticator = authenticatorGetter.authenticator;
+    const authenticator = await authenticatorGetter.getInstance();
 
     try {
       const method = 'device code';
@@ -43,6 +44,8 @@ export const login = command<Options>({
       print(waiting);
 
       const user = await loginRequest.onDone;
+
+      await settings.persist();
 
       print(success(user.email!));
     } catch (err: any) {

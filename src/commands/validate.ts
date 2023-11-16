@@ -16,8 +16,8 @@ import { getFingerprintSuppressions } from "../utils/getFingerprintSuppression.j
 import { ApiSuppression } from "@monokle/synchronizer";
 import { assertApiFlags } from "../utils/flags.js";
 import { NotFound, ValidationFailed} from "../errors.js";
-import { setOrigin } from "../utils/origin.js";
 import { GitResourceMapper } from "../utils/gitResourcesMapper.js";
+import { settings } from "../utils/settings.js";
 
 type Options = {
   input: string;
@@ -88,14 +88,14 @@ export const validate = command<Options>({
       })
       .option("origin", {
         type: "string",
-        description: "Monokle remote instance URL. Defaults to Monokle Cloud SaaS.",
+        description: "Monokle remote web app instance URL. Defaults to Monokle Cloud SaaS.",
         alias: "r",
       })
       .positional("input", { type: "string", description: "file/folder path or resource YAMLs via stdin", demandOption: true })
       .demandOption("input", "Path or stdin required for target resources");
   },
   async handler({ input, output, project, config, inventory, framework, apiToken, maxWarnings, force, showSuppressed, origin }) {
-    setOrigin(origin);
+    settings.origin = origin ?? '';
 
     const files = await readFiles(input);
     const resources = extractK8sResources(files);

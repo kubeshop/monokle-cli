@@ -13,7 +13,7 @@ export const whoami = command<Options>({
     if (!isAuthenticated()) {
       print(error);
     } else {
-      const authenticator = authenticatorGetter.authenticator;
+      const authenticator = await authenticatorGetter.getInstance();
       print(success(authenticator.user.email!));
     }
   },

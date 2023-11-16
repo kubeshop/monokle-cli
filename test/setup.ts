@@ -71,15 +71,15 @@ export function describe(name: string, fn: (runCommand: RunCommandFn) => void) {
   });
 }
 
-export function getRemoteLikeEnvStubber(throwsOnSynchronize = false) {
-  const authenticator = authenticatorGetter.authenticator;
-  const synchronizer = synchronizerGetter.synchronizer;
+export async function getRemoteLikeEnvStubber(throwsOnSynchronize = false) {
+  const authenticator = await authenticatorGetter.getInstance();
+  const synchronizer = await synchronizerGetter.getInstance();
 
   const userOrig = authenticator.user;
   const stubs: sinon.SinonStub[] = [];
 
   const stub = () => {
-    (authenticatorGetter.authenticator as any)._user = {
+    (authenticator as any)._user = {
       email: 'testuser@kubeshop.io',
       isAuthenticated: true,
       token: 'test-token',
@@ -115,7 +115,7 @@ export function getRemoteLikeEnvStubber(throwsOnSynchronize = false) {
   };
 
   const restore = () => {
-    (authenticatorGetter.authenticator as any)._user = userOrig;
+    (authenticator as any)._user = userOrig;
     stubs.forEach((stub) => stub.restore());
   }
 
@@ -125,8 +125,8 @@ export function getRemoteLikeEnvStubber(throwsOnSynchronize = false) {
   };
 }
 
-export function getRemoteLikeApiKeyEnvStubber(throwsOnSynchronize = false) {
-  const synchronizer = synchronizerGetter.synchronizer;
+export async function getRemoteLikeApiKeyEnvStubber(throwsOnSynchronize = false) {
+  const synchronizer = await synchronizerGetter.getInstance();
 
   const stubs: sinon.SinonStub[] = [];
 

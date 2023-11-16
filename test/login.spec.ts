@@ -1,13 +1,12 @@
 import { it, expect, afterEach } from 'vitest';
 import sinon from 'sinon';
 import { describe, getRemoteLikeEnvStubber } from './setup.js';
-import { authenticatorGetter } from '../src/utils/authenticator.js';
-import {AlreadyAuthenticated} from "../src/errors";
+import { AlreadyAuthenticated } from "../src/errors";
 
 describe('Login command', (runCommand) => {
   const stubs: sinon.SinonStub[] = [];
 
-  let stubber: ReturnType<typeof getRemoteLikeEnvStubber>;
+  let stubber: Awaited<ReturnType<typeof getRemoteLikeEnvStubber>>;
 
   afterEach(() => {
     stubber?.restore();
@@ -15,7 +14,7 @@ describe('Login command', (runCommand) => {
   });
 
   it('throws error when already logged in', async () => {
-    stubber = getRemoteLikeEnvStubber();
+    stubber = await getRemoteLikeEnvStubber();
     stubber.stub();
 
     const result = await runCommand('login');
