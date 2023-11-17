@@ -1,6 +1,6 @@
 import open from 'open';
 import { authenticatorGetter } from "../utils/authenticator.js";
-import { promptForDeviceFlowInput, cancelled, error, success, urlInfo, waiting } from "./login.io.js";
+import { promptForDeviceFlowInput, cancelled, error, success, urlInfo, waiting, promptForOrigin, promptForOriginValue } from "./login.io.js";
 import { command } from "../utils/command.js";
 import { throwIfAuthenticated } from "../utils/conditions.js";
 import { print } from "../utils/screens.js";
@@ -27,9 +27,19 @@ export const login = command<Options>({
 
     await throwIfAuthenticated();
 
-    const authenticator = await authenticatorGetter.getInstance();
-
     try {
+      const originSetWithFlag = isDefined(origin);
+      if (!originSetWithFlag) {
+        const useCustomOrigin = await promptForOrigin();
+
+        if (useCustomOrigin) {
+          const customOrigin = await promptForOriginValue();
+          settings.origin = customOrigin;
+        }
+      }
+
+      const authenticator = await authenticatorGetter.getInstance(true);
+
       const method = 'device code';
       const loginRequest = await authenticator.login(method);
       const handle =  loginRequest.handle;

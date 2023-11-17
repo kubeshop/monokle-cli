@@ -1,6 +1,28 @@
 import prompts from "prompts";
 import { C } from "../utils/screens.js";
 
+export const promptForOrigin = async () => {
+  const ownOrigin = await prompts({
+    type: 'confirm',
+    name: 'value',
+    message: 'Would you like the use custom origin?',
+    initial: false
+  });
+
+  return Boolean(ownOrigin.value);
+};
+
+export const promptForOriginValue = async () => {
+  const originInput = await prompts({
+    type: 'text',
+    name: 'value',
+    message: 'Enter Monokle remote web app instance URL',
+    validate: (value: string) => value.length > 0 ? true : 'Please enter a valid URL'
+  });
+
+  return originInput.value as string;
+};
+
 export const promptForDeviceFlowInput = async () => {
   const deviceFlowInput = await prompts({
     type: 'text',

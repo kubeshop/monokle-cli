@@ -12,7 +12,11 @@ class AuthenticatorGetter {
     return this._authenticator;
   }
 
-  async getInstance(): Promise<Authenticator> {
+  async getInstance(recreate = false): Promise<Authenticator> {
+    if (recreate) {
+      this._authenticator = undefined;
+    }
+
     // Lazy create synchronizer so initial configuration (like origin) can be set by other parts of the code.
     if (!this._authenticator) {
       const origin = settings.origin;
