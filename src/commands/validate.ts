@@ -14,10 +14,11 @@ import { getSuppressions } from "../utils/suppressions.js";
 import { getValidationResponseBreakdown } from "../utils/getValidationResponseBreakdown.js";
 import { getFingerprintSuppressions } from "../utils/getFingerprintSuppression.js";
 import { ApiSuppression } from "@monokle/synchronizer";
-import { assertApiFlags } from "../utils/flags.js";
+import { assertFlags } from "../utils/flags.js";
 import { NotFound, ValidationFailed} from "../errors.js";
 import { GitResourceMapper } from "../utils/gitResourcesMapper.js";
 import { settings } from "../utils/settings.js";
+import { isAuthenticated } from "../utils/conditions.js";
 
 type Options = {
   input: string;
@@ -95,8 +96,6 @@ export const validate = command<Options>({
       .demandOption("input", "Path or stdin required for target resources");
   },
   async handler({ input, output, project, config, inventory, framework, apiToken, maxWarnings, force, showSuppressed, origin }) {
-    settings.origin = origin ?? '';
-
     const files = await readFiles(input);
     const resources = extractK8sResources(files);
 
@@ -104,7 +103,23 @@ export const validate = command<Options>({
       throw new NotFound("YAML objects", undefined, "warning");
     }
 
-    assertApiFlags(apiToken, project);
+    // When --origin flag is passed we need api token, which indicates we need project flag too.
+    // All 3 still can be used when user is logged in, then we just use provided origin and api token to talk to API.
+    assertFlags({
+      'api-token': apiToken,
+      project,
+      origin
+    });
+
+    settings.origin = origin ?? '';
+
+    // When user is logged in and MONOKLE_ORIGIN env points to different origin (e.g. it was changed after user logged in)
+    // inform user about it and ignore origin from env var.
+    if ((await isAuthenticated()) && process.env.MONOKLE_ORIGIN !== settings.getAuthenticatedOrigin()) {
+      print('MONOKLE_ORIGIN environment variable is different than the one you are logged in with. Ignoring it.');
+      settings.origin = settings.getAuthenticatedOrigin();
+      // Maybe settigns.ignoreEnv() would be better here?
+    }
 
     if (inventory) {
       print(displayInventory(resources));

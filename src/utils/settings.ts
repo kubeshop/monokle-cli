@@ -30,6 +30,10 @@ export class StorageSettings extends StorageHandler<Settings> {
     this.currentData.origin = origin;
   }
 
+  getAuthenticatedOrigin() {
+    return this.initialData.origin || DEFAULT_ORIGIN;
+  }
+
   async persist() {
     await this.setStoreData({ ...this.initialData, ...this.currentData}, SETTINGS_FILE);
   }

@@ -12,3 +12,13 @@ export function assertApiFlags(apiToken: string | undefined, projectSlug: string
     throw new InvalidArgument('API token (-t) is required when using a project (-p) flag');
   }
 }
+
+export function assertFlags(flags: Record<string, string | undefined>) {
+  const missingFlags = Object.entries(flags)
+    .filter(([_flag, value]) => !value || value.length === 0)
+    .map(entry => entry[0]);
+
+  if (missingFlags.length > 0) {
+    throw new InvalidArgument(`Missing required flags: ${missingFlags.map(flag => `--${flag}`).join(', ')}`);
+  }
+}
