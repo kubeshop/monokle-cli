@@ -1,18 +1,18 @@
 import { authenticatorGetter } from "./authenticator.js";
 import {AlreadyAuthenticated, Unauthenticated} from "../errors.js";
 
-export function isAuthenticated() {
-  return Boolean(authenticatorGetter.authenticator?.user.isAuthenticated);
+export async function isAuthenticated() {
+  return Boolean((await authenticatorGetter.getInstance()).user.isAuthenticated);
 }
 
-export function throwIfNotAuthenticated() {
-  if (!isAuthenticated()) {
+export async function throwIfNotAuthenticated() {
+  if (!(await isAuthenticated())) {
     throw new Unauthenticated();
   }
 }
 
-export function throwIfAuthenticated() {
-  if (isAuthenticated()) {
+export async function throwIfAuthenticated() {
+  if ((await isAuthenticated())) {
     throw new AlreadyAuthenticated()
   }
 }

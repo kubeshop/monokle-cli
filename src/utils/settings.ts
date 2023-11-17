@@ -1,4 +1,4 @@
-import { StorageHandler, getDefaultStorageConfigPaths } from "@monokle/synchronizer";
+import { StorageHandler, getDefaultStorageConfigPaths, DEFAULT_ORIGIN } from "@monokle/synchronizer";
 
 const SETTINGS_FILE = 'cli.yaml';
 
@@ -16,7 +16,7 @@ export class StorageSettings extends StorageHandler<Settings> {
   }
 
   get origin() {
-    return this.currentData.origin || process.env.MONOKLE_ORIGIN || this.initialData.origin || '';
+    return this.currentData.origin || process.env.MONOKLE_ORIGIN || this.initialData.origin || DEFAULT_ORIGIN;
   }
 
   set origin(origin: string) {

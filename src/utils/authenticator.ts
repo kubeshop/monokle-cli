@@ -1,5 +1,7 @@
-import { createDefaultMonokleAuthenticator, createMonokleAuthenticatorFromOrigin, Authenticator } from "@monokle/synchronizer";
+import { createMonokleAuthenticatorFromOrigin, Authenticator } from "@monokle/synchronizer";
 import { settings } from "./settings.js";
+
+const AUTHENTICATOR_CLIENT_ID = 'mc-cli';
 
 // This class exists for test purposes to easily mock the authenticator.
 // It also ensures singleton instance of the authenticator is used.
@@ -16,7 +18,7 @@ class AuthenticatorGetter {
       const origin = settings.origin;
 
       try {
-        this._authenticator = origin?.length ? await createMonokleAuthenticatorFromOrigin(origin) : await createDefaultMonokleAuthenticator();
+        this._authenticator = await createMonokleAuthenticatorFromOrigin(AUTHENTICATOR_CLIENT_ID, origin || undefined);
       } catch (err) {
         // If we can't use given origin, it doesn't make sense to continue.
         throw err;

@@ -8,14 +8,24 @@ import { isDefined } from "../utils/isDefined.js";
 import { settings } from '../utils/settings.js';
 
 type Options = {
-  'api-token'?: string;
+  'origin'?: string;
 };
 
 export const login = command<Options>({
   command: "login",
   describe: "Login to Monokle Cloud",
-  async handler() {
-    throwIfAuthenticated();
+  builder(args) {
+    return args
+      .option("origin", {
+        type: "string",
+        description: "Monokle remote web app instance URL. Defaults to Monokle Cloud SaaS.",
+        alias: "r",
+      })
+  },
+  async handler({ origin }) {
+    settings.origin = origin ?? '';
+
+    await throwIfAuthenticated();
 
     const authenticator = await authenticatorGetter.getInstance();
 

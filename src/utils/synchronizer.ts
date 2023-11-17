@@ -1,4 +1,4 @@
-import { createDefaultMonokleSynchronizer, createMonokleSynchronizerFromOrigin, Synchronizer } from "@monokle/synchronizer";
+import { createMonokleSynchronizerFromOrigin, Synchronizer } from "@monokle/synchronizer";
 import { settings } from "./settings.js";
 
 // This class exists for test purposes to easily mock the synchronizer.
@@ -12,7 +12,7 @@ class SynchronizerGetter {
       const origin = settings.origin;
 
       try {
-        this._synchronizer = origin?.length ? await createMonokleSynchronizerFromOrigin(origin) : await createDefaultMonokleSynchronizer();
+        this._synchronizer = await createMonokleSynchronizerFromOrigin(origin || undefined);
       } catch (err) {
         // If we can't use given origin, it doesn't make sense to continue.
         throw err;
