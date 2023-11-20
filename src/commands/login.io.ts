@@ -3,9 +3,13 @@ import { C } from "../utils/screens.js";
 
 export const promptForOrigin = async () => {
   const ownOrigin = await prompts({
-    type: 'confirm',
+    type: 'select',
     name: 'value',
-    message: 'Would you like the use custom origin?',
+    message: 'What account do you want to log into?',
+    choices: [
+      { title: 'Monokle Cloud', value: false },
+      { title: 'Monokle Enterprise', value: true },
+    ],
     initial: false
   });
 
@@ -16,7 +20,7 @@ export const promptForOriginValue = async () => {
   const originInput = await prompts({
     type: 'text',
     name: 'value',
-    message: 'Enter Monokle remote web app instance URL',
+    message: 'Enter Monokle Enterprise hostname:',
     validate: (value: string) => value.length > 0 ? true : 'Please enter a valid URL'
   });
 
