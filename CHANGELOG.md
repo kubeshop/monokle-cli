@@ -1,5 +1,12 @@
 # @monokle/cli
 
+## 0.8.0
+
+### Minor Changes
+
+- Improved `login` command to allow authenticating with Monokle Enterprise instances.
+- Introduced `--origin` flag allowing to authenticate and use policies from Monokle Enterprise instances.
+
 ## 0.7.3
 
 ### Minor Changes
