@@ -23,13 +23,13 @@ export const login = command<Options>({
       })
   },
   async handler({ origin }) {
-    settings.origin = origin ?? '';
+    settings.origin = origin ?? process.env.MONOKLE_ORIGIN ?? '';
 
     await throwIfAuthenticated();
 
     try {
-      const originSetWithFlag = isDefined(origin);
-      if (!originSetWithFlag) {
+      const originSetExternally = isDefined(origin);
+      if (!originSetExternally) {
         const useCustomOrigin = await promptForOrigin();
 
         if (useCustomOrigin) {

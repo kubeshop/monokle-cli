@@ -1,4 +1,4 @@
-import {  createDefaultMonokleValidator, isSuppressed, processRefs, ResourceParser, ValidationResult } from "@monokle/validation";
+import {  createDefaultMonokleValidator, processRefs, ResourceParser } from "@monokle/validation";
 import { extractK8sResources, BaseFile } from "@monokle/parser";
 import { lstatSync } from "fs";
 import { readFile as readFileFromFs } from "fs/promises";
@@ -18,7 +18,7 @@ import { assertFlags } from "../utils/flags.js";
 import { NotFound, ValidationFailed} from "../errors.js";
 import { GitResourceMapper } from "../utils/gitResourcesMapper.js";
 import { settings } from "../utils/settings.js";
-import { isAuthenticated } from "../utils/conditions.js";
+import { isDefined } from "../utils/isDefined.js";
 
 type Options = {
   input: string;
@@ -99,26 +99,23 @@ export const validate = command<Options>({
     const files = await readFiles(input);
     const resources = extractK8sResources(files);
 
-    if( resources.length === 0 ){
+    if (resources.length === 0) {
       throw new NotFound("YAML objects", undefined, "warning");
     }
 
-    // When --origin flag is passed we need api token, which indicates we need project flag too.
-    // All 3 still can be used when user is logged in, then we just use provided origin and api token to talk to API.
     assertFlags({
       'api-token': apiToken,
-      project,
-      origin
+      project
     });
 
-    settings.origin = origin ?? '';
+    if (isDefined(origin)) {
+      assertFlags({
+        'api-token': apiToken,
+        project,
+        origin: origin
+      });
 
-    // When user is logged in and MONOKLE_ORIGIN env points to different origin (e.g. it was changed after user logged in)
-    // inform user about it and ignore origin from env var.
-    if ((await isAuthenticated()) && process.env.MONOKLE_ORIGIN !== settings.getAuthenticatedOrigin()) {
-      print('MONOKLE_ORIGIN environment variable is different than the one you are logged in with. Ignoring it.');
-      settings.origin = settings.getAuthenticatedOrigin();
-      // Maybe settigns.ignoreEnv() would be better here?
+      settings.origin = origin;
     }
 
     if (inventory) {
