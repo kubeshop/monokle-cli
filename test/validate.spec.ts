@@ -3,7 +3,7 @@ import { describe, getRemoteLikeEnvStubber, getRemoteLikeApiKeyEnvStubber } from
 import {InvalidArgument, ValidationFailed} from "../src/errors.js";
 
 describe('Validate command', (runCommand) => {
-  let stubber: ReturnType<typeof getRemoteLikeEnvStubber>;
+  let stubber: Awaited<ReturnType<typeof getRemoteLikeEnvStubber>>;
 
   afterEach(() => {
     stubber?.restore();
@@ -48,7 +48,7 @@ describe('Validate command', (runCommand) => {
   });
 
   it('can validate resources with remote config', async () => {
-    stubber = getRemoteLikeEnvStubber();
+    stubber = await getRemoteLikeEnvStubber();
     stubber.stub();
 
     const result = await runCommand('validate ./test/assets/single-bad-resource.yaml');
@@ -60,7 +60,7 @@ describe('Validate command', (runCommand) => {
   });
 
   it('can validate resources with remote config with -p, -t flag', async () => {
-    stubber = getRemoteLikeApiKeyEnvStubber();
+    stubber = await getRemoteLikeApiKeyEnvStubber();
     stubber.stub();
 
     const result = await runCommand('validate ./test/assets/single-bad-resource.yaml -p test-project -t sample-token');
@@ -72,7 +72,7 @@ describe('Validate command', (runCommand) => {
   });
 
   it('can validate resources with remote or local config when -p, -t and -c flags passed (remote)', async () => {
-    stubber = getRemoteLikeApiKeyEnvStubber();
+    stubber = await getRemoteLikeApiKeyEnvStubber();
     stubber.stub();
 
     const result = await runCommand('validate ./test/assets/single-bad-resource.yaml --project test-project --api-token sample-token --config ./monokle.full-validation.yaml');
@@ -84,7 +84,7 @@ describe('Validate command', (runCommand) => {
   });
 
   it('can validate resources with remote or local config when -p, -t and -c flags passed (local)', async () => {
-    stubber = getRemoteLikeApiKeyEnvStubber(true);
+    stubber = await getRemoteLikeApiKeyEnvStubber(true);
     stubber.stub();
 
     const result = await runCommand('validate ./test/assets/single-bad-resource.yaml -p test-project -t sample-token -c ./monokle.full-validation.yaml');
@@ -108,7 +108,7 @@ describe('Validate command', (runCommand) => {
   });
 
   it('throws on -p -t and no project', async () => {
-    stubber = getRemoteLikeEnvStubber(true);
+    stubber = await getRemoteLikeEnvStubber(true);
     stubber.stub();
 
     const result = await runCommand('validate ./test/assets/single-bad-resource.yaml -p non-existent -t fake-token');
@@ -124,7 +124,7 @@ describe('Validate command', (runCommand) => {
 
 
   it('throws on -p -t -c and no project and file', async () => {
-    stubber = getRemoteLikeEnvStubber(true);
+    stubber = await getRemoteLikeEnvStubber(true);
     stubber.stub();
 
     const result = await runCommand('validate ./test/assets/single-bad-resource.yaml -p test-project -t sample-token -c non-existent.yaml');

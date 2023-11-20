@@ -42,7 +42,7 @@ export function displayError(err: Error, argv: string[]) {
         }
         case AlreadyAuthenticated.name: {
             const authenticator = authenticatorGetter.authenticator;
-            print(warningInfo(`You are already authenticated as ${authenticator.user.email!}.`))
+            print(warningInfo(`You are already authenticated as ${authenticator?.user.email!}.`))
             return;
         }
         case InvalidArgument.name: {

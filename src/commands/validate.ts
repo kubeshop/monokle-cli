@@ -1,4 +1,4 @@
-import {  createDefaultMonokleValidator, isSuppressed, processRefs, ResourceParser, ValidationResult } from "@monokle/validation";
+import {  createDefaultMonokleValidator, processRefs, ResourceParser } from "@monokle/validation";
 import { extractK8sResources, BaseFile } from "@monokle/parser";
 import { lstatSync } from "fs";
 import { readFile as readFileFromFs } from "fs/promises";
@@ -14,10 +14,11 @@ import { getSuppressions } from "../utils/suppressions.js";
 import { getValidationResponseBreakdown } from "../utils/getValidationResponseBreakdown.js";
 import { getFingerprintSuppressions } from "../utils/getFingerprintSuppression.js";
 import { ApiSuppression } from "@monokle/synchronizer";
-import { assertApiFlags } from "../utils/flags.js";
+import { assertFlags } from "../utils/flags.js";
 import { NotFound, ValidationFailed} from "../errors.js";
-import { setOrigin } from "../utils/origin.js";
 import { GitResourceMapper } from "../utils/gitResourcesMapper.js";
+import { settings } from "../utils/settings.js";
+import { isDefined } from "../utils/isDefined.js";
 
 type Options = {
   input: string;
@@ -88,23 +89,34 @@ export const validate = command<Options>({
       })
       .option("origin", {
         type: "string",
-        description: "Monokle remote instance URL. Defaults to Monokle Cloud SaaS.",
+        description: "Monokle remote web app instance URL. Defaults to Monokle Cloud SaaS.",
         alias: "r",
       })
       .positional("input", { type: "string", description: "file/folder path or resource YAMLs via stdin", demandOption: true })
       .demandOption("input", "Path or stdin required for target resources");
   },
   async handler({ input, output, project, config, inventory, framework, apiToken, maxWarnings, force, showSuppressed, origin }) {
-    setOrigin(origin);
-
     const files = await readFiles(input);
     const resources = extractK8sResources(files);
 
-    if( resources.length === 0 ){
+    if (resources.length === 0) {
       throw new NotFound("YAML objects", undefined, "warning");
     }
 
-    assertApiFlags(apiToken, project);
+    assertFlags({
+      'api-token': apiToken,
+      project
+    });
+
+    if (isDefined(origin)) {
+      assertFlags({
+        'api-token': apiToken,
+        project,
+        origin: origin
+      });
+
+      settings.origin = origin;
+    }
 
     if (inventory) {
       print(displayInventory(resources));

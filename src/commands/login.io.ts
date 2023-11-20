@@ -1,6 +1,32 @@
 import prompts from "prompts";
 import { C } from "../utils/screens.js";
 
+export const promptForOrigin = async () => {
+  const ownOrigin = await prompts({
+    type: 'select',
+    name: 'value',
+    message: 'What account do you want to log into?',
+    choices: [
+      { title: 'Monokle Cloud', value: false },
+      { title: 'Monokle Enterprise', value: true },
+    ],
+    initial: false
+  });
+
+  return Boolean(ownOrigin.value);
+};
+
+export const promptForOriginValue = async () => {
+  const originInput = await prompts({
+    type: 'text',
+    name: 'value',
+    message: 'Enter Monokle Enterprise hostname:',
+    validate: (value: string) => value.length > 0 ? true : 'Please enter a valid URL'
+  });
+
+  return originInput.value as string;
+};
+
 export const promptForDeviceFlowInput = async () => {
   const deviceFlowInput = await prompts({
     type: 'text',

@@ -3,14 +3,14 @@ import { describe, getRemoteLikeEnvStubber } from './setup.js';
 import {Unauthenticated} from "../src/errors";
 
 describe('Logout command', (runCommand) => {
-  let stubber: ReturnType<typeof getRemoteLikeEnvStubber>;
+  let stubber: Awaited<ReturnType<typeof getRemoteLikeEnvStubber>>;
 
   afterEach(() => {
     stubber?.restore();
   });
 
   it('logouts correctly', async () => {
-    stubber = getRemoteLikeEnvStubber();
+    stubber = await getRemoteLikeEnvStubber();
     stubber.stub();
 
     const result = await runCommand('logout');
