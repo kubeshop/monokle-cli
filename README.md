@@ -20,7 +20,7 @@ Monokle CLI is a command-line interface for static analysis of Kubernetes resour
 
 Use it to prevent misconfigurations within Kustomize, Helm or default Kubernetes resources. The output is available as a SARIF file which you can upload to GitHub CodeScan.
 
-Monokle CLI allows integration with [Monokle Cloud](https://app.monokle.com/) to manage and enforce validation policies centrally for all your repos and pipelines.
+Monokle CLI allows for integration with [Monokle Cloud](https://app.monokle.com/) and [Monokle Enterprise](https://monokle.io/) to manage and enforce validation policies centrally for all your repos and pipelines.
 
 You can read more about Monokle CLI features and entire Monokle Ecosystem in [announcement blog-post](https://monokle.io/blog/monokle-cli-flexible-kubernetes-yaml-validation).
 
@@ -38,6 +38,7 @@ You can read more about Monokle CLI features and entire Monokle Ecosystem in [an
   - [Frameworks](#frameworks)
   - [Generate SARIF analysis](#generate-sarif-analysis)
 - [Using with Monokle Cloud](#using-with-monokle-cloud)
+- [Using with Monokle Enterprise](#using-with-monokle-enterprise)
 - [Using on CI/CD pipelines](#using-on-cicd-pipelines)
 - [Monokle GitHub Bot](#monokle-github-bot)
 - [Configuration](#configuration)
@@ -66,8 +67,8 @@ Monokle CLI exposes following commands:
 
 * `monokle validate [path]` - validate Kubernetes resources in a given path.
 * `monokle init` - generate local configuration file.
-* `monokle login` - login to Monokle Cloud to use remote policy.
-* `monokle logout`- logout from Monokle Cloud.
+* `monokle login` - login to Monokle Cloud or Enterprise to use remote policy.
+* `monokle logout`- logout from Monokle Cloud or Enterprise.
 * `monokle whoami` - get information about currently authenticated user.
 * `monokle config show [path]` - show policy configuration file which will be used to validated given path.
 
@@ -203,15 +204,37 @@ The last step is policy setup. You can use policy wizard by going to `Policy` ta
 
 After the setup is done, you can run `monokle validate` command and it will use remote policy as long as you are logged in.
 
+## Using with Monokle Enterprise
+
+Using with Monokle Enterprise (self-hosted) is very similar to usage with Monokle Cloud. The main difference is the origin (URLs) with which Monokle CLI will communicate. This can be set on `login` or for each command separately (useful for automated scenarios).
+
+```bash
+monokle login --origin https://monokle.mydomain.com
+```
+
+> **IMPORTANT**: Env variable `MONOKLE_ORIGIN` can be also used to set origin for logging command. If neither is used, CLI will prompt whenever to use custom origin.
+
+For using `--origin` flag without logging in, please refer to [Using on CI/CD pipelines](#using-on-cicd-pipelines) section below.
+
 ## Using on CI/CD pipelines
 
 > We have dedicated [`Monokle GitHub Bot`](#monokle-github-bot) to integrate centralized policy management into GitHub CI/CD pipelines which gives tighter integration with Monokle Cloud than using CLI directly.
 
 To use Monokle CLI as part of CI/CD pipeline, it needs to be installed first and then simply run with `monokle validate path/to/resources`.
 
-The other case is using centrally managed policy from Monokle Cloud in such scenarios. Then, CLI needs to be authenticated first. For this there is a dedicated argument exposed by both `monokle validate` and `monokle login` command: `--api-token` (or `-t`). This allows to pass API token directly without using interactive login flow.
+The other case is using centrally managed policy from Monokle Cloud in such scenarios. In such, one should use Automation Token (which can be generated via `Automation token` tab in `Workspace` view) together with project id from which policy should be used:
 
-If you need to run single validation it should be enough to use `monokle validate path/to/resources -t YOUR_API_TOKEN`. However, for scenarios where multiple validations runs are required it might be more convenient to login first with `monokle login -t YOUR_API_TOKEN` and then simply run `monokle validate path/to/resources`.
+```bash
+monokle validate project/path -t YOUR_AUTOMATION_TOKEN -p PROJECT_ID
+```
+
+> Project id can be obtain on Project details page from URL `https://app.monokle.com/dashboard/projects/<projectId>`.
+
+You can also change origin which will be used to fetch policies from (e.g. when running your own instance of Monokle Enterprise):
+
+```bash
+monokle validate project/path -t YOUR_AUTOMATION_TOKEN -p PROJECT_ID -r https://monokle.mydomain.com
+```
 
 > **IMPORTANT**: Always remember to keep your API token as secret and pass it to CI/CD jobs the same way as other secrets.
 
@@ -234,8 +257,7 @@ You can use `--help` to access help information directly from the CLI.
 
 ### @monokle/validation rules
 
-The Monokle CLI looks for a Monokle Validation configuration file
-at `./monokle.validation.yaml`. You can change this by using the `--config` flag.
+The Monokle CLI looks for a Monokle Validation configuration file at `./monokle.validation.yaml`. You can change this by using the `--config` flag.
 
 All rules are enabled by default and are described in the [Monokle Validation configuration][monokle-validation-docs] documentation.
 
