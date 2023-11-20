@@ -28,7 +28,7 @@ export const login = command<Options>({
     await throwIfAuthenticated();
 
     try {
-      const originSetExternally = isDefined(origin);
+      const originSetExternally = isDefined(origin ?? process.env.MONOKLE_ORIGIN);
       if (!originSetExternally) {
         const useCustomOrigin = await promptForOrigin();
 
