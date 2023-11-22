@@ -7,6 +7,8 @@ import { configInfo, configYaml } from "./config.io.js";
 import { assertFlags } from "../utils/flags.js";
 import { settings } from "../utils/settings.js";
 import { isDefined } from "../utils/isDefined.js";
+import { isAuthenticated } from "../utils/conditions.js";
+import { InvalidArgument } from "../errors.js";
 
 type Options = {
   path: string;
@@ -58,10 +60,12 @@ export const config = command<Options>({
       });
   },
   async handler({ path, output, config, project, framework, apiToken, origin }) {
-    assertFlags({
-      'api-token': apiToken,
-      project
-    });
+    if (isDefined(apiToken)) {
+      assertFlags({
+        'api-token': apiToken,
+        project
+      });
+    }
 
     if (isDefined(origin)) {
       assertFlags({
@@ -71,6 +75,10 @@ export const config = command<Options>({
       });
 
       settings.origin = origin;
+    }
+
+    if (isDefined(project) && !(isDefined(apiToken) || (await isAuthenticated()))) {
+      throw new InvalidArgument("Using project flag requires being authenticated. Run 'monokle login' first.");
     }
 
     const configPath = config ?? 'monokle.validation.yaml';

@@ -15,10 +15,11 @@ import { getValidationResponseBreakdown } from "../utils/getValidationResponseBr
 import { getFingerprintSuppressions } from "../utils/getFingerprintSuppression.js";
 import { ApiSuppression } from "@monokle/synchronizer";
 import { assertFlags } from "../utils/flags.js";
-import { NotFound, ValidationFailed} from "../errors.js";
+import { InvalidArgument, NotFound, ValidationFailed} from "../errors.js";
 import { GitResourceMapper } from "../utils/gitResourcesMapper.js";
 import { settings } from "../utils/settings.js";
 import { isDefined } from "../utils/isDefined.js";
+import { isAuthenticated } from "../utils/conditions.js";
 
 type Options = {
   input: string;
@@ -96,17 +97,12 @@ export const validate = command<Options>({
       .demandOption("input", "Path or stdin required for target resources");
   },
   async handler({ input, output, project, config, inventory, framework, apiToken, maxWarnings, force, showSuppressed, origin }) {
-    const files = await readFiles(input);
-    const resources = extractK8sResources(files);
-
-    if (resources.length === 0) {
-      throw new NotFound("YAML objects", undefined, "warning");
+    if (isDefined(apiToken)) {
+      assertFlags({
+        'api-token': apiToken,
+        project
+      });
     }
-
-    assertFlags({
-      'api-token': apiToken,
-      project
-    });
 
     if (isDefined(origin)) {
       assertFlags({
@@ -116,6 +112,17 @@ export const validate = command<Options>({
       });
 
       settings.origin = origin;
+    }
+
+    if (isDefined(project) && !(isDefined(apiToken) || (await isAuthenticated()))) {
+      throw new InvalidArgument("Using project flag requires being authenticated. Run 'monokle login' first.");
+    }
+
+    const files = await readFiles(input);
+    const resources = extractK8sResources(files);
+
+    if (resources.length === 0) {
+      throw new NotFound("YAML objects", undefined, "warning");
     }
 
     if (inventory) {
