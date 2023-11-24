@@ -1,5 +1,11 @@
 # @monokle/cli
 
+## 0.8.1
+
+### Patch changes
+
+- It is not allowed to use `--project` flag without Automation Token when logged in.
+
 ## 0.8.0
 
 ### Minor Changes
