@@ -1,10 +1,14 @@
 # @monokle/cli
 
+## 0.8.2
+
+- Monokle CLI will use dynamic origin for Schemas Store to download resource schemas for validation with **Kubernetes Schema** plugin.
+
 ## 0.8.1
 
 ### Patch changes
 
-- It is not allowed to use `--project` flag without Automation Token when logged in.
+- It is now allowed to use `--project` flag without Automation Token when logged in.
 
 ## 0.8.0
 
