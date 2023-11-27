@@ -1,9 +1,11 @@
-import {  createDefaultMonokleValidator, processRefs, ResourceParser } from "@monokle/validation";
-import { extractK8sResources, BaseFile } from "@monokle/parser";
 import { lstatSync } from "fs";
 import { readFile as readFileFromFs } from "fs/promises";
 import chunkArray from "lodash/chunk.js";
 import glob from "tiny-glob";
+import { extractK8sResources, BaseFile } from "@monokle/parser";
+import { ResourceParser, processRefs } from "@monokle/validation";
+import { ApiSuppression } from "@monokle/synchronizer";
+import { validatorGetter } from "../utils/validator.js";
 import { command } from "../utils/command.js";
 import { print } from "../utils/screens.js";
 import { isStdinLike, streamToPromise } from "../utils/stdin.js";
@@ -13,7 +15,6 @@ import { Framework } from "../frameworks/index.js";
 import { getSuppressions } from "../utils/suppressions.js";
 import { getValidationResponseBreakdown } from "../utils/getValidationResponseBreakdown.js";
 import { getFingerprintSuppressions } from "../utils/getFingerprintSuppression.js";
-import { ApiSuppression } from "@monokle/synchronizer";
 import { assertFlags } from "../utils/flags.js";
 import { InvalidArgument, NotFound, ValidationFailed} from "../errors.js";
 import { GitResourceMapper } from "../utils/gitResourcesMapper.js";
@@ -133,7 +134,7 @@ export const validate = command<Options>({
     const isDefaultConfigPath = config === undefined;
 
     const parser = new ResourceParser();
-    const validator = createDefaultMonokleValidator();
+    const validator = await validatorGetter.getInstance();
     const [configData, suppressionsData] = await Promise.all([
       getConfig(input, configPath, project, framework, {isDefaultConfigPath, apiToken}),
       getSuppressions(input, project, apiToken).catch(() => {
