@@ -1,5 +1,12 @@
 # @monokle/cli
 
+## 0.8.3
+
+### Patch changes
+
+- Fixed origin URL normalization to use `https` as default protocol.
+- Improved error messaging related to failed origin configuration fetch attempts.
+
 ## 0.8.2
 
 - Monokle CLI will use dynamic origin for Schemas Store to download resource schemas for validation with **Kubernetes Schema** plugin.
