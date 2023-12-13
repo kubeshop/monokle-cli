@@ -1,5 +1,11 @@
 # @monokle/cli
 
+## 0.8.4
+
+### Patch changes
+
+- Fixed invalid YAMLs handling.
+
 ## 0.8.3
 
 ### Patch changes
