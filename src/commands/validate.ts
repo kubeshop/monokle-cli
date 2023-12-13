@@ -120,7 +120,7 @@ export const validate = command<Options>({
     }
 
     const files = await readFiles(input);
-    const resources = extractK8sResources(files);
+    const resources = extractK8sResources(files, false, true);
 
     if (resources.length === 0) {
       throw new NotFound("YAML objects", undefined, "warning");
