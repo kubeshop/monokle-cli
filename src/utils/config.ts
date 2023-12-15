@@ -2,9 +2,11 @@ import { Config, readConfig } from "@monokle/validation";
 import { TokenInfo } from '@monokle/synchronizer';
 import { authenticatorGetter } from "./authenticator.js";
 import { synchronizerGetter } from "./synchronizer.js";
+import { settings } from "../utils/settings.js";
 import { resolve } from "path";
 import { Framework, getFrameworkConfig } from "../frameworks/index.js";
 import { isStdinLike } from "./stdin.js";
+import { displayWarning } from "../errors.js";
 
 export type ConfigData = {
   config: Config | undefined,
@@ -63,19 +65,24 @@ export async function getConfig(
   const useRemoteExplicit = !!projectSlug;
   const useLocalExplicit = !!configPath && !options.isDefaultConfigPath;
 
-  const authenticator = await authenticatorGetter.getInstance();
-  if (!options.apiToken && authenticator.user.isAuthenticated) {
-    await authenticator.refreshToken();
+  let activeToken: undefined | TokenInfo = options.apiToken ? {accessToken: options.apiToken, tokenType: 'ApiKey'} : undefined;
+  if (!activeToken) {
+    try {
+      const authenticator = await authenticatorGetter.getInstance();
+      if (authenticator.user.isAuthenticated) {
+        await authenticator.refreshToken();
+      }
+      activeToken = authenticator.user.tokenInfo ?? undefined;
+    } catch (err: any) {
+      if (settings.debug) {
+        displayWarning(`Could not authenticate with given origin: ${settings.origin} to fetch remote policy. Error: ${err.message}.`);
+      }
+    }
   }
-
-  const tokenInfo = (options.apiToken ? {
-    accessToken: options.apiToken,
-    tokenType: 'ApiKey'
-  } : authenticator.user.tokenInfo) as TokenInfo;
 
   if (useRemoteExplicit && useLocalExplicit) { // Remote or local or fail
     const results = await Promise.allSettled([
-      getRemotePolicyForProject(projectSlug, tokenInfo!),
+      getRemotePolicyForProject(projectSlug, activeToken!),
       getLocalPolicy(configPath)
     ]);
 
@@ -91,14 +98,14 @@ export async function getConfig(
   }
 
   if (useRemoteExplicit) { // Remote or fail
-    return getRemotePolicyForProject(projectSlug, tokenInfo!);
+    return getRemotePolicyForProject(projectSlug, activeToken!);
   }
 
   if (useLocalExplicit) { // Local or fail
     return getLocalPolicy(configPath);
   }
 
-  return getPolicyImplicit(path, configPath, tokenInfo!);
+  return getPolicyImplicit(path, configPath, activeToken);
 }
 
 export async function getRemotePolicyForProject(slug: string, token: TokenInfo): Promise<ConfigData> {
@@ -152,7 +159,7 @@ export async function getLocalPolicy(configPath: string): Promise<ConfigData> {
   }
 }
 
-export async function getPolicyImplicit(path: string, configPath: string, token: TokenInfo): Promise<ConfigData> {
+export async function getPolicyImplicit(path: string, configPath: string, token?: TokenInfo): Promise<ConfigData> {
   const isStdin = isStdinLike(path);
 
   if (token?.accessToken?.length && !isStdin) {

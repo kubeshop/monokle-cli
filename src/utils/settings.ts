@@ -6,9 +6,14 @@ export type Settings = {
   origin?: string;
 };
 
+export type EphemeralSettings = {
+  debug?: boolean;
+};
+
 export class StorageSettings extends StorageHandler<Settings> {
   private currentData: Settings = {};
   private initialData: Settings = {};
+  private ephemeralData: EphemeralSettings = {};
 
   constructor() {
     super(getDefaultStorageConfigPaths().config);
@@ -25,6 +30,14 @@ export class StorageSettings extends StorageHandler<Settings> {
 
   set origin(origin: string) {
     this.currentData.origin = origin;
+  }
+
+  get debug() {
+    return this.ephemeralData.debug || false;
+  }
+
+  set debug(debug: boolean) {
+    this.ephemeralData.debug = debug;
   }
 
   async persist() {
