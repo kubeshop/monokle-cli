@@ -1,5 +1,6 @@
 import { createMonokleAuthenticatorFromOrigin, Authenticator } from "@monokle/synchronizer";
 import { settings } from "./settings.js";
+import { getClientConfig } from "./client-config.js";
 
 const AUTHENTICATOR_CLIENT_ID = 'mc-cli';
 
@@ -22,7 +23,7 @@ class AuthenticatorGetter {
       const origin = settings.origin;
 
       try {
-        this._authenticator = await createMonokleAuthenticatorFromOrigin(AUTHENTICATOR_CLIENT_ID, origin || undefined);
+        this._authenticator = await createMonokleAuthenticatorFromOrigin(AUTHENTICATOR_CLIENT_ID, getClientConfig(), origin || undefined);
       } catch (err) {
         // If we can't use given origin, it doesn't make sense to continue since it's not possible to authenticate then.
         throw err;
