@@ -1,5 +1,5 @@
 import os from "os";
-import { machineIdSync } from "node-machine-id";
+import nodeMachineId from "node-machine-id";
 import { VERSION } from "../version.js";
 
 const CLIENT_NAME = 'Monokle CLI';
@@ -10,7 +10,7 @@ export function getClientConfig() {
 		version: VERSION,
 		os: `${os.type()} ${os.release()}`,
 		additionalData: {
-			machineId: machineIdSync(),
+			machineId: nodeMachineId.machineIdSync(),
 		}
 	};
 }
