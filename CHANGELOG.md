@@ -1,5 +1,11 @@
 # @monokle/cli
 
+## 0.8.5
+
+### Patch changes
+
+- Fixed an issue when `validation` and `config` command will fail when origin config cannot be fetched even when intended to run using local policy.
+
 ## 0.8.4
 
 ### Patch changes
