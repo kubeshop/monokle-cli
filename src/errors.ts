@@ -72,6 +72,10 @@ export function displayError(err: Error, argv: string[]) {
     }
 }
 
+export function displayWarning(msg: string) {
+    print(warningInfo(msg));
+}
+
 function getFriendlyErrorMessage(err: Error, argv: string[]): string {
     if (!isApiTokenUsed(argv) || !isCloudCommand(argv)) {
         return 'Something unexpected happened.';

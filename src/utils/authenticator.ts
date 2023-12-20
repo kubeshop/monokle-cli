@@ -24,12 +24,20 @@ class AuthenticatorGetter {
       try {
         this._authenticator = await createMonokleAuthenticatorFromOrigin(AUTHENTICATOR_CLIENT_ID, origin || undefined);
       } catch (err) {
-        // If we can't use given origin, it doesn't make sense to continue.
+        // If we can't use given origin, it doesn't make sense to continue since it's not possible to authenticate then.
         throw err;
       }
     }
 
     return this._authenticator;
+  }
+
+  async getInstanceSafe(recreate = false): Promise<Authenticator | undefined> {
+    try {
+      return await this.getInstance(recreate);
+    } catch (err) {
+      return undefined;
+    }
   }
 }
 

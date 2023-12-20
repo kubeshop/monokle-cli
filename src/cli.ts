@@ -8,12 +8,17 @@ import { config } from "./commands/config.js";
 import { init } from "./commands/init.js";
 import { handleFailure } from "./errors.js";
 import { VERSION } from "./version.js";
+import { settings } from "./utils/settings.js";
 import fetch from "isomorphic-fetch";
 
 (global as any).fetch = fetch;
 import "abortcontroller-polyfill/dist/polyfill-patch-fetch.js";
 
 const argv = hideBin(process.argv);
+const debug = argv.includes("--debug");
+
+settings.debug = debug;
+
 export const cli = yargs(argv)
   .scriptName("monokle")
   .version(VERSION)
@@ -33,7 +38,6 @@ export const cli = yargs(argv)
       "Learn more at https://github.com/kubeshop/monokle-cli");
   })
   .fail((_, err) => {
-    const debug = argv.includes("--debug");
     handleFailure(err, debug, argv);
   })
   .showHelpOnFail(false)

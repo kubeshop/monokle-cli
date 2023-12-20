@@ -14,7 +14,7 @@ class SynchronizerGetter {
       try {
         this._synchronizer = await createMonokleSynchronizerFromOrigin(origin || undefined);
       } catch (err) {
-        // If we can't use given origin, it doesn't make sense to continue.
+        // If we can't use given origin, it doesn't make sense to continue since it's not possible to synchronize policies then.
         throw err;
       }
     }
