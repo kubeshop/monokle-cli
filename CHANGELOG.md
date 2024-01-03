@@ -1,5 +1,12 @@
 # @monokle/cli
 
+## 0.8.6
+
+### Patch changes
+
+- Updated dependencies.
+- Added `User-Agent` header for every Monokle API request sent.
+
 ## 0.8.5
 
 ### Patch changes
